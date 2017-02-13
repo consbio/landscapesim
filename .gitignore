@@ -1,0 +1,7 @@
+*.whl
+stsim-libs/
+stsimenv/
+manage.py
+django_syncrosim/
+db.sqlite3
+__pycache__/
