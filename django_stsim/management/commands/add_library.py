@@ -10,7 +10,7 @@ import os
 from shutil import copyfile
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django_stsim.models import Library, Project, Scenario
+from django_stsim.models import Library, Project, Scenario, Stratum, StateClass
 
 from django.conf import settings
 from stsimpy import STSimConsole
@@ -30,7 +30,9 @@ class Command(BaseCommand):
     def handle(self, name, file, *args, **options):
         file = file[0]
         name = name[0]
+
         orig_file = file.split('.ssim')[0] + '_orig.ssim'
+        tmp_file = file.split('.ssim')[0] + '_tmp.csv'
 
         if Library.objects.filter(file__iexact=file).exists():
             message = (
@@ -52,7 +54,11 @@ class Command(BaseCommand):
 
 
         with transaction.atomic():
-            library = Library.objects.create(name=name, file=file, orig_file=orig_file)
+            library = Library.objects.create(
+                name=name,
+                file=file,
+                orig_file=orig_file,
+                tmp_file=tmp_file)
 
 
         projects = console.list_projects()
@@ -90,4 +96,29 @@ class Command(BaseCommand):
                             is_result=True
                         )
 
+            # import strata
+            strata = console.export_vegtype_definitions(pid, tmp_file)
+            for stratum in strata.keys():
+                s = strata[stratum]
+                Stratum.objects.create(
+                    stratum_id=s['ID'],
+                    project=project,
+                    name=stratum,
+                    color=s['Color'],
+                    description=s['Description']
+                    )
+
+            # import stateclasses
+            stateclasses = console.export_stateclass_definitions(pid, tmp_file)
+            for sc in stateclasses.keys():
+                s = stateclasses[sc]
+                StateClass.objects.create(
+                    stateclass_id=s['ID'],
+                    project=project,
+                    name=sc,
+                    color=s['Color'],
+                    description=s['Description'],
+                    development=s['Development Stage'],
+                    structure=s['Structural Stage']
+                    )
 
