@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from django_stsim.views import LibraryViewset, ProjectViewset, ScenarioViewset,\
     StratumViewset, StateClassViewset, TransitionTypeViewset,\
-    TransitionGroupViewset, TransitionTypeGroupViewset, TransitionViewset
+    TransitionGroupViewset, TransitionTypeGroupViewset, TransitionViewset, StateClassSummaryReportViewset
 
 
 router = DefaultRouter()
@@ -16,6 +16,7 @@ router.register('transition-types', TransitionTypeViewset)
 router.register('transition-groups', TransitionGroupViewset)
 router.register('transition-type-groups', TransitionTypeGroupViewset)
 router.register('transitions', TransitionViewset)
+router.register('stateclass-summaries', StateClassSummaryReportViewset)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

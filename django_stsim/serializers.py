@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django_stsim.models import Library, Project, Scenario, Stratum, StateClass,\
-    TransitionType, TransitionGroup, TransitionTypeGroup, Transition
+    TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
+    StateClassSummaryReport, StateClassSummaryReportRow
 
 
 class LibrarySerializer(serializers.ModelSerializer):
@@ -76,6 +77,27 @@ class TransitionTypeGroupSerializer(serializers.ModelSerializer):
 
 
 class TransitionSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Transition
         fields = '__all__'
+
+
+class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    stratum = StratumSerializer(many=False, read_only=True)
+    stateclass = StateClassSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = StateClassSummaryReportRow
+        fields = ('iteration','timestep','stratum','stateclass',
+            'amount','proportion_of_landscape', 'proportion_of_stratum')
+
+class StateClassSummaryReportSerializer(serializers.ModelSerializer):
+
+    scenario = ScenarioSerializer(many=False, read_only=True)
+    stateclass_results = StateClassSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StateClassSummaryReport
+        fields = ('scenario','stateclass_results',)

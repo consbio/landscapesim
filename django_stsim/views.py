@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ParseError
 
-from django_stsim.models import Library, Project, Scenario, Stratum, StateClass
-from django_stsim.models import TransitionType, TransitionGroup, TransitionTypeGroup, Transition
+from django_stsim.models import Library, Project, Scenario, Stratum, StateClass, \
+ TransitionType, TransitionGroup, TransitionTypeGroup, Transition, StateClassSummaryReport
 from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
     StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
-    TransitionTypeGroupSerializer, TransitionSerializer
+    TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer
 
 from stsimpy import STSimConsole
 
@@ -111,3 +111,8 @@ class TransitionTypeGroupViewset(viewsets.ReadOnlyModelViewSet):
 class TransitionViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Transition.objects.all()
     serializer_class = TransitionSerializer
+
+
+class StateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = StateClassSummaryReport.objects.all()
+    serializer_class = StateClassSummaryReportSerializer
