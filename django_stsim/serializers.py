@@ -39,7 +39,8 @@ class ScenarioSerializer(serializers.ModelSerializer):
 
 class StratumSerializer(serializers.ModelSerializer):
 
-    project = serializers.HyperlinkedRelatedField(many=False, view_name='project-detail', read_only=True)
+    project = serializers.HyperlinkedRelatedField(
+        many=False, view_name='project-detail', read_only=True)
 
     class Meta:
         model = Stratum
@@ -48,11 +49,12 @@ class StratumSerializer(serializers.ModelSerializer):
 
 class StateClassSerializer(serializers.ModelSerializer):
 
-    project = serializers.HyperlinkedRelatedField(many=False, view_name='project-detail', read_only=True)
+    project = serializers.HyperlinkedRelatedField(
+        many=False, view_name='project-detail', read_only=True)
 
     class Meta:
         model = StateClass
-        fields = ('id', 'stateclass_id', 'color', 'development', 'structure', 'project',)
+        fields = ('id', 'stateclass_id', 'name', 'color', 'development', 'structure', 'project',)
 
 
 class TransitionTypeSerializer(serializers.ModelSerializer):
@@ -71,13 +73,37 @@ class TransitionGroupSerializer(serializers.ModelSerializer):
 
 class TransitionTypeGroupSerializer(serializers.ModelSerializer):
 
+    transition_type = TransitionTypeSerializer(read_only=True)
+    transition_group = TransitionGroupSerializer(read_only=True)
+
     class Meta:
         model = TransitionTypeGroup
         fields = ('transition_type', 'transition_group', 'is_primary')
 
 
+class ProjectDefinitionsSerializer(serializers.Serializer):
+    """
+        Special serializer for a one-stop-shop for collecting all
+        project definitions in one location
+    """
+
+    stateclasses = StateClassSerializer(many=True, read_only=True)
+    strata = StratumSerializer(many=True, read_only=True)
+    transition_types = TransitionTypeSerializer(many=True, read_only=True)
+    transition_groups = TransitionGroupSerializer(many=True, read_only=True)
+    transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
+            'transition_type_groups',)
+
+
 class TransitionSerializer(serializers.ModelSerializer):
     
+    stratum_src = StratumSerializer(many=False, read_only=True)
+    stateclass_src = StateClassSerializer(many=False, read_only=True)
+
     class Meta:
         model = Transition
         fields = '__all__'

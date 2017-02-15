@@ -64,8 +64,6 @@ class TransitionGroup(models.Model):
     project = models.ForeignKey('Project', related_name='transition_groups', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
-    transition_types = models.ManyToManyField(TransitionType)
-    # TODO - use the TransitionTypeGroup sheet to build the many to many relationship
 
 
 class TransitionTypeGroup(models.Model):
@@ -97,15 +95,12 @@ class StateClassSummaryReport(models.Model):
 
 
 class StateClassSummaryReportRow(models.Model):
-    """
-        Created when a stateclass-summary report is generated
-    """
 
     report = models.ForeignKey('StateClassSummaryReport', related_name='stateclass_results', on_delete=models.CASCADE)
     iteration = models.IntegerField()
     timestep = models.IntegerField()
     stratum = models.ForeignKey('Stratum', related_name='stratum')
-    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum')
+    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum', blank=True, null=True)
     stateclass = models.ForeignKey('StateClass')
     amount = models.FloatField()
     proportion_of_landscape = models.FloatField()

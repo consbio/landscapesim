@@ -8,6 +8,7 @@ from django_stsim.models import Library, Project, Scenario, Stratum, StateClass,
 from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
     StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
     TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer
+from django_stsim.serializers import ProjectDefinitionsSerializer
 
 from stsimpy import STSimConsole
 
@@ -25,18 +26,9 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
     def definitions(self, *args, **kwargs):
         project = self.get_object()
         context = {'request': self.request}
-        stateclasses = StateClassSerializer(StateClass.objects.filter(project=project), many=True, context=context).data
-        strata = StratumSerializer(Stratum.objects.filter(project=project), many=True, context=context).data
-        transition_types = TransitionTypeSerializer(TransitionType.objects.filter(project=project), many=True, context=context).data
-        transition_groups = TransitionGroupSerializer(TransitionGroup.objects.filter(project=project), many=True, context=context).data
-        transition_type_groups = TransitionTypeGroupSerializer(TransitionTypeGroup.objects.filter(project=project), many=True, context=context).data
-        return Response({
-            'state_classes': stateclasses,
-            'strata': strata,
-            'transition_types': transition_types,
-            'transition_groups': transition_groups,
-            'transition_type_groups': transition_type_groups
-        })
+        return Response(ProjectDefinitionsSerializer(
+            self.queryset.filter(pk=self.get_object().pk), many=True, context=context).data)
+
 
     @detail_route(methods=['get'])
     def scenarios(self, *args, **kwargs):
@@ -88,7 +80,7 @@ class TransitionTypeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransitionTypeSerializer
 
     @detail_route(methods=['get'])
-    def groups(self, *args, **kwargs):
+    def groups(self, *args, **kwargs):      # TODO - should this be just the TransitionGroups, and not TransitionTypeGroups?
         return Response(TransitionTypeGroupSerializer(
             TransitionTypeGroup.objects.filter(transition_type=self.get_object()), many=True).data)
 
@@ -98,7 +90,7 @@ class TransitionGroupViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransitionGroupSerializer
 
     @detail_route(methods=['get'])
-    def types(self, *args, **kwargs):
+    def types(self, *args, **kwargs):       # TODO - should this be just the TransitionTypes, and not TransitionTypeGroups?
         return Response(TransitionTypeGroupSerializer(
             TransitionTypeGroup.objects.filter(transition_group=self.get_object()), many=True).data)
 
@@ -116,3 +108,6 @@ class TransitionViewset(viewsets.ReadOnlyModelViewSet):
 class StateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = StateClassSummaryReport.objects.all()
     serializer_class = StateClassSummaryReportSerializer
+
+# TODO - Add TransitionSummaryReportViewset, TransitionByStateClassSummaryReportViewset
+#        and related serializers, urls, etc.
