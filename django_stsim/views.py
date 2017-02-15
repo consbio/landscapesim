@@ -1,10 +1,13 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.exceptions import ParseError
 
 from django_stsim.models import Library, Project, Scenario, Stratum, StateClass
-from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer
-from django_stsim.serializers import StratumSerializer, StateClassSerializer
+from django_stsim.models import TransitionType, TransitionGroup, TransitionTypeGroup, Transition
+from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
+    StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
+    TransitionTypeGroupSerializer, TransitionSerializer
 
 from stsimpy import STSimConsole
 
@@ -21,24 +24,38 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def definitions(self, *args, **kwargs):
         project = self.get_object()
-        lib = project.library
-        stateclasses = StateClassSerializer(StateClass.objects.filter(project=project), many=True).data
-        strata = StratumSerializer(Stratum.objects.filter(project=project), many=True).data
-        return Response({'state_classes':stateclasses,'strata':strata})
+        context = {'request': self.request}
+        stateclasses = StateClassSerializer(StateClass.objects.filter(project=project), many=True, context=context).data
+        strata = StratumSerializer(Stratum.objects.filter(project=project), many=True, context=context).data
+        transition_types = TransitionTypeSerializer(TransitionType.objects.filter(project=project), many=True, context=context).data
+        transition_groups = TransitionGroupSerializer(TransitionGroup.objects.filter(project=project), many=True, context=context).data
+        transition_type_groups = TransitionTypeGroupSerializer(TransitionTypeGroup.objects.filter(project=project), many=True, context=context).data
+        return Response({
+            'state_classes': stateclasses,
+            'strata': strata,
+            'transition_types': transition_types,
+            'transition_groups': transition_groups,
+            'transition_type_groups': transition_type_groups
+        })
+
+    @detail_route(methods=['get'])
+    def scenarios(self, *args, **kwargs):
+        return Response(ScenarioSerializer(Scenario.objects.filter(project=self.get_object()), many=True).data)
 
 
 class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Scenario.objects.all()
     serializer_class = ScenarioSerializer
-    filter_fields = ('results_only',)
 
     @detail_route(methods=['get'])
     def project(self, *args, **kwargs):
-        return Response({'pid':self.get_object().project.pid})
+        context = {'request': self.request}
+        return Response(ProjectSerializer(self.get_object().project, context=context).data)
 
     @detail_route(methods=['get'])
     def library(self, *args, **kwargs):
-        return Response({'library':self.get_object().project.library.name})
+        context = {'request': self.request}
+        return Response(LibrarySerializer(self.get_object().project.library, context=context).data)
 
     def get_queryset(self):
         if not self.request.query_params.get('results_only'):
@@ -54,8 +71,43 @@ class StratumViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Stratum.objects.all()
     serializer_class = StratumSerializer
 
+    def get_queryset(self):
+        pid = self.request.query_params.get('pid', None)
+        if pid is None:
+            return self.queryset
+        return self.queryset.filter(project__pid=pid)
+
 
 class StateClassViewset(viewsets.ReadOnlyModelViewSet):
     queryset = StateClass.objects.all()
     serializer_class = StateClassSerializer
 
+
+class TransitionTypeViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionType.objects.all()
+    serializer_class = TransitionTypeSerializer
+
+    @detail_route(methods=['get'])
+    def groups(self, *args, **kwargs):
+        return Response(TransitionTypeGroupSerializer(
+            TransitionTypeGroup.objects.filter(transition_type=self.get_object()), many=True).data)
+
+
+class TransitionGroupViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionGroup.objects.all()
+    serializer_class = TransitionGroupSerializer
+
+    @detail_route(methods=['get'])
+    def types(self, *args, **kwargs):
+        return Response(TransitionTypeGroupSerializer(
+            TransitionTypeGroup.objects.filter(transition_group=self.get_object()), many=True).data)
+
+
+class TransitionTypeGroupViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionTypeGroup.objects.all()
+    serializer_class = TransitionTypeGroupSerializer
+
+
+class TransitionViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = Transition.objects.all()
+    serializer_class = TransitionSerializer
