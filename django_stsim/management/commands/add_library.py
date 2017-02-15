@@ -10,7 +10,8 @@ import csv
 from shutil import copyfile
 from django.core.management.base import BaseCommand
 from django_stsim.models import Library, Project, Scenario, Stratum,\
-    StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition
+    StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
+    StateClassSummaryReport, StateClassSummaryReportRow
 from django.conf import settings
 from django.db.models import Q
 
@@ -43,7 +44,7 @@ class Command(BaseCommand):
                 return
 
         if not os.path.exists(orig_file):
-            message = ('A copy of the library does not exist. Create one now or cancel?')
+            message = ('A copy of the library does not exist. Create one now or cancel? ')
             if input(message).lower() not in {'y', 'yes'}:
                 return
             else:
@@ -191,5 +192,30 @@ class Command(BaseCommand):
                                 age_reset=row['AgeReset']
                             )
                 print('Imported transition probabilities for scenario {} from project {}'.format(s.sid, project.name))
+            
+                if os.path.exists(tmp_file):
+                    os.remove(tmp_file)
+
+                # import state class reports, if the scenario is a result scenario
+                if s.is_result:
+                    console.generate_report('stateclass-summary', tmp_file, s.sid)
+                    report = StateClassSummaryReport.objects.create(scenario=s)
+                    with open(tmp_file, 'r') as sheet:
+                        reader = csv.DictReader(sheet)
+                        for row in reader:
+                            StateClassSummaryReportRow.objects.create(
+                                report=report,
+                                iteration=int(row['Iteration']),
+                                timestep=int(row['Timestep']),
+                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
+                                #secondary_stratum... # TODO - add secondary_stratum?,
+                                stateclass=StateClass.objects.filter(name__exact=row['StateClassID'], project=project).first(),
+                                amount=float(row['Amount']),
+                                proportion_of_landscape=float(row['ProportionOfLandscape']),
+                                proportion_of_stratum=float(row['ProportionOfStratumID'])
+                                )
+
+                    print('Imported stateclass summary report for scenario {}.'.format(s.sid))
+
             print("Project {} for library {} successfully imported.".format(project.name, name))
         print("{} successfully added to django_stsim.".format(name))
