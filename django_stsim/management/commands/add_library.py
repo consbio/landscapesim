@@ -11,7 +11,9 @@ from shutil import copyfile
 from django.core.management.base import BaseCommand
 from django_stsim.models import Library, Project, Scenario, Stratum,\
     StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
-    StateClassSummaryReport, StateClassSummaryReportRow
+    StateClassSummaryReport, StateClassSummaryReportRow, \
+    TransitionSummaryReport, TransitionSummaryReportRow, \
+    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
 from django.conf import settings
 from django.db.models import Q
 
@@ -153,6 +155,8 @@ class Command(BaseCommand):
                     )
             print('Imported transition type groups for project {}.'.format(project.name))
 
+            # TODO - import STSim_RunControl
+
             # Now import any scenario-specific information we want to capture
             scenarios = Scenario.objects.filter(project=project)
             for s in scenarios:
@@ -191,13 +195,15 @@ class Command(BaseCommand):
                                 probability=float(row['Probability']),
                                 age_reset=row['AgeReset']
                             )
-                print('Imported transition probabilities for scenario {} from project {}'.format(s.sid, project.name))
+                print('Imported transition probabilities for scenario {}'.format(s.sid))
             
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
 
-                # import state class reports, if the scenario is a result scenario
+                # if the scenario is a result scenario
                 if s.is_result:
+
+                    # import state class reports,
                     console.generate_report('stateclass-summary', tmp_file, s.sid)
                     report = StateClassSummaryReport.objects.create(scenario=s)
                     with open(tmp_file, 'r') as sheet:
@@ -216,6 +222,48 @@ class Command(BaseCommand):
                                 )
 
                     print('Imported stateclass summary report for scenario {}.'.format(s.sid))
+                    os.remove(tmp_file)
 
-            print("Project {} for library {} successfully imported.".format(project.name, name))
-        print("{} successfully added to django_stsim.".format(name))
+                    #import transition reports
+                    console.generate_report('transition-summary', tmp_file, s.sid)
+                    report = TransitionSummaryReport.objects.create(scenario=s)
+                    with open(tmp_file, 'r') as sheet:
+                        reader = csv.DictReader(sheet)
+                        for row in reader:
+                            TransitionSummaryReportRow.objects.create(
+                                report=report,
+                                iteration=int(row['Iteration']),
+                                timestep=int(row['Timestep']),
+                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
+                                #secondary_stratum... # TODO - add secondary_stratum?,
+                                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first(),
+                                amount=float(row['Amount']),
+                                )
+
+                    print('Imported transition summary report for scenario {}.'.format(s.sid))
+                    os.remove(tmp_file)
+
+                    #import transition reports
+                    console.generate_report('transition-stateclass-summary', tmp_file, s.sid)
+                    report = TransitionByStateClassSummaryReport.objects.create(scenario=s)
+                    with open(tmp_file, 'r') as sheet:
+                        reader = csv.DictReader(sheet)
+                        for row in reader:
+                            TransitionByStateClassSummaryReportRow.objects.create(
+                                report=report,
+                                iteration=int(row['Iteration']),
+                                timestep=int(row['Timestep']),
+                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
+                                #secondary_stratum... # TODO - add secondary_stratum?,
+                                transition_type=TransitionType.objects.filter(name__exact=row['TransitionTypeID'], project=project).first(),
+                                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassID'], project=project).first(),
+                                stateclass_dest=StateClass.objects.filter(name__exact=row['EndStateClassID'], project=project).first(),
+                                amount=float(row['Amount']),
+                                )
+
+                    print('Imported transition-by-stateclass summary report for scenario {}.'.format(s.sid))
+                    os.remove(tmp_file)
+
+                print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
+            print("Project {} successfully imported into django_stsim".format(project.name))
+        print("Library {} successfully added to django_stsim.".format(name))

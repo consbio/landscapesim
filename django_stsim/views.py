@@ -4,10 +4,12 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ParseError
 
 from django_stsim.models import Library, Project, Scenario, Stratum, StateClass, \
- TransitionType, TransitionGroup, TransitionTypeGroup, Transition, StateClassSummaryReport
+    TransitionType, TransitionGroup, TransitionTypeGroup, Transition, StateClassSummaryReport, \
+    TransitionSummaryReport, TransitionByStateClassSummaryReport
 from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
     StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
-    TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer
+    TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer, \
+    TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer
 from django_stsim.serializers import ProjectDefinitionsSerializer
 
 from stsimpy import STSimConsole
@@ -109,5 +111,12 @@ class StateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = StateClassSummaryReport.objects.all()
     serializer_class = StateClassSummaryReportSerializer
 
-# TODO - Add TransitionSummaryReportViewset, TransitionByStateClassSummaryReportViewset
-#        and related serializers, urls, etc.
+
+class TransitionSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionSummaryReport.objects.all()
+    serializer_class = TransitionSummaryReportSerializer
+
+
+class TransitionByStateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionByStateClassSummaryReport.objects.all()
+    serializer_class = TransitionByStateClassSummaryReportSerializer

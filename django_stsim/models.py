@@ -99,12 +99,51 @@ class StateClassSummaryReportRow(models.Model):
     report = models.ForeignKey('StateClassSummaryReport', related_name='stateclass_results', on_delete=models.CASCADE)
     iteration = models.IntegerField()
     timestep = models.IntegerField()
-    stratum = models.ForeignKey('Stratum', related_name='stratum')
-    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum', blank=True, null=True)
+    stratum = models.ForeignKey('Stratum', related_name='stratum_scr')
+    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_scr', blank=True, null=True)
     stateclass = models.ForeignKey('StateClass')
     amount = models.FloatField()
     proportion_of_landscape = models.FloatField()
     proportion_of_stratum = models.FloatField()
 
+
+class TransitionSummaryReport(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+
+
+class TransitionSummaryReportRow(models.Model):
+    """
+        This report shows the amount of changes a stratum changes along a transition group, by time
+    """
+
+    report = models.ForeignKey('TransitionSummaryReport', related_name='transition_results', on_delete=models.CASCADE)
+    iteration = models.IntegerField()
+    timestep = models.IntegerField()
+    stratum = models.ForeignKey('Stratum', related_name='stratum_tr')
+    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_tr', blank=True, null=True)
+    transition_group = models.ForeignKey('TransitionGroup') # we capture the amount moved as a whole group
+    amount = models.FloatField()
+
+
+class TransitionByStateClassSummaryReport(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+
+
+class TransitionByStateClassSummaryReportRow(models.Model):
+    """
+        This report shows the state class (by stratum) changes along a transition type, by time
+    """
+
+    report = models.ForeignKey('TransitionByStateClassSummaryReport', related_name='transition_stateclass_results', on_delete=models.CASCADE)
+    iteration = models.IntegerField()
+    timestep = models.IntegerField()
+    stratum = models.ForeignKey('Stratum', related_name='stratum_tscr')
+    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_tscr', blank=True, null=True)
+    transition_type = models.ForeignKey('TransitionType') # we capture the amount moved specifically by timestep
+    stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_tscr')
+    stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_tscr')
+    amount = models.FloatField()
 
     

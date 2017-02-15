@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from django_stsim.models import Library, Project, Scenario, Stratum, StateClass,\
     TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
-    StateClassSummaryReport, StateClassSummaryReportRow
+    StateClassSummaryReport, StateClassSummaryReportRow, \
+    TransitionSummaryReport, TransitionSummaryReportRow, \
+    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
 
+# TODO - simple or complicated? Could have simple and verbose serializers
 
 class LibrarySerializer(serializers.ModelSerializer):
 
@@ -14,7 +17,7 @@ class LibrarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Library
-        fields = ('name', 'projects', 'id',)
+        fields = ('id', 'name', 'projects',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -27,10 +30,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('name', 'pid', 'scenarios', 'id',)
+        fields = ('id', 'name', 'pid', 'scenarios',)
 
 
 class ScenarioSerializer(serializers.ModelSerializer):
+
+    project = serializers.HyperlinkedRelatedField(
+        many=False,
+        read_only=True,
+        view_name='project-detail'
+        )
 
     class Meta:
         model = Scenario
@@ -111,8 +120,8 @@ class TransitionSerializer(serializers.ModelSerializer):
 
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
 
-    stratum = StratumSerializer(many=False, read_only=True)
-    stateclass = StateClassSerializer(many=False, read_only=True)
+    #stratum = StratumSerializer(many=False, read_only=True)
+    #stateclass = StateClassSerializer(many=False, read_only=True)
 
     class Meta:
         model = StateClassSummaryReportRow
@@ -126,4 +135,44 @@ class StateClassSummaryReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StateClassSummaryReport
-        fields = ('scenario','stateclass_results',)
+        fields = ('id', 'scenario','stateclass_results',)
+
+class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    #stratum = StratumSerializer(many=False, read_only=True)
+    #stateclass = StateClassSerializer(many=False, read_only=True)
+    #transition_group = TransitionGroupSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = TransitionSummaryReportRow
+        fields = ('iteration','timestep','stratum', 'amount','transition_group',)
+
+class TransitionSummaryReportSerializer(serializers.ModelSerializer):
+
+    scenario = ScenarioSerializer(many=False, read_only=True)
+    transition_results = TransitionSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TransitionSummaryReport
+        fields = ('id', 'scenario','transition_results',)
+
+class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    #stratum = StratumSerializer(many=False, read_only=True)
+    #stateclass_src = StateClassSerializer(many=False, read_only=True)
+    #stateclass_dest = StateClassSerializer(many=False, read_only=True)
+    #transition_type = TransitionTypeSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = TransitionByStateClassSummaryReportRow
+        fields = ('iteration','timestep','stratum','stateclass_src', 'stateclass_dest',
+            'amount','transition_type',)
+
+class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer):
+
+    scenario = ScenarioSerializer(many=False, read_only=True)
+    transition_stateclass_results = TransitionByStateClassSummaryReportRowSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = TransitionByStateClassSummaryReport
+        fields = ('id', 'scenario','transition_stateclass_results',)
