@@ -38,7 +38,7 @@ class Scenario(models.Model):
 
 class RunControl(models.Model):
 
-    scenario = models.ForeignKey('scenario')
+    scenario = models.ForeignKey('Scenario')
     min_iteration = models.IntegerField()
     max_iteration = models.IntegerField()
     min_timestep = models.IntegerField()
@@ -69,7 +69,7 @@ class StateClass(models.Model):
 class TransitionType(models.Model):
 
     project = models.ForeignKey('Project', related_name='transition_types', on_delete=models.CASCADE)
-    transition_type_id = models.IntegerField(blank=True, null=True)
+    transition_type_id = models.IntegerField(default=-1)
     name = models.CharField(max_length=50)
     color = models.CharField(max_length=30)
     description = models.CharField(max_length=100)

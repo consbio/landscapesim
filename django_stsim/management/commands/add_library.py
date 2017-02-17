@@ -39,16 +39,13 @@ class Command(BaseCommand):
         tmp_file = file.split('.ssim')[0] + '_tmp.csv'
 
         if Library.objects.filter(file__iexact=file).exists():
-            message = (
-                'WARNING: This will override an existing library with the same filename: {}. '
-                'Do you want to continue?'.format(file)
-            )
-            if input(message).lower() not in {'y', 'yes'}:
-                return
+            message = 'The library located at {} already exists in the database.'
+            return
 
         if not os.path.exists(orig_file):
-            message = ('A copy of the library does not exist. Create one now or cancel? ')
+            message = 'A copy of the library does not exist. Create one now or cancel? '
             if input(message).lower() not in {'y', 'yes'}:
+                print("Abort - Cannot continue without replicating the library values.")
                 return
             else:
                 copyfile(file, orig_file)
@@ -122,7 +119,7 @@ class Command(BaseCommand):
                 for row in reader:
                     TransitionType.objects.create(
                         project=project,
-                        #transition_type_id=int(row['ID']) if len(row['ID']) > 0 else None,  # TODO - decide what to do with non-existent IDS
+                        transition_type_id=int(row['ID']) if len(row['ID']) > 0 else -1,
                         name=row['Name'],
                         color=row['Color'],
                         description=row['Description']
@@ -166,12 +163,12 @@ class Command(BaseCommand):
                     reader = csv.DictReader(sheet)
                     run_options = [r for r in reader][0]
                     RunControl.objects.create(
-                        scenario = s,
-                        min_iteration = int(run_options['MinimumIteration']),
-                        max_iteration = int(run_options['MaximumIteration']),
-                        min_timestep = int(run_options['MinimumTimestep']),
-                        max_timestep = int(run_options['MaximumTimestep']),
-                        is_spatial = True if run_options['IsSpatial'] == 'Yes' else False
+                        scenario=s,
+                        min_iteration=int(run_options['MinimumIteration']),
+                        max_iteration=int(run_options['MaximumIteration']),
+                        min_timestep=int(run_options['MinimumTimestep']),
+                        max_timestep=int(run_options['MaximumTimestep']),
+                        is_spatial=True if run_options['IsSpatial'] == 'Yes' else False
                     )
                 print('Imported (initial) run control for scenario {}'.format(s.sid))
 
@@ -189,6 +186,7 @@ class Command(BaseCommand):
                             enabled = True
                         else:
                             enabled = False
+                            timestep = -1
                         OutputOption.objects.create(
                             scenario=s,
                             name=opt,
@@ -238,6 +236,7 @@ class Command(BaseCommand):
                     os.remove(tmp_file)
 
                 # if the scenario is a result scenario
+                # TODO - add secondary_stratum?
                 if s.is_result:
 
                     # import state class reports,
@@ -251,7 +250,6 @@ class Command(BaseCommand):
                                 iteration=int(row['Iteration']),
                                 timestep=int(row['Timestep']),
                                 stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                #secondary_stratum... # TODO - add secondary_stratum?,
                                 stateclass=StateClass.objects.filter(name__exact=row['StateClassID'], project=project).first(),
                                 amount=float(row['Amount']),
                                 proportion_of_landscape=float(row['ProportionOfLandscape']),
@@ -261,7 +259,7 @@ class Command(BaseCommand):
                     print('Imported stateclass summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
 
-                    #import transition reports
+                    # import transition summary reports
                     console.generate_report('transition-summary', tmp_file, s.sid)
                     report = TransitionSummaryReport.objects.create(scenario=s)
                     with open(tmp_file, 'r') as sheet:
@@ -272,7 +270,6 @@ class Command(BaseCommand):
                                 iteration=int(row['Iteration']),
                                 timestep=int(row['Timestep']),
                                 stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                #secondary_stratum... # TODO - add secondary_stratum?,
                                 transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first(),
                                 amount=float(row['Amount']),
                                 )
@@ -280,7 +277,7 @@ class Command(BaseCommand):
                     print('Imported transition summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
 
-                    #import transition reports
+                    # import transition-stateclass summary reports
                     console.generate_report('transition-stateclass-summary', tmp_file, s.sid)
                     report = TransitionByStateClassSummaryReport.objects.create(scenario=s)
                     with open(tmp_file, 'r') as sheet:
@@ -291,10 +288,12 @@ class Command(BaseCommand):
                                 iteration=int(row['Iteration']),
                                 timestep=int(row['Timestep']),
                                 stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                #secondary_stratum... # TODO - add secondary_stratum?,
-                                transition_type=TransitionType.objects.filter(name__exact=row['TransitionTypeID'], project=project).first(),
-                                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassID'], project=project).first(),
-                                stateclass_dest=StateClass.objects.filter(name__exact=row['EndStateClassID'], project=project).first(),
+                                transition_type=TransitionType.objects.filter(
+                                    name__exact=row['TransitionTypeID'], project=project).first(),
+                                stateclass_src=StateClass.objects.filter(
+                                    name__exact=row['StateClassID'], project=project).first(),
+                                stateclass_dest=StateClass.objects.filter(
+                                    name__exact=row['EndStateClassID'], project=project).first(),
                                 amount=float(row['Amount']),
                                 )
 
