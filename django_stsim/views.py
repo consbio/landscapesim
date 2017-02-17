@@ -27,7 +27,6 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['get'])
     def definitions(self, *args, **kwargs):
-        project = self.get_object()
         context = {'request': self.request}
         return Response(ProjectDefinitionsSerializer(
             self.queryset.filter(pk=self.get_object().pk), many=True, context=context).data)
@@ -35,7 +34,8 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['get'])
     def scenarios(self, *args, **kwargs):
-        return Response(ScenarioSerializer(Scenario.objects.filter(project=self.get_object()), many=True).data)
+        context = {'request': self.request}
+        return Response(ScenarioSerializer(Scenario.objects.filter(project=self.get_object()), many=True, context=context).data)
 
 
 class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
@@ -55,7 +55,7 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def runcontrol(self, *args, **kwargs):
         context = {'request': self.request}
-        return Response(RunControlSerialier(RunControl.objects.filter(
+        return Response(RunControlSerializer(RunControl.objects.filter(
             scenario=self.get_object()).first(), context=context).data
         )
 
