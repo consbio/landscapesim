@@ -304,22 +304,3 @@ class Command(BaseCommand):
                 print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
             print("Project {} successfully imported into django_stsim".format(project.name))
         print("Library {} successfully added to django_stsim.".format(name))
-
-
-def set_output_options(scenario, path):
-
-
-
-
-        output_settings = dict()
-
-        for kwarg in all_output_options:
-
-            if kwarg in kwargs.keys():
-                setting = 'Yes'
-                if 'Timesteps' in kwarg:
-                    setting = int(kwargs[kwarg])
-            else:
-                setting = ''
-
-            output_settings[kwarg] = setting
