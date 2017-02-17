@@ -13,7 +13,8 @@ from django_stsim.models import Library, Project, Scenario, Stratum,\
     StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
     StateClassSummaryReport, StateClassSummaryReportRow, \
     TransitionSummaryReport, TransitionSummaryReportRow, \
-    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
+    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
+    RunControl, OutputOption
 from django.conf import settings
 from django.db.models import Q
 
@@ -155,11 +156,47 @@ class Command(BaseCommand):
                     )
             print('Imported transition type groups for project {}.'.format(project.name))
 
-            # TODO - import STSim_RunControl
-
             # Now import any scenario-specific information we want to capture
             scenarios = Scenario.objects.filter(project=project)
             for s in scenarios:
+
+                # import initial run control
+                console.export_sheet('STSim_RunControl', tmp_file, sid=s.sid, overwrite=True, orig=True)
+                with open(tmp_file, 'r') as sheet:
+                    reader = csv.DictReader(sheet)
+                    run_options = [r for r in reader][0]
+                    RunControl.objects.create(
+                        scenario = s,
+                        min_iteration = int(run_options['MinimumIteration']),
+                        max_iteration = int(run_options['MaximumIteration']),
+                        min_timestep = int(run_options['MinimumTimestep']),
+                        max_timestep = int(run_options['MaximumTimestep']),
+                        is_spatial = True if run_options['IsSpatial'] == 'Yes' else False
+                    )
+                print('Imported (initial) run control for scenario {}'.format(s.sid))
+
+                # import output options
+                console.export_sheet('STSim_OutputOptions', tmp_file, sid=s.sid, overwrite=True, orig=True)
+                with open(tmp_file, 'r') as sheet:
+                    reader = csv.DictReader(sheet)
+                    output_options = [r for r in reader][0]
+                    for opt in output_options.keys():
+                        if len(output_options[opt]) > 0:      # a integer, or 'Yes', else ''
+                            if 'Timesteps' in opt:
+                                timestep = int(output_options[opt])
+                            else:
+                                timestep = -1    # default, won't be used
+                            enabled = True
+                        else:
+                            enabled = False
+                        OutputOption.objects.create(
+                            scenario=s,
+                            name=opt,
+                            timestep=timestep,
+                            enabled=enabled
+                        )
+                print('Imported (initial) output options for scenario {}'.format(s.sid))
+
                 # import initial probabilistic transition probabilities
                 console.export_sheet('STSim_Transition', tmp_file, sid=s.sid, overwrite=True, orig=True)
                 with open(tmp_file, 'r') as sheet:
@@ -267,3 +304,22 @@ class Command(BaseCommand):
                 print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
             print("Project {} successfully imported into django_stsim".format(project.name))
         print("Library {} successfully added to django_stsim.".format(name))
+
+
+def set_output_options(scenario, path):
+
+
+
+
+        output_settings = dict()
+
+        for kwarg in all_output_options:
+
+            if kwarg in kwargs.keys():
+                setting = 'Yes'
+                if 'Timesteps' in kwarg:
+                    setting = int(kwargs[kwarg])
+            else:
+                setting = ''
+
+            output_settings[kwarg] = setting

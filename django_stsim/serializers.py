@@ -3,7 +3,8 @@ from django_stsim.models import Library, Project, Scenario, Stratum, StateClass,
     TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
     StateClassSummaryReport, StateClassSummaryReportRow, \
     TransitionSummaryReport, TransitionSummaryReportRow, \
-    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
+    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
+    RunControl, OutputOption
 
 # TODO - simple or complicated? Could have simple and verbose serializers
 
@@ -43,6 +44,13 @@ class ScenarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Scenario
+        fields = '__all__'
+
+
+class RunControlSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RunControl
         fields = '__all__'
 
 
@@ -176,3 +184,23 @@ class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer)
     class Meta:
         model = TransitionByStateClassSummaryReport
         fields = ('id', 'scenario','transition_stateclass_results',)
+
+
+class OutputOptionSerializer(serializers.ModelSerializer):
+
+    #scenario = serializers.HyperlinkedRelatedField(view_name='scenario-detail', many=True, read_only=True)
+
+    class Meta:
+        model = OutputOption
+        fields = '__all__'
+
+
+'''
+class OutputOptionSettingsSerializer(serializers.Serializer):
+
+    output_options = OutputOptionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Scenario
+        fields = ('output_options',)
+'''

@@ -5,11 +5,12 @@ from rest_framework.exceptions import ParseError
 
 from django_stsim.models import Library, Project, Scenario, Stratum, StateClass, \
     TransitionType, TransitionGroup, TransitionTypeGroup, Transition, StateClassSummaryReport, \
-    TransitionSummaryReport, TransitionByStateClassSummaryReport
+    TransitionSummaryReport, TransitionByStateClassSummaryReport, RunControl, OutputOption
 from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
     StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
     TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer, \
-    TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer
+    TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer, \
+    RunControlSerializer, OutputOptionSerializer
 from django_stsim.serializers import ProjectDefinitionsSerializer
 
 from stsimpy import STSimConsole
@@ -51,6 +52,13 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
         context = {'request': self.request}
         return Response(LibrarySerializer(self.get_object().project.library, context=context).data)
 
+    @detail_route(methods=['get'])
+    def runcontrol(self, *args, **kwargs):
+        context = {'request': self.request}
+        return Response(RunControlSerialier(RunControl.objects.filter(
+            scenario=self.get_object()).first(), context=context).data
+        )
+
     def get_queryset(self):
         if not self.request.query_params.get('results_only'):
             return self.queryset
@@ -59,6 +67,11 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
             if is_result not in ['true','false']:
                 raise ParseError('Was not true or false.')
             return self.queryset.filter(is_result=is_result=='true')
+
+
+class RunControlViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = RunControl.objects.all()
+    serializer_class = RunControlSerializer
 
 
 class StratumViewset(viewsets.ReadOnlyModelViewSet):
@@ -120,3 +133,12 @@ class TransitionSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
 class TransitionByStateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = TransitionByStateClassSummaryReport.objects.all()
     serializer_class = TransitionByStateClassSummaryReportSerializer
+
+
+class OutputOptionViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = OutputOption.objects.all()
+    serializer_class = OutputOptionSerializer
+
+#class OutputOptionsViewset(viewsets.ReadOnlyModelViewSet):
+#    queryset = Scenario.objects.all()
+#    serializer_class = OutputOptionSettingsSerializer

@@ -5,7 +5,7 @@ from django_stsim.views import LibraryViewset, ProjectViewset, ScenarioViewset,\
     StratumViewset, StateClassViewset, TransitionTypeViewset,\
     TransitionGroupViewset, TransitionTypeGroupViewset, TransitionViewset, \
     StateClassSummaryReportViewset, TransitionSummaryReportViewset, \
-    TransitionByStateClassSummaryReportViewset
+    TransitionByStateClassSummaryReportViewset, RunControlViewset, OutputOptionViewset
 
 
 router = DefaultRouter()
@@ -21,6 +21,9 @@ router.register('transitions', TransitionViewset)
 router.register('stateclass-summaries', StateClassSummaryReportViewset)
 router.register('transition-summaries', TransitionSummaryReportViewset)
 router.register('transition-by-stateclass-summaries', TransitionByStateClassSummaryReportViewset)
+router.register('run-controls', RunControlViewset)
+router.register('output-options', OutputOptionViewset)
+#router.register('output-options', OutputOptionsViewset)
 
 
 urlpatterns = [

@@ -2,9 +2,15 @@ from django.db import models
 
 # Create your models here.
 """
-    The majority of the information we need is stored in the libraries themselves,
-    so its not very useful to extract the information out of the library itself.
+    The majority of the information we need is stored in the libraries themselves.
+    These models take a snapshot of the library when imported so we don't have to
+    extract them out each time.
 """
+
+# TODO - add a lookup field for the project when it is necessary.
+#        coult be something like "has_lookup" and a fk to the lookup table
+#        WILL be needed for the landfire library, and then represented
+#        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
 
 
 class Library(models.Model):
@@ -28,6 +34,16 @@ class Scenario(models.Model):
     name = models.CharField(max_length=50)
     is_result = models.BooleanField(default=False)
     sid = models.PositiveSmallIntegerField()
+
+
+class RunControl(models.Model):
+
+    scenario = models.ForeignKey('scenario')
+    min_iteration = models.IntegerField()
+    max_iteration = models.IntegerField()
+    min_timestep = models.IntegerField()
+    max_timestep = models.IntegerField()
+    is_spatial = models.BooleanField(default=False)
 
 
 class Stratum(models.Model):
@@ -146,4 +162,11 @@ class TransitionByStateClassSummaryReportRow(models.Model):
     stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_tscr')
     amount = models.FloatField()
 
-    
+
+class OutputOption(models.Model):
+
+    scenario = models.ForeignKey('scenario')
+    name = models.CharField(max_length=30)
+    timestep = models.IntegerField(default=-1)
+    enabled = models.BooleanField(default=False)
+
