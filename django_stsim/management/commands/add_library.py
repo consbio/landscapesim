@@ -16,10 +16,8 @@ from django_stsim.models import Library, Project, Scenario, Stratum,\
     TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
     RunControl, OutputOption
 from django.conf import settings
-from django.db.models import Q
 
-from stsimpy import STSimConsole
-from pprint import pprint
+from django_stsim.io.consoles import STSimConsole
 exe = settings.STSIM_EXE_PATH
 
 

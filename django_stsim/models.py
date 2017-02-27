@@ -1,5 +1,10 @@
 from django.db import models
 
+import uuid
+
+from celery.result import AsyncResult
+
+
 # Create your models here.
 """
     The majority of the information we need is stored in the libraries themselves.
@@ -11,6 +16,8 @@ from django.db import models
 #        could be something like "has_lookup" and a fk to the lookup table
 #        WILL be needed for the landfire library, and then represented
 #        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
+
+# TODO - Split 'defining' models into separate file?
 
 
 class Library(models.Model):
@@ -89,6 +96,24 @@ class TransitionTypeGroup(models.Model):
     transition_group = models.ForeignKey('TransitionGroup')
     is_primary = models.CharField(max_length=3, default='')
 
+# TODO - Add the following defining models
+class TransitionMultiplierType(models.Model):
+
+    raise NotImplementedError()
+
+class AttributeGroup(models.Model):
+
+    raise NotImplementedError()
+
+class StateAttributeType(models.Model):
+
+    raise NotImplementedError()
+
+class TransitionAttributeType(models.Model):
+
+    raise NotImplementedError()
+
+
 
 class Transition(models.Model):
     """
@@ -103,6 +128,24 @@ class Transition(models.Model):
     transition_type = models.ForeignKey('TransitionType')
     probability = models.FloatField(default=0.0)
     age_reset = models.CharField(default='No', max_length=3)
+
+# TODO - Add the following scenario-dependent models
+
+class TransitionTarget(models.Model):
+
+    raise NotImplementedError()
+
+class StateAttributeValue(models.Model):
+
+    raise NotImplementedError()
+
+class TransitionAttributeValue(models.Model):
+
+    raise NotImplementedError()
+
+class TransitionAttributeTargets(models.Model):
+
+    raise NotImplementedError()
 
 
 class StateClassSummaryReport(models.Model):
@@ -170,3 +213,24 @@ class OutputOption(models.Model):
     timestep = models.IntegerField(default=-1)
     enabled = models.BooleanField(default=False)
 
+
+class AsyncJobModel(models.Model):
+    """
+        A superclass for models that interact with celery backend results.
+        Royally borrowed from ncdjango geoprocessing job model
+    """
+    uuid = models.CharField(max_length=36, default=uuid.uuid4, db_index=True)
+    created = models.DateTimeField(auto_now_add=True)
+    job = models.CharField(max_length=100)
+    celery_id = models.CharField(max_length=100)
+    inputs = models.TextField(null=False, default="{}")
+    outputs = models.TextField(null=False, default="{}")
+
+    # TODO - add is_model_run flag? or handle the interaction differently?
+    #      - probably should handle this at the view/API level
+
+    @property
+    def status(self):
+        """ The status of the celery task for this job. """
+
+        return AsyncResult(self.celery_id).status.lower()

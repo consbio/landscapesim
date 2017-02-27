@@ -13,7 +13,7 @@ from django_stsim.serializers import LibrarySerializer, ProjectSerializer, Scena
     RunControlSerializer, OutputOptionSerializer
 from django_stsim.serializers import ProjectDefinitionsSerializer
 
-from stsimpy import STSimConsole
+# TODO - Discuss integration of spatial layers into models
 
 
 class LibraryViewset(viewsets.ReadOnlyModelViewSet):
@@ -57,6 +57,13 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
         return Response(RunControlSerializer(RunControl.objects.filter(
             scenario=self.get_object()).first(), context=context).data
         )
+
+    # TODO - Add transitions
+    # TODO - Add initial conditions
+    # TODO - Add transition targets
+    # TODO - Add transition attribute targets
+    # TODO - Add transition attribute values (blend w/ targets?)
+    # TODO - Add transition multipliers
 
     def get_queryset(self):
         if not self.request.query_params.get('results_only'):
