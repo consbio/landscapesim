@@ -31,7 +31,6 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
         return Response(ProjectDefinitionsSerializer(
             self.queryset.filter(pk=self.get_object().pk), many=True, context=context).data)
 
-
     @detail_route(methods=['get'])
     def scenarios(self, *args, **kwargs):
         context = {'request': self.request}
@@ -138,7 +137,3 @@ class TransitionByStateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
 class OutputOptionViewset(viewsets.ReadOnlyModelViewSet):
     queryset = OutputOption.objects.all()
     serializer_class = OutputOptionSerializer
-
-#class OutputOptionsViewset(viewsets.ReadOnlyModelViewSet):
-#    queryset = Scenario.objects.all()
-#    serializer_class = OutputOptionSettingsSerializer

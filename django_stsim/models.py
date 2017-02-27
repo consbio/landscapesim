@@ -8,7 +8,7 @@ from django.db import models
 """
 
 # TODO - add a lookup field for the project when it is necessary.
-#        coult be something like "has_lookup" and a fk to the lookup table
+#        could be something like "has_lookup" and a fk to the lookup table
 #        WILL be needed for the landfire library, and then represented
 #        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
 
@@ -165,7 +165,7 @@ class TransitionByStateClassSummaryReportRow(models.Model):
 
 class OutputOption(models.Model):
 
-    scenario = models.ForeignKey('scenario')
+    scenario = models.ForeignKey('Scenario')
     name = models.CharField(max_length=30)
     timestep = models.IntegerField(default=-1)
     enabled = models.BooleanField(default=False)

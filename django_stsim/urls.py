@@ -23,7 +23,6 @@ router.register('transition-summaries', TransitionSummaryReportViewset)
 router.register('transition-by-stateclass-summaries', TransitionByStateClassSummaryReportViewset)
 router.register('run-controls', RunControlViewset)
 router.register('output-options', OutputOptionViewset)
-#router.register('output-options', OutputOptionsViewset)
 
 
 urlpatterns = [
