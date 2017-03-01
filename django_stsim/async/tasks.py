@@ -1,5 +1,5 @@
 from celery import task
-from django_stsim.models import Library, Project, Scenario, AsyncJobModel
+from django_stsim.models import Library, Project, Scenario, RunScenarioModel, GenerateReportModel
 import json
 import os
 import uuid
@@ -27,7 +27,8 @@ def run_model(self, library_name, pid, sid):
         sid=result_sid,
         is_result=True
     )
-    job = AsyncJobModel.objects.get(celery_id=self.request.id)
+    job = RunScenarioModel.objects.get(celery_id=self.request.id)
+    job.result_scenario = scenario
     job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
     job.save()
 
@@ -36,9 +37,9 @@ def run_model(self, library_name, pid, sid):
 def generate_report(self, library_name, pid, sid, report_name):
     lib = Library.objects.get(name__iexact=library_name)
     proj = Project.objects.get(library=lib, pid=pid)
-    s = Scenario.objects.filter(project=proj, sid=sid)
+    s = Scenario.objects.filter(project=proj, sid=sid).first()
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
-    tmp_file = lib.tmp_file.replace('.csv', uuid.uuid4() + '.csv')
+    tmp_file = lib.tmp_file.replace('.csv', str(uuid.uuid4()) + '.csv')
 
     try:
         console.generate_report(report_name, tmp_file, sid)
@@ -47,8 +48,8 @@ def generate_report(self, library_name, pid, sid, report_name):
     if report_name == 'stateclass-summary':
         report = create_stateclass_summary(proj, s, tmp_file)
     elif report_name == 'transition-summary':
-        report = create_transition_sc_summary(proj, s, tmp_file)
-    elif report_name == 'transition-summary':
+        report = create_transition_summary(proj, s, tmp_file)
+    elif report_name == 'transition-stateclass-summary':
         report = create_transition_sc_summary(proj, s, tmp_file)
     else:
         raise exceptions.ObjectDoesNotExist("The {} report for project {}, scenario {} was not found."
@@ -56,6 +57,6 @@ def generate_report(self, library_name, pid, sid, report_name):
 
     os.remove(tmp_file)
 
-    job = AsyncJobModel.objects.get(celery_id=self.request.id)
+    job = GenerateReportModel.objects.get(celery_id=self.request.id)
     job.outputs = json.dumps({report_name: report.id})
     job.save()

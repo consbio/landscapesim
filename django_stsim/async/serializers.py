@@ -12,10 +12,11 @@
          one request for /jobs/generate-report (POST - lib, sid, pid, <[report1, report2, ...]>
          difference is that these reports would be dependent on the output options selected. Could be a UI decision?
 """
-
-from rest_framework import serializers
-from django_stsim.models import AsyncJobModel
 import json
+from rest_framework import serializers
+from django_stsim.models import Library, Project, Scenario, \
+    RunScenarioModel, GenerateReportModel
+from django_stsim.serializers import ScenarioSerializer
 from django_stsim.async.tasks import run_model, generate_report
 
 REGISTERED_JOBS = ['run-model', 'generate-report']
@@ -28,7 +29,7 @@ REGISTERED_REPORTS = [
 ]
 
 
-class AsyncJobSerializerBase(serializers.ModelSerializer):
+class AsyncJobSerializerMixin(object):
 
     # TODO - have the below available in subclasses, and have two separate serializers
 
@@ -36,17 +37,12 @@ class AsyncJobSerializerBase(serializers.ModelSerializer):
     inputs = serializers.JSONField(allow_null=True)
     outputs = serializers.JSONField(read_only=True)
 
-    job_inputs = []
-
-    class Meta:
-        model = AsyncJobModel
-        fields = ('uuid', 'job', 'created', 'status', 'inputs', 'outputs')
-        read_only_fields = ('uuid', 'created', 'status')
+    job_inputs = BASIC_JOB_INPUTS
 
     def validate_inputs(self, value):
         if value:
             try:
-                print(value)
+                value = json.loads(value)
                 if all(x in value.keys() for x in self.job_inputs):
                     return value
                 else:
@@ -56,20 +52,18 @@ class AsyncJobSerializerBase(serializers.ModelSerializer):
 
         return {}
 
-    def validate_job(self, value):
-        if value not in REGISTERED_JOBS:
-            raise serializers.ValidationError('Invalid job name')
-        return value
 
+class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
 
-class RunModelSerializer(AsyncJobSerializerBase):
+    parent_scenario = ScenarioSerializer(many=False, read_only=True)
+    result_scenario = ScenarioSerializer(many=False, read_only=True)
 
-    job_inputs = BASIC_JOB_INPUTS
+    class Meta:
+        model = RunScenarioModel
+        fields = ('uuid', 'created', 'status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
+        read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
     def validate(self, attrs):
-
-        if attrs['job'] != 'run-model':
-            raise serializers.ValidationError('Supplied job does not match "run-model"')
 
         # TODO - validate other inputs (transition probabilities, state/transition attributes, etc...)
 
@@ -80,20 +74,30 @@ class RunModelSerializer(AsyncJobSerializerBase):
         library_name = validated_data['inputs']['library_name']
         pid = validated_data['inputs']['pid']
         sid = validated_data['inputs']['sid']
+        lib = Library.objects.get(name__exact=library_name)
+        proj = Project.objects.get(library=lib, pid=int(pid))
+        parent_scenario = Scenario.objects.get(project=proj, sid=int(sid))
         result = run_model.delay(library_name, pid, sid)
-        return AsyncJobModel.objects.create(
-            job=validated_data['job'], celery_id=result.id, inputs=json.dumps(validated_data['inputs'])
+        return RunScenarioModel.objects.create(
+            parent_scenario=parent_scenario,
+            celery_id=result.id,
+            inputs=json.dumps(validated_data['inputs'])
         )
 
 
-class GenerateReportSerializer(AsyncJobSerializerBase):
+class GenerateReportSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
 
-    job_inputs = BASIC_JOB_INPUTS + ['report_name']
+    report_name = serializers.CharField()
+
+    class Meta:
+        model = GenerateReportModel
+        fields = ('uuid', 'created', 'status', 'report_name', 'inputs', 'outputs')
+        read_only_fields = ('uuid', 'created', 'status', 'outputs')
 
     def validate(self, attrs):
 
-        if attrs['job'] != 'generate-report':
-            raise serializers.ValidationError('Supplied job does not match "generate-report"')
+        if attrs['report_name'] not in REGISTERED_REPORTS:
+            raise serializers.ValidationError('No report with name {} available'.format(attrs['report_name']))
 
         return attrs
 
@@ -102,8 +106,10 @@ class GenerateReportSerializer(AsyncJobSerializerBase):
         library_name = validated_data['inputs']['library_name']
         pid = validated_data['inputs']['pid']
         sid = validated_data['inputs']['sid']
-        report_name = validated_data['inputs']['report_name']
+        report_name = validated_data['report_name']
         result = generate_report.delay(library_name, pid, sid, report_name)
-        return AsyncJobModel.objects.create(
-            job=validated_data['job'], celery_id=result.id, inputs=json.dumps(validated_data['inputs'])
+        return GenerateReportModel.objects.create(
+            report_name=report_name,
+            celery_id=result.id,
+            inputs=json.dumps(validated_data['inputs'])
         )

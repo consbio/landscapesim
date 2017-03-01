@@ -1,23 +1,16 @@
-from django.db import models
-
-import uuid
-
-from celery.result import AsyncResult
-
-
-# Create your models here.
 """
     The majority of the information we need is stored in the libraries themselves.
     These models take a snapshot of the library when imported so we don't have to
     extract them out each time.
 """
+from django.db import models
+import uuid
+from celery.result import AsyncResult
 
 # TODO - add a lookup field for the project when it is necessary.
 #        could be something like "has_lookup" and a fk to the lookup table
 #        WILL be needed for the landfire library, and then represented
 #        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
-
-# TODO - Split 'defining' models into separate file?
 
 
 class Library(models.Model):
@@ -228,7 +221,6 @@ class AsyncJobModel(models.Model):
     """
     uuid = models.CharField(max_length=36, default=uuid.uuid4, db_index=True)
     created = models.DateTimeField(auto_now_add=True)
-    job = models.CharField(max_length=100)
     celery_id = models.CharField(max_length=100)
     inputs = models.TextField(null=False, default="{}")
     outputs = models.TextField(null=False, default="{}")
@@ -238,3 +230,14 @@ class AsyncJobModel(models.Model):
         """ The status of the celery task for this job. """
 
         return AsyncResult(self.celery_id).status.lower()
+
+
+class RunScenarioModel(AsyncJobModel):
+
+    parent_scenario = models.ForeignKey('Scenario', related_name='parent_scenario')
+    result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
+
+
+class GenerateReportModel(AsyncJobModel):
+
+    report_name = models.CharField(max_length=100)

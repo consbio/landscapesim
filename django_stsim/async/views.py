@@ -1,17 +1,16 @@
 from rest_framework.viewsets import GenericViewSet, mixins
 
-from django_stsim.models import AsyncJobModel
+from django_stsim.models import RunScenarioModel, GenerateReportModel
 from django_stsim.async.serializers import RunModelSerializer, GenerateReportSerializer
 
 
-class AsyncJobViewsetBase(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    queryset = AsyncJobModel.objects.all()
+class RunModelViewset(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    queryset = RunScenarioModel.objects.all()
     lookup_field = 'uuid'
-
-
-class RunModelViewset(AsyncJobViewsetBase):
     serializer_class = RunModelSerializer
 
 
-class GenerateReportViewset(AsyncJobViewsetBase):
+class GenerateReportViewset(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    queryset = GenerateReportModel.objects.all()
+    lookup_field = 'uuid'
     serializer_class = GenerateReportSerializer
