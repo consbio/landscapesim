@@ -1,24 +1,14 @@
 """
-    Here is where we will add management commands to add libraries,
-    or to update a given library with new variables
-
-    NOTE - the libraries should be sitting in the directory root.
+    add_library: Imports an existing .ssim library into django_syncrosim.
 """
-
 import os
-import csv
 from shutil import copyfile
-from django.core.management.base import BaseCommand
-from django_stsim.models import Library, Project, Scenario, Stratum,\
-    StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
-    RunControl, OutputOption
-from django.conf import settings
-
-from django_stsim.io.reports import \
-    create_transition_summary, create_transition_sc_summary, \
-    create_stateclass_summary
+from django_stsim.models import Library, Project, Scenario
+from django_stsim.io.utils import process_scenario_inputs, process_project_definitions
+from django_stsim.io.reports import create_transition_summary, create_transition_sc_summary, create_stateclass_summary
 from django_stsim.io.consoles import STSimConsole
-exe = settings.STSIM_EXE_PATH
+from django.core.management.base import BaseCommand
+from django.conf import settings
 
 
 class Command(BaseCommand):
@@ -48,7 +38,7 @@ class Command(BaseCommand):
             else:
                 copyfile(file, orig_file)
 
-        console = STSimConsole(lib_path=file, orig_lib_path=orig_file, exe=exe)
+        console = STSimConsole(lib_path=file, orig_lib_path=orig_file, exe=settings.STSIM_EXE_PATH)
 
         # Console works, now create library
         library = Library.objects.create(name=name, file=file, orig_file=orig_file, tmp_file=tmp_file)
@@ -63,6 +53,7 @@ class Command(BaseCommand):
             project = Project.objects.create(library=library, name=proj_name, pid=int(pid))
             print('Created project {} with pid {}'.format(project.name, project.pid))
 
+            # Create original scenarios
             for s in orig_scenarios:
                 if s['pid'] == pid:
                     Scenario.objects.create(
@@ -72,6 +63,7 @@ class Command(BaseCommand):
                     )
                     print('Created scenario {}.'.format(s['sid']))
 
+            # Create result scenarios
             for s in result_scenarios:
                 if s['pid'] == pid:
                     Scenario.objects.create(
@@ -82,154 +74,16 @@ class Command(BaseCommand):
                     )
                     print('Created scenario {}.'.format(s['sid']))
 
-            # import strata
-            strata = console.export_vegtype_definitions(pid, tmp_file)
-            for stratum in strata.keys():
-                s = strata[stratum]
-                Stratum.objects.create(
-                    stratum_id=s['ID'],
-                    project=project,
-                    name=stratum,
-                    color=s['Color'],
-                    description=s['Description']
-                    )
-            print('Imported strata for project {}.'.format(project.name))
-
-            # import stateclasses
-            stateclasses = console.export_stateclass_definitions(pid, tmp_file)
-            for sc in stateclasses.keys():
-                s = stateclasses[sc]
-                StateClass.objects.create(
-                    stateclass_id=s['ID'],
-                    project=project,
-                    name=sc,
-                    color=s['Color'],
-                    description=s['Description'],
-                    development=s['Development Stage'],
-                    structure=s['Structural Stage']
-                    )
-            print('Imported state classes for project {}.'.format(project.name))
-
-            # import transition types   # TODO - add stsimpy methods for adding the below
-            console.export_sheet('STSim_TransitionType', tmp_file, pid=pid, overwrite=True, orig=True)
-            with open(tmp_file, 'r') as sheet:
-                reader = csv.DictReader(sheet)
-                for row in reader:
-                    TransitionType.objects.create(
-                        project=project,
-                        transition_type_id=int(row['ID']) if len(row['ID']) > 0 else -1,
-                        name=row['Name'],
-                        color=row['Color'],
-                        description=row['Description']
-                    )
-            print('Imported transition types for project {}.'.format(project.name))
-
-            # import transition groups
-            console.export_sheet('STSim_TransitionGroup', tmp_file, pid=pid, overwrite=True, orig=True)
-            with open(tmp_file, 'r') as sheet:
-                reader = csv.DictReader(sheet)
-                for row in reader:
-                    TransitionGroup.objects.create(
-                        project=project,
-                        name=row['Name'],
-                        description=row['Description']
-                    )
-            print('Imported transition groups for project {}.'.format(project.name))
-
-            # map transition groups to transition types
-            console.export_sheet('STSim_TransitionTypeGroup', tmp_file, pid=pid, overwrite=True, orig=True)
-            with open(tmp_file, 'r') as sheet:
-                reader = csv.DictReader(sheet)
-                for row in reader:
-                    grp = TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first()
-                    ttype = TransitionType.objects.filter(name__exact=row['TransitionTypeID'], project=project).first()
-                    TransitionTypeGroup.objects.create(
-                        project=project,
-                        transition_type=ttype,
-                        transition_group=grp,
-                        is_primary=row['IsPrimary']
-                    )
-            print('Imported transition type groups for project {}.'.format(project.name))
+            # Import all project definitions
+            process_project_definitions(console, project)
 
             # Now import any scenario-specific information we want to capture
             scenarios = Scenario.objects.filter(project=project)
             for s in scenarios:
 
-                # import initial run control
-                console.export_sheet('STSim_RunControl', tmp_file, sid=s.sid, overwrite=True, orig=True)
-                with open(tmp_file, 'r') as sheet:
-                    reader = csv.DictReader(sheet)
-                    run_options = [r for r in reader][0]
-                    RunControl.objects.create(
-                        scenario=s,
-                        min_iteration=int(run_options['MinimumIteration']),
-                        max_iteration=int(run_options['MaximumIteration']),
-                        min_timestep=int(run_options['MinimumTimestep']),
-                        max_timestep=int(run_options['MaximumTimestep']),
-                        is_spatial=True if run_options['IsSpatial'] == 'Yes' else False
-                    )
-                print('Imported (initial) run control for scenario {}'.format(s.sid))
+                # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
+                process_scenario_inputs(console, s)
 
-                # import output options
-                console.export_sheet('STSim_OutputOptions', tmp_file, sid=s.sid, overwrite=True, orig=True)
-                with open(tmp_file, 'r') as sheet:
-                    reader = csv.DictReader(sheet)
-                    output_options = [r for r in reader][0]
-                    for opt in output_options.keys():
-                        if len(output_options[opt]) > 0:      # a integer, or 'Yes', else ''
-                            if 'Timesteps' in opt:
-                                timestep = int(output_options[opt])
-                            else:
-                                timestep = -1    # default, won't be used
-                            enabled = True
-                        else:
-                            enabled = False
-                            timestep = -1
-                        OutputOption.objects.create(
-                            scenario=s,
-                            name=opt,
-                            timestep=timestep,
-                            enabled=enabled
-                        )
-                print('Imported (initial) output options for scenario {}'.format(s.sid))
-
-                # import initial probabilistic transition probabilities
-                console.export_sheet('STSim_Transition', tmp_file, sid=s.sid, overwrite=True, orig=True)
-                with open(tmp_file, 'r') as sheet:
-                    reader = csv.DictReader(sheet)
-                    for row in reader:
-                        if len(row['StratumIDDest']) > 0:
-                            Transition.objects.create(
-                                scenario=s,
-                                stratum_src=Stratum.objects.filter(name__exact=row['StratumIDSource'],
-                                                                   project=project).first(),
-                                stratum_dest=Stratum.objects.filter(name__exact=row['StratumIDDest'],
-                                                                    project=project).first(),
-                                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassIDSource'],
-                                                                         project=project).first(),
-                                stateclass_dest=StateClass.objects.filter(name__exact=row['StateClassIDDest'],
-                                                                          project=project).first(),
-                                transition_type=TransitionType.objects.filter(name__exact=row['TransitionTypeID'],
-                                                                              project=project).first(),
-                                probability=float(row['Probability']),
-                                age_reset=row['AgeReset']
-                            )
-                        else:
-                            Transition.objects.create(  # omit stratum_dest, no change in stratum per timestep
-                                scenario=s,
-                                stratum_src=Stratum.objects.filter(name__exact=row['StratumIDSource'],
-                                                                   project=project).first(),
-                                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassIDSource'],
-                                                                         project=project).first(),
-                                stateclass_dest=StateClass.objects.filter(name__exact=row['StateClassIDDest'],
-                                                                          project=project).first(),
-                                transition_type=TransitionType.objects.filter(name__exact=row['TransitionTypeID'],
-                                                                              project=project).first(),
-                                probability=float(row['Probability']),
-                                age_reset=row['AgeReset']
-                            )
-                print('Imported transition probabilities for scenario {}'.format(s.sid))
-            
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
 

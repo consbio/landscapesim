@@ -2,9 +2,9 @@ from celery import task
 from django_stsim.models import Library, Project, Scenario, RunScenarioModel, GenerateReportModel
 import json
 import os
-import uuid
 from django_stsim.io.consoles import STSimConsole
 from django_stsim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary
+from django_stsim.io.utils import get_random_csv, process_scenario_inputs
 
 from django.core import exceptions
 from django.conf import settings
@@ -15,6 +15,8 @@ exe = settings.STSIM_EXE_PATH
 def run_model(self, library_name, pid, sid):
     lib = Library.objects.get(name__iexact=library_name)
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
+    job = RunScenarioModel.objects.get(celery_id=self.request.id)
+
     try:
         result_sid = int(console.run_model(sid))
     except:
@@ -22,15 +24,16 @@ def run_model(self, library_name, pid, sid):
     scenario_info = [x for x in console.list_scenario_names(results_only=True)
                      if int(x['sid']) == result_sid][0]
     scenario = Scenario.objects.create(
-        project=Project.objects.get(library=lib, pid=int(pid)),
+        project=job.parent_scenario.project,
         name=scenario_info['name'],
         sid=result_sid,
         is_result=True
     )
-    job = RunScenarioModel.objects.get(celery_id=self.request.id)
     job.result_scenario = scenario
     job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
     job.save()
+
+    process_scenario_inputs(console, scenario)
 
 
 @task(bind=True)
@@ -39,7 +42,7 @@ def generate_report(self, library_name, pid, sid, report_name):
     proj = Project.objects.get(library=lib, pid=pid)
     s = Scenario.objects.filter(project=proj, sid=sid).first()
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
-    tmp_file = lib.tmp_file.replace('.csv', str(uuid.uuid4()) + '.csv')
+    tmp_file = get_random_csv(lib.tmp_file)
 
     try:
         console.generate_report(report_name, tmp_file, sid)

@@ -1,23 +1,14 @@
 """
-    TODO - We'll need to have an extensive if-else logic for handling the inputs to the model run
-           from the frontend. Perhaps we should have a RunModelSerializer, and a GenerateReportSerializer
-           That would make sense, as they're handled separately already.
-           On the contrary, a job is a job, the run_model job is a single variant
-
-    so, lets define the necessary inputs for model runs, including output options, and then
-    allow the API to make requests to generate the necessary reports, if available from the
-    output options made beforehand.
-
-    I.e. one request for /jobs/run-model (POST - lib, sid, pid, <init_conditions>, <transitions>)
-         one request for /jobs/generate-report (POST - lib, sid, pid, <[report1, report2, ...]>
-         difference is that these reports would be dependent on the output options selected. Could be a UI decision?
+    Serializers for consuming job submissions for running models and generating reports
 """
+
 import json
 from rest_framework import serializers
 from django_stsim.models import Library, Project, Scenario, \
     RunScenarioModel, GenerateReportModel
 from django_stsim.serializers import ScenarioSerializer
 from django_stsim.async.tasks import run_model, generate_report
+from django.core import exceptions
 
 REGISTERED_JOBS = ['run-model', 'generate-report']
 
@@ -66,6 +57,9 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
     def validate(self, attrs):
 
         # TODO - validate other inputs (transition probabilities, state/transition attributes, etc...)
+        # This will be necessary to import other items if we want to run the new values
+        # We don't need to add database rows into the system as those will be captured after a model run is complete
+        # For now, it is enough that we can run scenarios as stock models
 
         return attrs
 
@@ -98,6 +92,18 @@ class GenerateReportSerializer(AsyncJobSerializerMixin, serializers.ModelSeriali
 
         if attrs['report_name'] not in REGISTERED_REPORTS:
             raise serializers.ValidationError('No report with name {} available'.format(attrs['report_name']))
+
+        # Throw exceptions if scenario select is not a result scenario or does not exist
+        inputs = attrs['inputs']
+        try:
+            scenario = Scenario.objects.get(
+                sid=int(inputs['sid']),
+                project__pid=int(inputs['pid']),
+                project__library__name__exact=inputs['library_name'])
+            if not scenario.is_result:
+                raise serializers.ValidationError('Cannot run a report on non-result scenarios.')
+        except exceptions.ObjectDoesNotExist:
+            raise serializers.ValidationError('Cannot find scenario with provided arguments.')
 
         return attrs
 
