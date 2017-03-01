@@ -138,6 +138,7 @@ class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
         fields = ('iteration','timestep','stratum','stateclass',
             'amount','proportion_of_landscape', 'proportion_of_stratum')
 
+
 class StateClassSummaryReportSerializer(serializers.ModelSerializer):
 
     scenario = ScenarioSerializer(many=False, read_only=True)
@@ -146,6 +147,7 @@ class StateClassSummaryReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = StateClassSummaryReport
         fields = ('id', 'scenario','stateclass_results',)
+
 
 class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
 
@@ -157,6 +159,7 @@ class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
         model = TransitionSummaryReportRow
         fields = ('iteration','timestep','stratum', 'amount','transition_group',)
 
+
 class TransitionSummaryReportSerializer(serializers.ModelSerializer):
 
     scenario = ScenarioSerializer(many=False, read_only=True)
@@ -165,6 +168,7 @@ class TransitionSummaryReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionSummaryReport
         fields = ('id', 'scenario','transition_results',)
+
 
 class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializer):
 
@@ -177,6 +181,7 @@ class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializ
         model = TransitionByStateClassSummaryReportRow
         fields = ('iteration','timestep','stratum','stateclass_src', 'stateclass_dest',
             'amount','transition_type',)
+
 
 class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer):
 
@@ -195,14 +200,3 @@ class OutputOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OutputOption
         fields = '__all__'
-
-
-'''
-class OutputOptionSettingsSerializer(serializers.Serializer):
-
-    output_options = OutputOptionSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Scenario
-        fields = ('output_options',)
-'''

@@ -36,7 +36,6 @@ class Scenario(models.Model):
     is_result = models.BooleanField(default=False)
     sid = models.PositiveSmallIntegerField()
 
-
 """
     Project Definitions
 """
@@ -89,32 +88,34 @@ class TransitionTypeGroup(models.Model):
 class TransitionMultiplierType(models.Model):
     pass
 
-
 """
     Advanced project definitions
 """
-# TODO - Add advanced project definitions
-
-
-class DistributionType(models.Model):
-
-    pass
 
 
 class AttributeGroup(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
 
 
 class StateAttributeType(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    name = models.CharField(max_length=100)
+    attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
+    units = models.CharField(max_length=50)
+    description = models.CharField(max_length=100)
 
 
 class TransitionAttributeType(models.Model):
 
-    pass
-
+    scenario = models.ForeignKey('Scenario')
+    name = models.CharField(max_length=100)
+    attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
+    units = models.CharField(max_length=50)
+    description = models.CharField(max_length=100)
 
 """
     Scenario configuration settings
@@ -319,7 +320,6 @@ class TransitionAttributeSummaryReport(models.Model):
 class TransitionAttributeSummaryReportRow(models.Model):
 
     pass
-
 
 """
     django_stsim-specific tables for handling celery-related, asyncronous tasks

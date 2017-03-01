@@ -61,6 +61,7 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
     # TODO - Add transitions
     # TODO - Add initial conditions
     # TODO - Add transition targets
+    # TODO - Add state attribute values
     # TODO - Add transition attribute targets
     # TODO - Add transition attribute values (blend w/ targets?)
     # TODO - Add transition multipliers
