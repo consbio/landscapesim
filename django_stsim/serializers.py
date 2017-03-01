@@ -120,6 +120,8 @@ class TransitionSerializer(serializers.ModelSerializer):
     
     stratum_src = StratumSerializer(many=False, read_only=True)
     stateclass_src = StateClassSerializer(many=False, read_only=True)
+    stratum_dest = StratumSerializer(many=False, read_only=True)
+    stateclass_dest = StateClassSerializer(many=False, read_only=True)
 
     class Meta:
         model = Transition

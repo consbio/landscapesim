@@ -11,6 +11,7 @@ from celery.result import AsyncResult
 #        could be something like "has_lookup" and a fk to the lookup table
 #        WILL be needed for the landfire library, and then represented
 #        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
+# TODO - The above todo would be better solved by using a separate django application interfacing with django_stsim
 
 
 class Library(models.Model):
@@ -36,14 +37,9 @@ class Scenario(models.Model):
     sid = models.PositiveSmallIntegerField()
 
 
-class RunControl(models.Model):
-
-    scenario = models.ForeignKey('Scenario')
-    min_iteration = models.IntegerField()
-    max_iteration = models.IntegerField()
-    min_timestep = models.IntegerField()
-    max_timestep = models.IntegerField()
-    is_spatial = models.BooleanField(default=False)
+"""
+    Project Definitions
+"""
 
 
 class Stratum(models.Model):
@@ -89,10 +85,19 @@ class TransitionTypeGroup(models.Model):
     transition_group = models.ForeignKey('TransitionGroup')
     is_primary = models.CharField(max_length=3, default='')
 
-# TODO - Add the following defining models
-
 
 class TransitionMultiplierType(models.Model):
+    pass
+
+
+"""
+    Advanced project definitions
+"""
+# TODO - Add advanced project definitions
+
+
+class DistributionType(models.Model):
+
     pass
 
 
@@ -111,10 +116,40 @@ class TransitionAttributeType(models.Model):
     pass
 
 
+"""
+    Scenario configuration settings
+"""
+
+
+class RunControl(models.Model):
+    scenario = models.ForeignKey('Scenario')
+    min_iteration = models.IntegerField()
+    max_iteration = models.IntegerField()
+    min_timestep = models.IntegerField()
+    max_timestep = models.IntegerField()
+    is_spatial = models.BooleanField(default=False)
+
+
+class OutputOption(models.Model):
+    scenario = models.ForeignKey('Scenario')
+    name = models.CharField(max_length=30)
+    timestep = models.IntegerField(default=-1)
+    enabled = models.BooleanField(default=False)
+
+
+class DeterministicTransition(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    stratum_src = models.ForeignKey('Stratum', related_name='stratum_src_det')
+    stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_det')
+    stratum_dest = models.ForeignKey('Stratum', related_name='stratum_dest_det', on_delete=models.CASCADE, blank=True, null=True)
+    stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_det')
+    age_min = models.IntegerField()
+    age_max = models.IntegerField(null=True)
+    location = models.CharField(max_length=10)
+
+
 class Transition(models.Model):
-    """
-        NOTE: probability will store the initial values from the library when imported
-    """
 
     scenario = models.ForeignKey('Scenario')
     stratum_src = models.ForeignKey('Stratum', related_name='stratum_src')
@@ -125,27 +160,84 @@ class Transition(models.Model):
     probability = models.FloatField(default=0.0)
     age_reset = models.CharField(default='No', max_length=3)
 
-# TODO - Add the following scenario-dependent models
-
 
 class TransitionTarget(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    stratum = models.ForeignKey('Stratum')
+    transition_group = models.ForeignKey('TransitionGroup')
+    value = models.FloatField()
+
+
+class TransitionMultiplierValue(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField()
+    iteration = models.IntegerField()
+    transition_group = models.ForeignKey('TransitionGroup')
+    value = models.FloatField()
+
+
+class TransitionSizeDistribution(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    stratum = models.ForeignKey('Stratum', null=True)
+    transition_group = models.ForeignKey('TransitionGroup')
+    maximum_area = models.FloatField()
+    relative_amount = models.FloatField()
+
+
+class TransitionSizePrioritization(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    priority = models.CharField(max_length=25)
+
+
+class TransitionSpatialMultiplier(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    transition_group = models.ForeignKey('TransitionGroup')
+    multiplier_type = models.ForeignKey('TransitionMultiplierType', null=True, blank=True)
+    multiplier_file_path = models.FilePathField(match='*.tif')
 
 
 class StateAttributeValue(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    state_attribute_type = models.ForeignKey('StateAttributeType')
+    stateclass = models.ForeignKey('StateClass')
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    value = models.FloatField()
 
 
 class TransitionAttributeValue(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    transition_group = models.ForeignKey('TransitionGroup')
+    transition_attribute_type = models.ForeignKey('TransitionAttributeType')
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    stateclass = models.ForeignKey('StateClass', null=True, blank=True)
+    value = models.FloatField()
 
 
 class TransitionAttributeTargets(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    transition_attribute_type = models.ForeignKey('TransitionAttributeType')
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    value = models.FloatField()
 
 
 class StateClassSummaryReport(models.Model):
@@ -206,12 +298,32 @@ class TransitionByStateClassSummaryReportRow(models.Model):
     amount = models.FloatField()
 
 
-class OutputOption(models.Model):
+# TODO - implement the remaining stsim reports below
 
-    scenario = models.ForeignKey('Scenario')
-    name = models.CharField(max_length=30)
-    timestep = models.IntegerField(default=-1)
-    enabled = models.BooleanField(default=False)
+
+class StateAttributeSummaryReport(models.Model):
+
+    pass
+
+
+class StateAttributeSummaryReportRow(models.Model):
+
+    pass
+
+
+class TransitionAttributeSummaryReport(models.Model):
+
+    pass
+
+
+class TransitionAttributeSummaryReportRow(models.Model):
+
+    pass
+
+
+"""
+    django_stsim-specific tables for handling celery-related, asyncronous tasks
+"""
 
 
 class AsyncJobModel(models.Model):

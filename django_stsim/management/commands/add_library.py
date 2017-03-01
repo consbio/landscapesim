@@ -111,6 +111,8 @@ class Command(BaseCommand):
                     print('Imported transition-by-stateclass summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
 
+                    # TODO - add remaining reports
+
                 print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
             print("Project {} successfully imported into django_stsim".format(project.name))
         print("Library {} successfully added to django_stsim.".format(name))

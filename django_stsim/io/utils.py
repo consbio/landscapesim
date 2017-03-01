@@ -97,7 +97,7 @@ def process_project_definitions(console, project):
             )
     print('Imported transition type groups for project {}.'.format(project.name))
 
-
+# TODO - Add deterministic transitions, initial_conditions_nonspatial, transition targets, multiplier values, size dist/priority, state/transition attributes/targets,
 def process_scenario_inputs(console, scenario):
     # import initial run control
     tmp_file = get_random_csv(scenario.project.library.tmp_file)
