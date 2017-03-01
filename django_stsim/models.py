@@ -97,22 +97,25 @@ class TransitionTypeGroup(models.Model):
     is_primary = models.CharField(max_length=3, default='')
 
 # TODO - Add the following defining models
-class TransitionMultiplierType(models.Model):
 
-    raise NotImplementedError()
+
+class TransitionMultiplierType(models.Model):
+    pass
+
 
 class AttributeGroup(models.Model):
 
-    raise NotImplementedError()
+    pass
+
 
 class StateAttributeType(models.Model):
 
-    raise NotImplementedError()
+    pass
+
 
 class TransitionAttributeType(models.Model):
 
-    raise NotImplementedError()
-
+    pass
 
 
 class Transition(models.Model):
@@ -131,21 +134,25 @@ class Transition(models.Model):
 
 # TODO - Add the following scenario-dependent models
 
+
 class TransitionTarget(models.Model):
 
-    raise NotImplementedError()
+    pass
+
 
 class StateAttributeValue(models.Model):
 
-    raise NotImplementedError()
+    pass
+
 
 class TransitionAttributeValue(models.Model):
 
-    raise NotImplementedError()
+    pass
+
 
 class TransitionAttributeTargets(models.Model):
 
-    raise NotImplementedError()
+    pass
 
 
 class StateClassSummaryReport(models.Model):
@@ -225,9 +232,6 @@ class AsyncJobModel(models.Model):
     celery_id = models.CharField(max_length=100)
     inputs = models.TextField(null=False, default="{}")
     outputs = models.TextField(null=False, default="{}")
-
-    # TODO - add is_model_run flag? or handle the interaction differently?
-    #      - probably should handle this at the view/API level
 
     @property
     def status(self):

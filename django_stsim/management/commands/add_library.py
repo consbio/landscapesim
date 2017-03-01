@@ -11,12 +11,12 @@ from shutil import copyfile
 from django.core.management.base import BaseCommand
 from django_stsim.models import Library, Project, Scenario, Stratum,\
     StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
-    StateClassSummaryReport, StateClassSummaryReportRow, \
-    TransitionSummaryReport, TransitionSummaryReportRow, \
-    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
     RunControl, OutputOption
 from django.conf import settings
 
+from django_stsim.io.reports import \
+    create_transition_summary, create_transition_sc_summary, \
+    create_stateclass_summary
 from django_stsim.io.consoles import STSimConsole
 exe = settings.STSIM_EXE_PATH
 
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         tmp_file = file.split('.ssim')[0] + '_tmp.csv'
 
         if Library.objects.filter(file__iexact=file).exists():
-            message = 'The library located at {} already exists in the database.'
+            print('The library located at {} already exists in the database.')
             return
 
         if not os.path.exists(orig_file):
@@ -234,66 +234,25 @@ class Command(BaseCommand):
                     os.remove(tmp_file)
 
                 # if the scenario is a result scenario
-                # TODO - add secondary_stratum?
                 if s.is_result:
 
                     # import state class reports,
                     console.generate_report('stateclass-summary', tmp_file, s.sid)
-                    report = StateClassSummaryReport.objects.create(scenario=s)
-                    with open(tmp_file, 'r') as sheet:
-                        reader = csv.DictReader(sheet)
-                        for row in reader:
-                            StateClassSummaryReportRow.objects.create(
-                                report=report,
-                                iteration=int(row['Iteration']),
-                                timestep=int(row['Timestep']),
-                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                stateclass=StateClass.objects.filter(name__exact=row['StateClassID'], project=project).first(),
-                                amount=float(row['Amount']),
-                                proportion_of_landscape=float(row['ProportionOfLandscape']),
-                                proportion_of_stratum=float(row['ProportionOfStratumID'])
-                                )
+                    create_stateclass_summary(project, s, tmp_file)
 
                     print('Imported stateclass summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
 
                     # import transition summary reports
                     console.generate_report('transition-summary', tmp_file, s.sid)
-                    report = TransitionSummaryReport.objects.create(scenario=s)
-                    with open(tmp_file, 'r') as sheet:
-                        reader = csv.DictReader(sheet)
-                        for row in reader:
-                            TransitionSummaryReportRow.objects.create(
-                                report=report,
-                                iteration=int(row['Iteration']),
-                                timestep=int(row['Timestep']),
-                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first(),
-                                amount=float(row['Amount']),
-                                )
+                    create_transition_summary(project, s, tmp_file)
 
                     print('Imported transition summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
 
                     # import transition-stateclass summary reports
                     console.generate_report('transition-stateclass-summary', tmp_file, s.sid)
-                    report = TransitionByStateClassSummaryReport.objects.create(scenario=s)
-                    with open(tmp_file, 'r') as sheet:
-                        reader = csv.DictReader(sheet)
-                        for row in reader:
-                            TransitionByStateClassSummaryReportRow.objects.create(
-                                report=report,
-                                iteration=int(row['Iteration']),
-                                timestep=int(row['Timestep']),
-                                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
-                                transition_type=TransitionType.objects.filter(
-                                    name__exact=row['TransitionTypeID'], project=project).first(),
-                                stateclass_src=StateClass.objects.filter(
-                                    name__exact=row['StateClassID'], project=project).first(),
-                                stateclass_dest=StateClass.objects.filter(
-                                    name__exact=row['EndStateClassID'], project=project).first(),
-                                amount=float(row['Amount']),
-                                )
+                    create_transition_sc_summary(project, s, tmp_file)
 
                     print('Imported transition-by-stateclass summary report for scenario {}.'.format(s.sid))
                     os.remove(tmp_file)
