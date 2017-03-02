@@ -1,9 +1,7 @@
 *.whl
 stsim-libs/
-stsimvenv/
-stsimenv/
 manage.py
-django_syncrosim/settings.py
+stsm_project/
 db.sqlite3
 __pycache__/
 .idea/
