@@ -1,10 +1,13 @@
 import uuid
 import csv
 import os
-from django_stsim.models import RunControl, OutputOption, Stratum, SecondaryStratum, StateClass, TransitionType, \
-    TransitionGroup, TransitionTypeGroup, TransitionMultiplierType
-from django_stsim.models import DeterministicTransition, Transition, InitialConditionsNonSpatial, \
-    InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue
+from django_stsim.models import Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
+    TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, \
+    RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
+    InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue, \
+    AttributeGroup, StateAttributeType, TransitionAttributeType, TransitionSizeDistribution, \
+    TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
+    TransitionAttributeTarget
 
 M2_TO_ACRES = 0.000247105
 
@@ -29,19 +32,38 @@ def color_to_rgba(colorstr):
 
 def process_project_definitions(console, project):
 
-    # import strata
     tmp_file = get_random_csv(project.library.tmp_file)
     kwgs = {'pid': project.pid, 'overwrite': True, 'orig': True}
-    strata = console.export_vegtype_definitions(project.pid, tmp_file)
-    for stratum in strata.keys():
-        s = strata[stratum]
-        Stratum.objects.create(
-            stratum_id=s['ID'],
+
+    # Import terminology
+    console.export_sheet('STSim_Terminology', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        terms = [r for r in reader][0]
+        Terminology.objects.create(
             project=project,
-            name=stratum,
-            color=s['Color'],
-            description=s['Description']
+            amount_label=terms['AmountLabel'],
+            amount_units=terms['AmountUnits'],
+            state_label_x=terms['StateLabelX'],
+            state_label_y=terms['StateLabelY'],
+            primary_stratum_label=terms['PrimaryStratumLabel'],
+            secondary_stratum_label=terms['SecondaryStratumLabel'],
+            timestep_units=terms['TimestepUnits']
         )
+    print('Imported terminology for project {}.'.format(project.name))
+
+    # Import strata
+    console.export_sheet('STSim_Stratum', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            Stratum.objects.create(
+                stratum_id=int(row['ID']) if len(row['ID']) > 0 else -1,
+                project=project,
+                name=row['Name'],
+                color=row['Color'],
+                description=row['Description']
+            )
     print('Imported strata for project {}.'.format(project.name))
 
     # import secondary strata
@@ -58,18 +80,19 @@ def process_project_definitions(console, project):
     print('Imported secondary strata for project {}.'.format(project.name))
 
     # import stateclasses
-    stateclasses = console.export_stateclass_definitions(project.pid, tmp_file)
-    for sc in stateclasses.keys():
-        s = stateclasses[sc]
-        StateClass.objects.create(
-            stateclass_id=s['ID'],
-            project=project,
-            name=sc,
-            color=s['Color'],
-            description=s['Description'],
-            development=s['Development Stage'],
-            structure=s['Structural Stage']
-        )
+    console.export_sheet('STSim_StateClass', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            StateClass.objects.create(
+                stateclass_id=int(row['ID']) if len(row['ID']) > 0 else -1,
+                project=project,
+                name=row['Name'],
+                state_label_x=row['StateLabelXID'],
+                state_label_y=row['StateLabelYID'],
+                color=row['Color'],
+                description=row['Description']
+            )
     print('Imported state classes for project {}.'.format(project.name))
 
     # import transition types
@@ -124,6 +147,47 @@ def process_project_definitions(console, project):
             )
     print('Imported transition multiplier types for project {}.'.format(project.name))
 
+    # Import attribute groups
+    console.export_sheet('STSim_AttributeGroup', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            AttributeGroup.objects.create(
+                project=project,
+                name=row['Name'],
+                description=row['Description']
+            )
+    print('Imported attribute groups for project {}.'.format(project.name))
+
+    # Import state attribute types
+    console.export_sheet('STSim_StateAttributeType', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            StateAttributeType.objects.create(
+                project=project,
+                name=row['Name'],
+                attribute_group=AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
+                                                              project=project).first(),
+                units=row['Units'],
+                description=row['Description']
+            )
+    print('Imported state attribute types for project {}.'.format(project.name))
+
+    # Import transition attribute types
+    console.export_sheet('STSim_TransitionAttributeType', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            TransitionAttributeType.objects.create(
+                project=project,
+                name=row['Name'],
+                attribute_group=AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
+                                                              project=project).first(),
+                units=row['Units'],
+                description=row['Description']
+            )
+    print('Imported transition attribute types for project {}.'.format(project.name))
 
 # TODO - size dist/priority, state/transition attributes/targets,
 def process_scenario_inputs(console, scenario):
@@ -320,17 +384,153 @@ def process_scenario_inputs(console, scenario):
     print('Imported transition multiplier values for scenario {}'.format(scenario.sid))
 
     # Import transition size distribution
+    console.export_sheet('STSim_TransitionSizeDistribution', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            iteration = int(row['Iteration']) if len(row['Iteration']) > 0 else ''
+            timestep = int(row['Timestep']) if len(row['Timestep']) > 0 else ''
+            stratum = row['StratumID']
+            sd = TransitionSizeDistribution.objects.create(
+                scenario=scenario,
+                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
+                                                                project=project).first(),
+                maximum_area=float(row['MaximumArea']),
+                relative_amount=float(row['RelativeAmount'])
+            )
+            if type(iteration) is int:
+                sd.iteration = iteration
+            if type(timestep) is int:
+                sd.timestep = timestep
+            if len(stratum) > 0:
+                sd.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+
+            sd.save()
+    print('Imported transition size distribution for scenario {}'.format(scenario.sid))
 
     # Import transition size prioritization
+    console.export_sheet('STSim_TransitionSizePrioritization', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        priorities = [r for r in reader]
+        if len(priorities) > 0:
+            priorities = priorities[0]
+            iteration = int(priorities['Iteration']) if len(priorities['Iteration']) > 0 else ''
+            timestep = int(priorities['Timestep']) if len(priorities['Timestep']) > 0 else ''
+            stratum = priorities['StratumID']
+            transition_group = priorities['TransitionGroupID']
+            sp = TransitionSizePrioritization.objects.create(
+                scenario=scenario,
+                priority=priorities['Priority']
+            )
+            if len(stratum) > 0:
+                sp.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+            if len(transition_group) > 0:
+                sp.transition_group = TransitionGroup.objects.filter(name__exact=transition_group,
+                                                                     project=project).first()
+            if type(iteration) is int:
+                sp.iteration = iteration
+            if type(timestep) is int:
+                sp.timestep = timestep
 
-    # Import transition spatial multiplier configuration
+            sp.save()
+    print('Imported transition size prioritization for scenario {}'.format(scenario.sid))
+
+    # TODO - Import transition spatial multiplier configuration, and if is result, process web outputs
 
     # Import state attribute values
+    console.export_sheet('STSim_StateAttributeValue', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            iteration = int(row['Iteration']) if len(row['Iteration']) > 0 else ''
+            timestep = int(row['Timestep']) if len(row['Timestep']) > 0 else ''
+            stratum = row['StratumID']
+            secondary_stratum = row['SecondaryStratumID']
+            stateclass = row['StateClassID']
+            sav = StateAttributeValue.objects.create(
+                scenario=scenario,
+                state_attribute_type=StateAttributeType.objects.filter(
+                    name__exact=row['StateAttributeTypeID'], project=project).first(),
+                value=float(row['Value'])
+            )
+            if len(stratum) > 0:
+                sav.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+            if len(secondary_stratum) > 0:
+                sav.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                                                                        project=project).first()
+            if len(stateclass) > 0:
+                sav.stateclass = StateClass.objects.filter(name__exact=stateclass, project=project).first()
+            if type(iteration) is int:
+                sav.iteration = iteration
+            if type(timestep) is int:
+                sav.timestep = timestep
+
+            sav.save()
+    print('Imported state attribute values for scenario {}'.format(scenario.sid))
 
     # import transition attribute values
+    console.export_sheet('STSim_TransitionAttributeValue', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            iteration = int(row['Iteration']) if len(row['Iteration']) > 0 else ''
+            timestep = int(row['Timestep']) if len(row['Timestep']) > 0 else ''
+            stratum = row['StratumID']
+            secondary_stratum = row['SecondaryStratumID']
+            stateclass = row['StateClassID']
+            tav = TransitionAttributeValue.objects.create(
+                scenario=scenario,
+                transition_group=TransitionGroup.objects.filter(
+                    name__exact=row['TransitionGroupID'], project=project).first(),
+                transition_attribute_type=TransitionAttributeType.objects.filter(
+                    name__exact=row['TransitionAttributeTypeID'], project=project).first(),
+                value=float(row['Value'])
+            )
+            if len(stratum) > 0:
+                tav.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+            if len(secondary_stratum) > 0:
+                tav.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                                                                        project=project).first()
+            if len(stateclass) > 0:
+                tav.stateclass = StateClass.objects.filter(name__exact=stateclass, project=project).first()
+            if type(iteration) is int:
+                tav.iteration = iteration
+            if type(timestep) is int:
+                tav.timestep = timestep
+
+            tav.save()
+    print('Imported transition attribute values for scenario {}'.format(scenario.sid))
 
     # import transition attribute targets
+    console.export_sheet('STSim_TransitionAttributeTarget', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            iteration = int(row['Iteration']) if len(row['Iteration']) > 0 else ''
+            timestep = int(row['Timestep']) if len(row['Timestep']) > 0 else ''
+            stratum = row['StratumID']
+            secondary_stratum = row['SecondaryStratumID']
+            tat = TransitionAttributeTarget.objects.create(
+                scenario=scenario,
+                transition_attribute_type=TransitionAttributeType.objects.filter(
+                    name__exact=row['TransitionAttributeTypeID'], project=project).first(),
+                target=float(row['Amount'])
+            )
+            if len(stratum) > 0:
+                tat.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+            if len(secondary_stratum) > 0:
+                tat.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                                                                        project=project).first()
+            if type(iteration) is int:
+                tat.iteration = iteration
+            if type(timestep) is int:
+                tat.timestep = timestep
 
+            tat.save()
+    print('Imported transition attribute targets for scenario {}'.format(scenario.sid))
+
+    # TODO - Determine whether this scenario is a dependency of another scenario, or has dependencies that rely on this
 
     if os.path.exists(tmp_file):
         os.remove(tmp_file)

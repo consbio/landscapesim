@@ -36,9 +36,25 @@ class Scenario(models.Model):
     is_result = models.BooleanField(default=False)
     sid = models.PositiveSmallIntegerField()
 
+    # TODO - Add detection for scenario dependencies (as a console action)
+    # Note - A scenario can itself have scenarios as dependencies, but a top level scenario won't be a dependency
+    is_dependency_of = models.ForeignKey("self", null=True, blank=True)
+
 """
     Project Definitions
 """
+
+
+class Terminology(models.Model):
+
+    project = models.ForeignKey('Project')
+    amount_label = models.CharField(max_length=100)
+    amount_units = models.CharField(max_length=100)
+    state_label_x = models.CharField(max_length=100)
+    state_label_y = models.CharField(max_length=100)
+    primary_stratum_label = models.CharField(max_length=100)
+    secondary_stratum_label = models.CharField(max_length=100)
+    timestep_units = models.CharField(max_length=100)
 
 
 class Stratum(models.Model):
@@ -65,7 +81,8 @@ class StateClass(models.Model):
     name = models.CharField(max_length=50)
     color = models.CharField(max_length=30)
     description = models.CharField(max_length=100)
-    development = models.CharField(max_length=100)
+    state_label_x = models.CharField(max_length=100)
+    state_label_y = models.CharField(max_length=100)
     structure = models.CharField(max_length=100)
 
 
@@ -98,21 +115,17 @@ class TransitionMultiplierType(models.Model):
     project = models.ForeignKey('Project', related_name='transition_multiplier_type', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
 
-"""
-    Advanced project definitions
-"""
-
 
 class AttributeGroup(models.Model):
 
-    scenario = models.ForeignKey('Scenario')
+    project = models.ForeignKey('Project')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
 
 
 class StateAttributeType(models.Model):
 
-    scenario = models.ForeignKey('Scenario')
+    project = models.ForeignKey('Project')
     name = models.CharField(max_length=100)
     attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
     units = models.CharField(max_length=50)
@@ -121,7 +134,7 @@ class StateAttributeType(models.Model):
 
 class TransitionAttributeType(models.Model):
 
-    scenario = models.ForeignKey('Scenario')
+    project = models.ForeignKey('Project')
     name = models.CharField(max_length=100)
     attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
     units = models.CharField(max_length=50)
@@ -223,7 +236,7 @@ class TransitionSizeDistribution(models.Model):
     scenario = models.ForeignKey('Scenario')
     timestep = models.IntegerField(null=True, blank=True)
     iteration = models.IntegerField(null=True, blank=True)
-    stratum = models.ForeignKey('Stratum', null=True)
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
     maximum_area = models.FloatField()
     relative_amount = models.FloatField()
@@ -232,6 +245,10 @@ class TransitionSizeDistribution(models.Model):
 class TransitionSizePrioritization(models.Model):
 
     scenario = models.ForeignKey('Scenario')
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    transition_group = models.ForeignKey('TransitionGroup', null=True, blank=True)
     priority = models.CharField(max_length=25)
 
 
@@ -250,9 +267,10 @@ class StateAttributeValue(models.Model):
     scenario = models.ForeignKey('Scenario')
     timestep = models.IntegerField(null=True, blank=True)
     iteration = models.IntegerField(null=True, blank=True)
-    state_attribute_type = models.ForeignKey('StateAttributeType')
-    stateclass = models.ForeignKey('StateClass')
     stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', null=True, blank=True)
+    stateclass = models.ForeignKey('StateClass', null=True, blank=True)
+    state_attribute_type = models.ForeignKey('StateAttributeType')
     value = models.FloatField()
 
 
@@ -261,14 +279,15 @@ class TransitionAttributeValue(models.Model):
     scenario = models.ForeignKey('Scenario')
     timestep = models.IntegerField(null=True, blank=True)
     iteration = models.IntegerField(null=True, blank=True)
-    transition_group = models.ForeignKey('TransitionGroup')
-    transition_attribute_type = models.ForeignKey('TransitionAttributeType')
     stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', null=True, blank=True)
+    transition_group = models.ForeignKey('TransitionGroup')
     stateclass = models.ForeignKey('StateClass', null=True, blank=True)
+    transition_attribute_type = models.ForeignKey('TransitionAttributeType')
     value = models.FloatField()
 
 
-class TransitionAttributeTargets(models.Model):
+class TransitionAttributeTarget(models.Model):
 
     scenario = models.ForeignKey('Scenario')
     timestep = models.IntegerField(null=True, blank=True)

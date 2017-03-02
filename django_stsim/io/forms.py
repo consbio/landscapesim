@@ -71,6 +71,8 @@ def validate_sheet(rows, sheet_serializer):
 
     return validated_rows
 
+# TODO - Add DeterministicTransitionImport
+
 
 class TransitionImport(ImportSerializerBase):
 
@@ -95,3 +97,5 @@ class TransitionImport(ImportSerializerBase):
         model = Transition
         fields = ('stratum_src', 'stateclass_src', 'stratum_dest', 'stateclass_dest',
                   'transition_type', 'probability', 'age_reset')
+
+# TODO - Add DeterministicTransitionImport

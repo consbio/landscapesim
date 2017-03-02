@@ -6,13 +6,9 @@
 
 import csv
 
-from django_stsim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup
-
-from django_stsim.models import TransitionSummaryReport, TransitionSummaryReportRow, StateClassSummaryReport, \
-    StateClassSummaryReportRow, TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
-
-
-# TODO - add secondary_stratum to reports?
+from django_stsim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup, \
+    TransitionSummaryReport, TransitionSummaryReportRow, StateClassSummaryReport, StateClassSummaryReportRow, \
+    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
 
 
 def create_stateclass_summary(project, scenario, file):
