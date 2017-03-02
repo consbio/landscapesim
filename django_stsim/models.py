@@ -50,6 +50,14 @@ class Stratum(models.Model):
     description = models.CharField(max_length=100)
 
 
+class SecondaryStratum(models.Model):
+
+    project = models.ForeignKey('Project', related_name='secondary_strata', on_delete=models.CASCADE)
+    secondary_stratum_id = models.IntegerField()
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=100)
+
+
 class StateClass(models.Model):
 
     project = models.ForeignKey('Project', related_name='stateclasses', on_delete=models.CASCADE)
@@ -86,7 +94,9 @@ class TransitionTypeGroup(models.Model):
 
 
 class TransitionMultiplierType(models.Model):
-    pass
+
+    project = models.ForeignKey('Project', related_name='transition_multiplier_type', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
 
 """
     Advanced project definitions
@@ -145,8 +155,8 @@ class DeterministicTransition(models.Model):
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_det')
     stratum_dest = models.ForeignKey('Stratum', related_name='stratum_dest_det', on_delete=models.CASCADE, blank=True, null=True)
     stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_det')
-    age_min = models.IntegerField()
-    age_max = models.IntegerField(null=True)
+    age_min = models.IntegerField(null=True, blank=True)
+    age_max = models.IntegerField(null=True, blank=True)
     location = models.CharField(max_length=10)
 
 
@@ -162,23 +172,50 @@ class Transition(models.Model):
     age_reset = models.CharField(default='No', max_length=3)
 
 
+class InitialConditionsNonSpatial(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    total_amount = models.FloatField()
+    num_cells = models.IntegerField()
+    calc_from_dist = models.CharField(max_length=10)
+
+
+class InitialConditionsNonSpatialDistribution(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    stratum = models.ForeignKey('Stratum', related_name='stratum_ic')
+    secondary_stratum = models.ForeignKey('SecondaryStratum', related_name='secondary_stratum_ic', blank=True, null=True)
+    stateclass = models.ForeignKey('StateClass')
+    age_min = models.IntegerField(null=True, blank=True)
+    age_max = models.IntegerField(null=True, blank=True)
+    relative_amount = models.FloatField()
+
+
+# TODO - Add distribution types, sd, min and max
+
+
 class TransitionTarget(models.Model):
 
     scenario = models.ForeignKey('Scenario')
     timestep = models.IntegerField(null=True, blank=True)
     iteration = models.IntegerField(null=True, blank=True)
     stratum = models.ForeignKey('Stratum')
+    secondary_stratum = models.ForeignKey('SecondaryStratum', null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
-    value = models.FloatField()
+    target_area = models.FloatField()
 
 
 class TransitionMultiplierValue(models.Model):
 
     scenario = models.ForeignKey('Scenario')
-    timestep = models.IntegerField()
-    iteration = models.IntegerField()
+    timestep = models.IntegerField(null=True, blank=True)
+    iteration = models.IntegerField(null=True, blank=True)
+    stratum = models.ForeignKey('Stratum', null=True, blank=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', null=True, blank=True)
+    stateclass = models.ForeignKey('StateClass', null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
-    value = models.FloatField()
+    transition_multiplier_type = models.ForeignKey('TransitionMultiplierType', null=True, blank=True)
+    multiplier = models.FloatField()
 
 
 class TransitionSizeDistribution(models.Model):
@@ -238,7 +275,7 @@ class TransitionAttributeTargets(models.Model):
     iteration = models.IntegerField(null=True, blank=True)
     transition_attribute_type = models.ForeignKey('TransitionAttributeType')
     stratum = models.ForeignKey('Stratum', null=True, blank=True)
-    value = models.FloatField()
+    target = models.FloatField()
 
 
 class StateClassSummaryReport(models.Model):
@@ -252,7 +289,7 @@ class StateClassSummaryReportRow(models.Model):
     iteration = models.IntegerField()
     timestep = models.IntegerField()
     stratum = models.ForeignKey('Stratum', related_name='stratum_scr')
-    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_scr', blank=True, null=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', related_name='secondary_stratum_scr', blank=True, null=True)
     stateclass = models.ForeignKey('StateClass')
     amount = models.FloatField()
     proportion_of_landscape = models.FloatField()
@@ -273,7 +310,7 @@ class TransitionSummaryReportRow(models.Model):
     iteration = models.IntegerField()
     timestep = models.IntegerField()
     stratum = models.ForeignKey('Stratum', related_name='stratum_tr')
-    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_tr', blank=True, null=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', related_name='secondary_stratum_tr', blank=True, null=True)
     transition_group = models.ForeignKey('TransitionGroup') # we capture the amount moved as a whole group
     amount = models.FloatField()
 
@@ -292,7 +329,7 @@ class TransitionByStateClassSummaryReportRow(models.Model):
     iteration = models.IntegerField()
     timestep = models.IntegerField()
     stratum = models.ForeignKey('Stratum', related_name='stratum_tscr')
-    secondary_stratum = models.ForeignKey('Stratum', related_name='secondary_stratum_tscr', blank=True, null=True)
+    secondary_stratum = models.ForeignKey('SecondaryStratum', related_name='secondary_stratum_tscr', blank=True, null=True)
     transition_type = models.ForeignKey('TransitionType') # we capture the amount moved specifically by timestep
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_tscr')
     stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_tscr')

@@ -6,13 +6,10 @@
 
 import csv
 
-from django_stsim.models import \
-    Stratum, StateClass, TransitionType, TransitionGroup
+from django_stsim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup
 
-from django_stsim.models import \
-    TransitionSummaryReport, TransitionSummaryReportRow, \
-    StateClassSummaryReport, StateClassSummaryReportRow, \
-    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
+from django_stsim.models import TransitionSummaryReport, TransitionSummaryReportRow, StateClassSummaryReport, \
+    StateClassSummaryReportRow, TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
 
 
 # TODO - add secondary_stratum to reports?
@@ -23,7 +20,7 @@ def create_stateclass_summary(project, scenario, file):
     with open(file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            StateClassSummaryReportRow.objects.create(
+            r = StateClassSummaryReportRow.objects.create(
                 report=report,
                 iteration=int(row['Iteration']),
                 timestep=int(row['Timestep']),
@@ -33,6 +30,10 @@ def create_stateclass_summary(project, scenario, file):
                 proportion_of_landscape=float(row['ProportionOfLandscape']),
                 proportion_of_stratum=float(row['ProportionOfStratumID'])
             )
+            secondary_stratum = row['SecondaryStratumID']
+            if len(secondary_stratum) > 0:
+                r.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum, project=project).first()
+                r.save()
     return report
 
 
@@ -41,7 +42,7 @@ def create_transition_summary(project, scenario, file):
     with open(file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionSummaryReportRow.objects.create(
+            r = TransitionSummaryReportRow.objects.create(
                 report=report,
                 iteration=int(row['Iteration']),
                 timestep=int(row['Timestep']),
@@ -50,6 +51,10 @@ def create_transition_summary(project, scenario, file):
                                                                 project=project).first(),
                 amount=float(row['Amount']),
             )
+            secondary_stratum = row['SecondaryStratumID']
+            if len(secondary_stratum) > 0:
+                r.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum, project=project).first()
+                r.save()
     return report
 
 
@@ -58,7 +63,7 @@ def create_transition_sc_summary(project, scenario, file):
     with open(file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionByStateClassSummaryReportRow.objects.create(
+            r = TransitionByStateClassSummaryReportRow.objects.create(
                 report=report,
                 iteration=int(row['Iteration']),
                 timestep=int(row['Timestep']),
@@ -71,6 +76,10 @@ def create_transition_sc_summary(project, scenario, file):
                     name__exact=row['EndStateClassID'], project=project).first(),
                 amount=float(row['Amount']),
             )
+            secondary_stratum = row['SecondaryStratumID']
+            if len(secondary_stratum) > 0:
+                r.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum, project=project).first()
+                r.save()
     return report
 
 # TODO - Add stateclass and transition arribute summary reports

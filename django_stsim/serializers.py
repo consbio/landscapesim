@@ -115,6 +115,9 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
         fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
             'transition_type_groups',)
 
+# TODO - Add deterministic transition serializer
+
+
 
 class TransitionSerializer(serializers.ModelSerializer):
     
@@ -126,6 +129,16 @@ class TransitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transition
         fields = '__all__'
+
+# TODO - Add initial conditions non spatial serializer
+# TODO - Add initial conditions non spatial values serializer
+# TODO - Add transition target serializer
+# TODO - Add Transition multiplier serializer
+# TODO - Add TransitionSizeDistribution serializer
+# TODO - Add TransitionSizePrioritization serializer
+# TODO - Add state attribute value serializer
+# TODO - Add transition attribute value serializer
+# TODO - Add transition attribute target serializer
 
 
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
@@ -200,3 +213,5 @@ class OutputOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OutputOption
         fields = '__all__'
+
+# TODO - Add remaining report and report_row serializers
