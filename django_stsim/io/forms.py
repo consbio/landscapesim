@@ -61,10 +61,12 @@ def validate_sheet(rows, sheet_serializer):
     :return:
     """
     validated_rows = []
+    if not issubclass(sheet_serializer, ImportSerializerBase):
+        raise serializers.ValidationError('Must use serializer derived from ImportSerializerBase')
 
     for row in rows:
         try:
-            validated_row = sheet_serializer(row)
+            validated_row = sheet_serializer(row).transform()
             validated_rows.append(validated_row)
         except:
             raise serializers.ValidationError("Malformed data when importing sheet.")

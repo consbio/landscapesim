@@ -22,8 +22,6 @@ REGISTERED_REPORTS = [
 
 class AsyncJobSerializerMixin(object):
 
-    # TODO - have the below available in subclasses, and have two separate serializers
-
     status = serializers.CharField(read_only=True)
     inputs = serializers.JSONField(allow_null=True)
     outputs = serializers.JSONField(read_only=True)

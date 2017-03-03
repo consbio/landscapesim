@@ -26,4 +26,5 @@ router.register('output-options', OutputOptionViewset)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^jobs/', include('django_stsim.async.urls'))
 ]
