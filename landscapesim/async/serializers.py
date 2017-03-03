@@ -4,10 +4,10 @@
 
 import json
 from rest_framework import serializers
-from django_stsim.models import Library, Project, Scenario, \
+from landscapesim.models import Library, Project, Scenario, \
     RunScenarioModel, GenerateReportModel
-from django_stsim.serializers import ScenarioSerializer
-from django_stsim.async.tasks import run_model, generate_report
+from landscapesim.serializers import ScenarioSerializer
+from landscapesim.async.tasks import run_model, generate_report
 from django.core import exceptions
 
 REGISTERED_JOBS = ['run-model', 'generate-report']

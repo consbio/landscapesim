@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from django_stsim.views import LibraryViewset, ProjectViewset, ScenarioViewset,\
+from landscapesim.views import LibraryViewset, ProjectViewset, ScenarioViewset,\
     StratumViewset, StateClassViewset, TransitionTypeViewset,\
     TransitionGroupViewset, TransitionTypeGroupViewset, TransitionViewset, \
     StateClassSummaryReportViewset, TransitionSummaryReportViewset, \
@@ -26,5 +26,5 @@ router.register('output-options', OutputOptionViewset)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^jobs/', include('django_stsim.async.urls'))
+    url(r'^jobs/', include('landscapesim.async.urls'))
 ]

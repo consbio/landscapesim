@@ -3,15 +3,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ParseError
 
-from django_stsim.models import Library, Project, Scenario, Stratum, StateClass, \
+from landscapesim.models import Library, Project, Scenario, Stratum, StateClass, \
     TransitionType, TransitionGroup, TransitionTypeGroup, Transition, StateClassSummaryReport, \
     TransitionSummaryReport, TransitionByStateClassSummaryReport, RunControl, OutputOption
-from django_stsim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
+from landscapesim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
     StratumSerializer, StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, \
     TransitionTypeGroupSerializer, TransitionSerializer, StateClassSummaryReportSerializer, \
     TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer, \
     RunControlSerializer, OutputOptionSerializer
-from django_stsim.serializers import ProjectDefinitionsSerializer
+from landscapesim.serializers import ProjectDefinitionsSerializer
 
 # TODO - Discuss integration of spatial layers into models
 

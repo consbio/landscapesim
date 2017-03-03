@@ -6,7 +6,7 @@
 
 import csv
 
-from django_stsim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup, \
+from landscapesim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup, \
     TransitionSummaryReport, TransitionSummaryReportRow, StateClassSummaryReport, StateClassSummaryReportRow, \
     TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow
 

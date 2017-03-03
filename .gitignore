@@ -1,7 +1,7 @@
 *.whl
 stsim-libs/
 manage.py
-stsm_project/
+landscapesim_project/settings/custom.py
 db.sqlite3
 __pycache__/
 .idea/

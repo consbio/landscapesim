@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django_stsim.models import Library, Project, Scenario, Stratum, StateClass,\
+from landscapesim.models import Library, Project, Scenario, Stratum, StateClass,\
     TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
     StateClassSummaryReport, StateClassSummaryReportRow, \
     TransitionSummaryReport, TransitionSummaryReportRow, \

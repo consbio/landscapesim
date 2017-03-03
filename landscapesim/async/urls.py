@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from django_stsim.async.views import RunModelViewset, GenerateReportViewset
+from landscapesim.async.views import RunModelViewset, GenerateReportViewset
 
 
 router = DefaultRouter()

@@ -1,10 +1,10 @@
 from celery import task
-from django_stsim.models import Library, Project, Scenario, RunScenarioModel, GenerateReportModel
+from landscapesim.models import Library, Project, Scenario, RunScenarioModel, GenerateReportModel
 import json
 import os
-from django_stsim.io.consoles import STSimConsole
-from django_stsim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary
-from django_stsim.io.utils import get_random_csv, process_scenario_inputs
+from landscapesim.io.consoles import STSimConsole
+from landscapesim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary
+from landscapesim.io.utils import get_random_csv, process_scenario_inputs
 
 from django.core import exceptions
 from django.conf import settings

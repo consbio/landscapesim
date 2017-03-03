@@ -1,12 +1,12 @@
 """
-    add_library: Imports an existing .ssim library into django_syncrosim.
+    add_library: Imports an existing .ssim library into landscapesim.
 """
 import os
 from shutil import copyfile
-from django_stsim.models import Library, Project, Scenario
-from django_stsim.io.utils import process_scenario_inputs, process_project_definitions
-from django_stsim.io.reports import create_transition_summary, create_transition_sc_summary, create_stateclass_summary
-from django_stsim.io.consoles import STSimConsole
+from landscapesim.models import Library, Project, Scenario
+from landscapesim.io.utils import process_scenario_inputs, process_project_definitions
+from landscapesim.io.reports import create_transition_summary, create_transition_sc_summary, create_stateclass_summary
+from landscapesim.io.consoles import STSimConsole
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -114,5 +114,5 @@ class Command(BaseCommand):
                     # TODO - add remaining reports
 
                 print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
-            print("Project {} successfully imported into django_stsim".format(project.name))
-        print("Library {} successfully added to django_stsim.".format(name))
+            print("Project {} successfully imported into landscapesim".format(project.name))
+        print("Library {} successfully added to landscapesim.".format(name))

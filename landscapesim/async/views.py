@@ -1,7 +1,7 @@
 from rest_framework.viewsets import GenericViewSet, mixins
 
-from django_stsim.models import RunScenarioModel, GenerateReportModel
-from django_stsim.async.serializers import RunModelSerializer, GenerateReportSerializer
+from landscapesim.models import RunScenarioModel, GenerateReportModel
+from landscapesim.async.serializers import RunModelSerializer, GenerateReportSerializer
 
 
 class RunModelViewset(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):

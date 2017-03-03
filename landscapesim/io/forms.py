@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 
-from django_stsim.models import Stratum, SecondaryStratum, StateClass, TransitionType, Transition
+from landscapesim.models import Stratum, SecondaryStratum, StateClass, TransitionType, Transition
 
 
 def gen_name_field():

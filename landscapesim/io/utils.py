@@ -1,7 +1,7 @@
 import uuid
 import csv
 import os
-from django_stsim.models import Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
+from landscapesim.models import Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
     TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, \
     RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
     InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue, \
