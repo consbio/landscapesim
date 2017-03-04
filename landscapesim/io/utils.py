@@ -30,6 +30,22 @@ def color_to_rgba(colorstr):
     return {'r': r, 'g': g, 'b': b, 'a': a}
 
 
+def default_int(value):
+    return int(value) if len(value) > 0 else -1
+
+
+def default_int_to_empty_or_int(value):
+    return value if value != -1 else ''
+
+
+def empty_to_bool(value):
+    return value == 'Yes'
+
+
+def bool_to_empty_or_yes(value):
+    return 'Yes' if value else ''
+
+
 def process_project_definitions(console, project):
 
     tmp_file = get_random_csv(project.library.tmp_file)
@@ -189,7 +205,7 @@ def process_project_definitions(console, project):
             )
     print('Imported transition attribute types for project {}.'.format(project.name))
 
-# TODO - size dist/priority, state/transition attributes/targets,
+
 def process_scenario_inputs(console, scenario):
 
     tmp_file = get_random_csv(scenario.project.library.tmp_file)
@@ -209,30 +225,46 @@ def process_scenario_inputs(console, scenario):
             max_timestep=int(run_options['MaximumTimestep']),
             is_spatial=True if run_options['IsSpatial'] == 'Yes' else False
         )
-    print('Imported (initial) run control for scenario {}'.format(scenario.sid))
+    print('Imported run control for scenario {}'.format(scenario.sid))
 
     # import output options
     console.export_sheet('STSim_OutputOptions', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
-        output_options = [r for r in reader][0]
-        for opt in output_options.keys():
-            if len(output_options[opt]) > 0:  # a integer, or 'Yes', else ''
-                if 'Timesteps' in opt:
-                    timestep = int(output_options[opt])
-                else:
-                    timestep = -1  # default, won't be used
-                enabled = True
-            else:
-                enabled = False
-                timestep = -1
-            OutputOption.objects.create(
-                scenario=scenario,
-                name=opt,
-                timestep=timestep,
-                enabled=enabled
-            )
-    print('Imported (initial) output options for scenario {}'.format(scenario.sid))
+        output_options = [r for r in reader]
+        oo = OutputOption.objects.create(scenario=scenario)
+        if len(output_options) > 0:
+            output_options = output_options[0]
+            oo.sum_sc = empty_to_bool(output_options['SummaryOutputSC'])
+            oo.sum_sc_t = default_int(output_options['SummaryOutputSCTimesteps'])
+            oo.sum_sc_zeros = empty_to_bool(output_options['SummaryOutputSCZeroValues'])
+            oo.raster_sc = empty_to_bool(output_options['RasterOutputSC'])
+            oo.raster_sc_t = default_int(output_options['RasterOutputSCTimesteps'])
+            oo.sum_tr = empty_to_bool(output_options['SummaryOutputTRIntervalMean'])
+            oo.sum_tr_t = default_int(output_options['SummaryOutputTRTimesteps'])
+            oo.sum_tr_interval = empty_to_bool(output_options['SummaryOutputTRIntervalMean'])
+            oo.raster_tr = empty_to_bool(output_options['RasterOutputTR'])
+            oo.raster_tr_t = default_int(output_options['RasterOutputTRTimesteps'])
+            oo.sum_trsc = empty_to_bool(output_options['SummaryOutputTRSC'])
+            oo.sum_trsc_t = default_int(output_options['SummaryOutputTRSCTimesteps'])
+            oo.sum_sa = empty_to_bool(output_options['SummaryOutputSA'])
+            oo.sum_sa_t = default_int(output_options['SummaryOutputSATimesteps'])
+            oo.raster_sa = empty_to_bool(output_options['RasterOutputSA'])
+            oo.raster_sa_t = default_int(output_options['RasterOutputSATimesteps'])
+            oo.sum_ta = empty_to_bool(output_options['SummaryOutputTA'])
+            oo.sum_ta_t = default_int(output_options['SummaryOutputTATimesteps'])
+            oo.raster_ta = empty_to_bool(output_options['RasterOutputTA'])
+            oo.raster_ta_t = default_int(output_options['RasterOutputTATimesteps'])
+            oo.raster_strata = empty_to_bool(output_options['RasterOutputST'])
+            oo.raster_strata_t = default_int(output_options['RasterOutputSTTimesteps'])
+            oo.raster_age = empty_to_bool(output_options['RasterOutputAge'])
+            oo.raster_age_t = default_int(output_options['RasterOutputAgeTimesteps'])
+            oo.raster_tst = empty_to_bool(output_options['RasterOutputTST'])
+            oo.raster_tst_t = default_int(output_options['RasterOutputTSTTimesteps'])
+            oo.raster_aatp = empty_to_bool(output_options['RasterOutputAATP'])
+            oo.raster_aatp_t = default_int(output_options['RasterOutputAATPTimesteps'])
+            oo.save()
+    print('Imported output options for scenario {}'.format(scenario.sid))
 
     console.export_sheet('STSim_DeterministicTransition', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:
@@ -295,7 +327,7 @@ def process_scenario_inputs(console, scenario):
             num_cells=int(conditions['NumCells']),
             calc_from_dist=conditions['CalcFromDist']
         )
-    print('Imported (default) initial conditions configuration for scenario {}'.format(scenario.sid))
+    print('Imported initial conditions for scenario {}'.format(scenario.sid))
 
     # Import initial conditions non spatial values
     console.export_sheet('STSim_InitialConditionsNonSpatialDistribution', tmp_file, **kwgs)
@@ -321,19 +353,19 @@ def process_scenario_inputs(console, scenario):
                 ic.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                        project=project).first()
             ic.save()
-    print('Imported (default) initial conditions values for scenario {}'.format(scenario.sid))
+    print('Imported initial conditions values for scenario {}'.format(scenario.sid))
 
     # Import transition targets
     console.export_sheet('STSim_TransitionTarget', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
+            stratum = row['StratumID']
             secondary_stratum = row['SecondaryStratumID']
             iteration = int(row['Iteration']) if len(row['Iteration']) > 0 else ''
             timestep = int(row['Timestep']) if len(row['Timestep']) > 0 else ''
             tt = TransitionTarget.objects.create(
                 scenario=scenario,
-                stratum=Stratum.objects.filter(name__exact=row['StratumID'], project=project).first(),
                 transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
                                                                 project=project).first(),
                 target_area=float(row['Amount'])
@@ -342,6 +374,8 @@ def process_scenario_inputs(console, scenario):
                 tt.iteration = iteration
             if type(timestep) is int:
                 tt.timestep = timestep
+            if len(stratum) > 0:
+                tt.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum) > 0:
                 tt.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                        project=project).first()

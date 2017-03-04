@@ -4,10 +4,15 @@
 
 from rest_framework import serializers
 
-from landscapesim.models import Stratum, SecondaryStratum, StateClass, TransitionType, Transition
+from landscapesim.io.config import *
+from landscapesim.models import OutputOption, RunControl, DeterministicTransition, Transition, \
+    InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, TransitionTarget, \
+    TransitionMultiplierValue, TransitionSizeDistribution, TransitionSizePrioritization, \
+    StateAttributeValue, TransitionAttributeValue, TransitionAttributeTarget
+from landscapesim.io.utils import default_int_to_empty_or_int, bool_to_empty_or_yes
 
 
-def gen_name_field():
+def name_field():
     return serializers.SlugRelatedField(
         many=False,
         slug_field='name',
@@ -17,20 +22,19 @@ def gen_name_field():
 
 class ImportSerializerBase(serializers.ModelSerializer):
     """
-        Base serializer for validating sheets.
+        Base serializer for validating sheets into SyncroSim.
 
-        Usage:
-            Data to be validated against this sheet should match against the data available
-            rom the model specified in the Meta class.
+        Data to be serialized should match the data available
+        from the model specified in the Meta class.
 
-            name_pairs is a 1-to-1 matching of the Django-ORM names to STSim names.
-            extra_names is used as convenience for importing blank values for values not yet handled.
+        sheet_map is a 1-to-1 matching of the Django-ORM names to STSim names.
+        extra_names is used as convenience for importing blank values for values not yet handled.
 
-            None values are returned as empty strings
-
-            Otherwise, data is returned according to the Django-ORM type specified in models.py
+        Otherwise, data is returned according to the Django-ORM Field specified in models.py.
+        This is done for solidifying the native python type we handle and syncronizing with the type
+        that SyncroSim expects.
     """
-    name_pairs = ()
+    sheet_map = ()
     extra_names = ()
 
     def transform(self):
@@ -41,9 +45,15 @@ class ImportSerializerBase(serializers.ModelSerializer):
         transformed_data = dict()
         # Fill fields from validated data
         for attr in self.data.items():
-            for pair in self.name_pairs:
+            for pair in self.sheet_map:
                 if attr[0] == pair[0]:
                     transformed_data[pair[1]] = attr[1] if attr[1] is not None else ''
+
+                    # Handle type tranforms
+                    if type(transformed_data[pair[1]]) is bool:
+                        transformed_data[pair[1]] = bool_to_empty_or_yes(transformed_data[pair[1]])
+                    elif type(transformed_data[pair[1]]) is int:
+                        transformed_data[pair[1]] = default_int_to_empty_or_int(transformed_data[pair[1]])
                     break
 
         # Now handle names which we don't handle yet.
@@ -61,6 +71,9 @@ def validate_sheet(rows, sheet_serializer):
     :return:
     """
     validated_rows = []
+    if type(rows) is not list:
+        raise TypeError('rows argument must be list object')
+
     if not issubclass(sheet_serializer, ImportSerializerBase):
         raise serializers.ValidationError('Must use serializer derived from ImportSerializerBase')
 
@@ -73,31 +86,122 @@ def validate_sheet(rows, sheet_serializer):
 
     return validated_rows
 
-# TODO - Add DeterministicTransitionImport
+
+class OutputOptionImport(ImportSerializerBase):
+
+    sheet_map = OUTPUT_OPTION
+
+    class Meta:
+        model = OutputOption
+        fields = '__all__'
+
+
+class RunControlImport(ImportSerializerBase):
+
+    sheet_map = RUN_CONTROL
+
+    class Meta:
+        model = RunControl
+        fields = '__all__'
+
+
+class DeterministicTransitionImport(ImportSerializerBase):
+
+    sheet_map = DETERMINISTIC_TRANSITION
+
+    class Meta:
+        model = DeterministicTransition
+        fields = '__all__'
 
 
 class TransitionImport(ImportSerializerBase):
 
-    name_pairs = (('stratum_src', 'StratumIDSource'),
-                  ('stateclass_src', 'StateClassIDSource'),
-                  ('stratum_dest', 'StratumIDDest'),
-                  ('stateclass_dest', 'StateClassIDDest'),
-                  ('transition_type', 'TransitionTypeID'),
-                  ('probability', 'Probability'),
-                  ('age_reset', 'AgeReset'))
+    sheet_map = TRANSITION
+    extra_names = U_TRANSITION
 
-    extra_names = ('Proportion', 'AgeMin', 'AgeMax', 'AgeRelative',
-                   'TSTMin', 'TSTMax', 'TSTRelative')
-
-    stratum_src = gen_name_field()
-    stateclass_src = gen_name_field()
-    stratum_dest = gen_name_field()
-    stateclass_dest = gen_name_field()
-    transition_type = gen_name_field()
+    stratum_src = name_field()
+    stateclass_src = name_field()
+    stratum_dest = name_field()
+    stateclass_dest = name_field()
+    transition_type = name_field()
 
     class Meta:
         model = Transition
-        fields = ('stratum_src', 'stateclass_src', 'stratum_dest', 'stateclass_dest',
-                  'transition_type', 'probability', 'age_reset')
+        fields = '__all__'
 
-# TODO - Add DeterministicTransitionImport
+
+class InitialConditionsNonSpatialImport(ImportSerializerBase):
+
+    sheet_map = INITIAL_CONDITIONS_NON_SPATIAL
+
+    class Meta:
+        model = InitialConditionsNonSpatial
+        fields = '__all__'
+
+
+class InitialConditionsNonSpatialDistributionImport(ImportSerializerBase):
+    sheet_map = INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION
+
+    class Meta:
+        model = InitialConditionsNonSpatialDistribution
+        fields = '__all__'
+
+
+class TransitionTargetImport(ImportSerializerBase):
+    sheet_map = TRANSITION_TARGET
+
+    class Meta:
+        model = TransitionTarget
+        fields = '__all__'
+
+
+class TransitionMultiplierValueImport(ImportSerializerBase):
+    sheet_map = TRANSITION_MULTIPLIER_VALUE
+
+    class Meta:
+        model = TransitionMultiplierValue
+        fields = '__all__'
+
+
+class TransitionSizeDistributionImport(ImportSerializerBase):
+    sheet_map = TRANSITION_SIZE_DISTRIBUTION
+
+    class Meta:
+        model = TransitionSizeDistribution
+        fields = '__all__'
+
+
+class TransitionSizePrioritizationImport(ImportSerializerBase):
+    sheet_map = TRANSITION_SIZE_PRIORITIZATION
+
+    class Meta:
+        model = TransitionSizePrioritization
+        fields = '__all__'
+
+
+class StateAttributeValueImport(ImportSerializerBase):
+    sheet_map = STATE_ATTRIBUTE_VALUE
+
+    class Meta:
+        model = StateAttributeValue
+        fields = '__all__'
+
+
+class TransitionAttributeValueImport(ImportSerializerBase):
+    sheet_map = TRANSITION_ATTRIBUTE_VALUE
+
+    class Meta:
+        model = TransitionAttributeValue
+        fields = '__all__'
+
+
+class TransitionAttributeTargetImport(ImportSerializerBase):
+    sheet_map = TRANSITION_ATTRIBUTE_TARGET
+
+    stratum = name_field()
+
+    transition_attribute_type = name_field()
+
+    class Meta:
+        model = TransitionAttributeTarget
+        fields = '__all__'
