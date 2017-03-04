@@ -44,8 +44,8 @@ class Command(BaseCommand):
         library = Library.objects.create(name=name, file=file, orig_file=orig_file, tmp_file=tmp_file)
 
         projects = console.list_projects()
-        all_scenarios = console.list_scenario_names()
-        result_scenarios = console.list_scenario_names(results_only=True)
+        all_scenarios = console.list_scenario_attrs()
+        result_scenarios = console.list_scenario_attrs(results_only=True)
         orig_scenarios = [s for s in all_scenarios if s not in result_scenarios]
 
         for pid in projects.keys():

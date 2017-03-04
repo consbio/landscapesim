@@ -1,18 +1,16 @@
 """
-SyncroSim Command-Line Wrapper. Provides tools for interacting programmatically with SyncroSim consoles.
+    SyncroSim Command-Line Wrapper. Provides tools for interacting programmatically with SyncroSim consoles.
 
-Available Consoles (Verbose Name, basename, Python class):
-    - System Console                        'system'        Console
-    - ST-Sim State and Transition Console   'stsim'         STSimConsole
-    - Stocks and Flows Console              'stockflow'     StockFlowConsole
+    Available Consoles (Verbose Name, basename, Python class):
+        - System Console                        'system'        Console
+        - ST-Sim State and Transition Console   'stsim'         STSimConsole
+        - Stocks and Flows Console              'stockflow'     StockFlowConsole
 
 """
 
 import subprocess
 import os
 import csv
-#import rasterio
-#from django_stsim.io.utils import M2_TO_ACRES, order
 
 # The standard installation location for SyncroSim (subject to change, also not valid for linux...)
 DEFAULT_EXE = "C:\\Program Files\\SyncroSim\\1\\SyncroSim.Console.Exe"
@@ -126,76 +124,17 @@ class Console:
         input_args = list()
         if len(self.prefix) > 0:
             input_args.append(self.prefix)
-        input_args += (self.exe_orig_lib if orig else self.exe_lib)
+        input_args += self.exe_orig_lib if orig else self.exe_lib
         input_args += args
         return subprocess.run(input_args, stdout=subprocess.PIPE)
 
-    def set_output_options(self, sid, working_path, **kwargs):
+    def list_scenario_attrs(self, results_only=None, orig=False):
         """
-        Sets the output options for a given scenario.
-        :param sid: The scenario ID to set output options for.
-        :param working_path: The temporary working path.
-        :param kwargs: The settings to specify, using kwargs. These can be things like 'SummaryOutputSC' and 'RasterOutputSCTimesteps'.
-        :return:
+        List scenario attributes from the .ssim library.
+        :param results_only: Return only results scenarios' attributes
+        :param orig: List results from the original library
+        :return: A list of dict objects with scenario information (name, sid, pid)
         """
-
-        all_output_options = [
-            "SummaryOutputSC", "SummaryOutputSCTimesteps", "SummaryOutputSCZeroValues",
-            "SummaryOutputTR", "SummaryOutputTRTimesteps", "SummaryOutputTRIntervalMean",
-            "SummaryOutputTRSC", "SummaryOutputTRSCTimesteps",
-            "SummaryOutputSA", "SummaryOutputSATimesteps",
-            "SummaryOutputTA", "SummaryOutputTATimesteps",
-            "RasterOutputSC", "RasterOutputSCTimesteps",
-            "RasterOutputTR", "RasterOutputTRTimesteps",
-            "RasterOutputAge", "RasterOutputAgeTimesteps",
-            "RasterOutputTST", "RasterOutputTSTTimesteps",
-            "RasterOutputST", "RasterOutputSTTimesteps",
-            "RasterOutputSA", "RasterOutputSATimesteps",
-            "RasterOutputTA", "RasterOutputTATimesteps",
-            "RasterOutputAATP", "RasterOutputAATPTimesteps"
-        ]
-
-        output_settings = dict()
-
-        for kwarg in all_output_options:
-
-            if kwarg in kwargs.keys():
-                setting = 'Yes'
-                if 'Timesteps' in kwarg:
-                    setting = int(kwargs[kwarg])
-            else:
-                setting = ''
-
-            output_settings[kwarg] = setting
-
-        with open(working_path, 'w', newline='') as f_out:
-            writer = csv.DictWriter(f_out, fieldnames=all_output_options)
-            writer.writeheader()
-            writer.writerow(output_settings)
-
-        self.import_sheet("STSim_OutputOptions", working_path, sid=sid, cleanup=False)
-
-    def update_run_control(self, sid, working_path, spatial=False, iterations=5, start_timestep=0, end_timestep=20):
-
-        if sid in self.list_scenarios(results_only=True):
-            raise ValueError("Provided sid is a result scenario. Please use a non-scenario ID.")
-
-        with open(working_path, 'w', newline='') as sheet:
-
-            writer = csv.DictWriter(sheet, fieldnames=['MinimumIteration', 'MaximumIteration',
-                                                       'MinimumTimestep', 'MaximumTimestep', 'IsSpatial'])
-            writer.writeheader()
-            writer.writerow({
-                'MinimumIteration': 1,
-                'MaximumIteration': int(iterations),
-                'MinimumTimestep': int(start_timestep),
-                'MaximumTimestep': int(end_timestep),
-                'IsSpatial': 'Yes' if spatial else ''
-            })
-
-        self.import_sheet('STSim_RunControl', working_path, sid, cleanup=True)
-
-    def list_scenario_names(self, results_only=None, orig=False):
 
         args = ["--list", "--scenarios"]
         output = self.exec_command(args, orig=orig).stdout.split(str.encode(self.sep))
@@ -312,6 +251,7 @@ class Console:
         :param sheet_name: Sheet to import into the given sid.
         :param export_path: Path to the sheet to export.
         :param sid: Scenario ID to extract the sheet from.
+        :param pid: Project ID to extract the sheet from.
         :param overwrite: (Optional) Overwrite the file in the location.
         :param orig: Use the original library to export the sheet from.
         """
@@ -371,66 +311,6 @@ class STSimConsole(ReporterConsole):
 
     name = 'stsim'
 
-    # TODO - Determine what to do when importing spatial multipliers
-    """
-    def import_spatial_initial_conditions(self, sid, working_path, **kwargs):
-        # TODO - make this generalized for various kinds of spatial inputs
-
-        # state class and strata path must be specified
-        if not all(path in kwargs and os.path.exists(kwargs[path]) for path in ['sc_path', 'strata_path']):
-            raise KeyError('Given path to tif invalid or does not exist.')
-        sc_path = kwargs.get('sc_path')
-        strata_path = kwargs.get('strata_path')
-
-        cleanup = kwargs.get('cleanup') if 'cleanup' in kwargs and isinstance(kwargs['cleanup'], bool) else False
-
-        # copy the files to the input directory
-        input_dir_path = os.path.join(self.spatial_input_dir, 'Scenario-'+str(sid),
-                                      'STSim_InitialConditionsSpatial')
-        sc_input_file = os.path.join(input_dir_path, 'sc_input.tif')
-        strata_input_file = os.path.join(input_dir_path, 'stratum_input.tif')
-
-        with rasterio.open(strata_path, 'r') as strata_src:
-            strata_shape = strata_src.shape
-            with rasterio.open(strata_input_file, 'w', **strata_src.profile) as dst:
-                dst.write(strata_src.read(1), 1)
-
-        with rasterio.open(sc_path, 'r') as sc_src:
-            sc_shape = sc_src.shape
-            affine = sc_src.affine
-            srs = sc_src.crs.wkt
-            with rasterio.open(sc_input_file, 'w', **sc_src.profile) as dst:
-                dst.write(sc_src.read(1), 1)
-
-        if strata_shape != sc_shape:
-            raise ValueError('Shape mismatch between stateclass and stratum inputs.')
-
-        if cleanup:
-            os.remove(sc_path)
-            os.remove(strata_path)
-
-        initial_conditions_config = {
-            'NumRows': sc_shape[0],
-            'NumColumns': sc_shape[1],
-            'NumCells': sc_shape[0] * sc_shape[1],
-            'CellSize': 30,
-            'CellSizeUnits': 'Meter',
-            'CellArea': round(pow(30, 2)*M2_TO_ACRES, 4),
-            'CellAreaOverride': '',
-            'XLLCorner': affine[2],
-            'YLLCorner': affine[5],
-            'SRS': srs,
-            'StratumFileName': 'stratum_input.tif',
-            'StateClassFileName': 'sc_input.tif'
-        }
-
-        with open(working_path, 'w',  newline='') as f_out:
-            writer = csv.DictWriter(f_out, fieldnames=initial_conditions_config.keys())
-            writer.writeheader()
-            writer.writerow(initial_conditions_config)
-
-        self.import_sheet('STSim_InitialConditionsSpatial', working_path, str(sid), cleanup=True)
-    """
 
 class StockFlowConsole(ReporterConsole):
     """ Stocks and Flows Console class """
@@ -438,3 +318,5 @@ class StockFlowConsole(ReporterConsole):
     name = 'stockflow'
 
     # TODO - Find use cases for Stocks and Flows
+
+# TODO - Add other consoles
