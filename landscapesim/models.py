@@ -57,6 +57,14 @@ class Terminology(models.Model):
     timestep_units = models.CharField(max_length=100)
 
 
+class DistributionType(models.Model):
+
+    project = models.ForeignKey('Project', related_name='distribution_types', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
+    is_internal = models.BooleanField(default=True)  # Shouldn't need to be changed, but still good to capture
+
+
 class Stratum(models.Model):
 
     project = models.ForeignKey('Project', related_name='strata', on_delete=models.CASCADE)
@@ -144,13 +152,13 @@ class TransitionAttributeType(models.Model):
     Scenario configuration settings
 """
 
-
-class ScenarioMixin(models.Model):
-
-    class Meta:
-        abstract = True
-
-    scenario = models.ForeignKey('Scenario')
+# TODO - Add Transition Order
+# TODO - Add Transition Spread Distribution
+# TODO - Add Transition Patch Prioritization
+# TODO - Add Transition Direction Multipliers
+# TODO - Add DigitalElevationModel setting
+# TODO - Add Transition Slope Multipliers
+# TODO - Add Transition Adjacency Setting/Multipliers
 
 
 class AgeMixin(models.Model):
@@ -160,6 +168,15 @@ class AgeMixin(models.Model):
 
     age_min = models.IntegerField(default=-1)
     age_max = models.IntegerField(default=-1)
+
+
+class DistributionValue(models.Model):
+
+    scenario = models.ForeignKey('Scenario')
+    distribution_type = models.ForeignKey('DistributionType')
+    dmin = models.FloatField(null=True, blank=True)
+    dmax = models.FloatField()
+    relative_frequency = models.FloatField(null=True, blank=True)
 
 
 class RunControl(models.Model):
@@ -213,7 +230,7 @@ class DeterministicTransition(AgeMixin):
     location = models.CharField(max_length=10)
 
 
-class Transition(models.Model):
+class Transition(AgeMixin):
 
     scenario = models.ForeignKey('Scenario')
     stratum_src = models.ForeignKey('Stratum', related_name='stratum_src')
@@ -221,8 +238,13 @@ class Transition(models.Model):
     stratum_dest = models.ForeignKey('Stratum', related_name='stratum_dest', on_delete=models.CASCADE, blank=True, null=True)
     stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest')
     transition_type = models.ForeignKey('TransitionType')
-    probability = models.FloatField(default=0.0)
-    age_reset = models.CharField(default='No', max_length=3)
+    probability = models.FloatField()
+    proportion = models.FloatField(null=True, blank=True)
+    age_relative = models.FloatField(null=True, blank=True)
+    age_reset = models.BooleanField(default=False)
+    tst_min = models.FloatField(null=True, blank=True)
+    tst_max = models.FloatField(null=True, blank=True)
+    tst_relative = models.FloatField(null=True, blank=True)
 
 
 class InitialConditionsNonSpatial(models.Model):
@@ -230,7 +252,7 @@ class InitialConditionsNonSpatial(models.Model):
     scenario = models.ForeignKey('Scenario')
     total_amount = models.FloatField()
     num_cells = models.IntegerField()
-    calc_from_dist = models.CharField(max_length=10)
+    calc_from_dist = models.BooleanField(default=False)
 
 
 class InitialConditionsNonSpatialDistribution(AgeMixin):
@@ -241,8 +263,6 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
     stateclass = models.ForeignKey('StateClass')
     relative_amount = models.FloatField()
 
-
-# TODO - Add distribution types, sd, min and max
 
 class TimestepModelBase(models.Model):
 
@@ -255,6 +275,17 @@ class TimestepModelBase(models.Model):
     stratum = models.ForeignKey('Stratum', null=True, blank=True)
 
 
+class DistributionMixin(models.Model):
+
+    class Meta:
+        abstract = True
+
+    distribution_type = models.ForeignKey('DistributionType', null=True, blank=True)
+    distribution_sd = models.FloatField(null=True, blank=True)
+    distribution_min = models.FloatField(null=True, blank=True)
+    distribution_max = models.FloatField(null=True, blank=True)
+
+
 class SecondaryStratumMixin(models.Model):
 
     class Meta:
@@ -263,13 +294,13 @@ class SecondaryStratumMixin(models.Model):
     secondary_stratum = models.ForeignKey('SecondaryStratum', null=True, blank=True)
 
 
-class TransitionTarget(TimestepModelBase, SecondaryStratumMixin):
+class TransitionTarget(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
 
     transition_group = models.ForeignKey('TransitionGroup')
     target_area = models.FloatField()
 
 
-class TransitionMultiplierValue(TimestepModelBase, SecondaryStratumMixin):
+class TransitionMultiplierValue(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
 
     stateclass = models.ForeignKey('StateClass', null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
@@ -315,7 +346,7 @@ class TransitionAttributeValue(TimestepModelBase, SecondaryStratumMixin):
     value = models.FloatField()
 
 
-class TransitionAttributeTarget(TimestepModelBase, SecondaryStratumMixin):
+class TransitionAttributeTarget(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
 
     transition_attribute_type = models.ForeignKey('TransitionAttributeType')
     target = models.FloatField()
