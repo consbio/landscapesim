@@ -5,7 +5,7 @@ import os
 from shutil import copyfile
 from landscapesim.models import Library, Project, Scenario
 from landscapesim.io.utils import process_scenario_inputs, process_project_definitions
-from landscapesim.io.reports import create_transition_summary, create_transition_sc_summary, create_stateclass_summary
+from landscapesim.io.reports import process_reports
 from landscapesim.io.consoles import STSimConsole
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -87,31 +87,10 @@ class Command(BaseCommand):
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
 
-                # if the scenario is a result scenario
                 if s.is_result:
 
-                    # import state class reports,
-                    console.generate_report('stateclass-summary', tmp_file, s.sid)
-                    create_stateclass_summary(project, s, tmp_file)
-
-                    print('Imported stateclass summary report for scenario {}.'.format(s.sid))
-                    os.remove(tmp_file)
-
-                    # import transition summary reports
-                    console.generate_report('transition-summary', tmp_file, s.sid)
-                    create_transition_summary(project, s, tmp_file)
-
-                    print('Imported transition summary report for scenario {}.'.format(s.sid))
-                    os.remove(tmp_file)
-
-                    # import transition-stateclass summary reports
-                    console.generate_report('transition-stateclass-summary', tmp_file, s.sid)
-                    create_transition_sc_summary(project, s, tmp_file)
-
-                    print('Imported transition-by-stateclass summary report for scenario {}.'.format(s.sid))
-                    os.remove(tmp_file)
-
-                    # TODO - add remaining reports
+                    # Import all available reports
+                    process_reports(console, project, s, tmp_file)
 
                 print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
             print("Project {} successfully imported into landscapesim".format(project.name))

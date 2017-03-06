@@ -3,7 +3,8 @@ from landscapesim.models import Library, Project, Scenario, RunScenarioModel, Ge
 import json
 import os
 from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary
+from landscapesim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary, \
+    create_transition_attribute_summary, create_state_attribute_summary
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
 
 from django.core import exceptions
@@ -54,6 +55,10 @@ def generate_report(self, library_name, pid, sid, report_name):
         report = create_transition_summary(proj, s, tmp_file)
     elif report_name == 'transition-stateclass-summary':
         report = create_transition_sc_summary(proj, s, tmp_file)
+    elif report_name == 'state-attributes':
+        report = create_state_attribute_summary(proj, s, tmp_file)
+    elif report_name == 'transition-attributes':
+        report = create_transition_attribute_summary(proj, s, tmp_file)
     else:
         raise exceptions.ObjectDoesNotExist("The {} report for project {}, scenario {} was not found."
                                             .format(report_name, proj.name, s.sid))

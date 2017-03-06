@@ -4,8 +4,12 @@
 
 from rest_framework import serializers
 
-from landscapesim.io.config import *
-from landscapesim.models import OutputOption, RunControl, DeterministicTransition, Transition, \
+from landscapesim.io.config import DISTRIBUTION_VALUE, RUN_CONTROL, OUTPUT_OPTION, DETERMINISTIC_TRANSITION, TRANSITION, \
+    INITIAL_CONDITIONS_NON_SPATIAL, INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION, TRANSITION_TARGET, \
+    TRANSITION_MULTIPLIER_VALUE, TRANSITION_SIZE_DISTRIBUTION, TRANSITION_SIZE_PRIORITIZATION, STATE_ATTRIBUTE_VALUE, \
+    TRANSITION_ATTRIBUTE_VALUE, TRANSITION_ATTRIBUTE_TARGET
+
+from landscapesim.models import DistributionValue, OutputOption, RunControl, DeterministicTransition, Transition, \
     InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, TransitionTarget, \
     TransitionMultiplierValue, TransitionSizeDistribution, TransitionSizePrioritization, \
     StateAttributeValue, TransitionAttributeValue, TransitionAttributeTarget
@@ -28,14 +32,14 @@ class ImportSerializerBase(serializers.ModelSerializer):
         from the model specified in the Meta class.
 
         sheet_map is a 1-to-1 matching of the Django-ORM names to STSim names.
-        extra_names is used as convenience for importing blank values for values not yet handled.
+        # extra_names is used as convenience for importing blank values for values not yet handled.
 
         Otherwise, data is returned according to the Django-ORM Field specified in models.py.
         This is done for solidifying the native python type we handle and syncronizing with the type
         that SyncroSim expects.
     """
     sheet_map = ()
-    extra_names = ()
+    # extra_names = ()
 
     def transform(self):
         """
@@ -57,8 +61,8 @@ class ImportSerializerBase(serializers.ModelSerializer):
                     break
 
         # Now handle names which we don't handle yet.
-        for unhandled in self.extra_names:
-            transformed_data[unhandled] = ''
+        #for unhandled in self.extra_names:
+        #   transformed_data[unhandled] = ''
 
         return transformed_data
 
@@ -85,6 +89,15 @@ def validate_sheet(rows, sheet_serializer):
             raise serializers.ValidationError("Malformed data when importing sheet.")
 
     return validated_rows
+
+
+class DistributionValueImport(ImportSerializerBase):
+
+    sheet_map = DISTRIBUTION_VALUE
+
+    class Meta:
+        model = DistributionValue
+        fields = '__all__'
 
 
 class OutputOptionImport(ImportSerializerBase):
@@ -117,7 +130,6 @@ class DeterministicTransitionImport(ImportSerializerBase):
 class TransitionImport(ImportSerializerBase):
 
     sheet_map = TRANSITION
-    extra_names = U_TRANSITION
 
     stratum_src = name_field()
     stateclass_src = name_field()
@@ -142,6 +154,10 @@ class InitialConditionsNonSpatialImport(ImportSerializerBase):
 class InitialConditionsNonSpatialDistributionImport(ImportSerializerBase):
     sheet_map = INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION
 
+    stratum = name_field()
+    secondary_stratum = name_field()
+    stateclass = name_field()
+
     class Meta:
         model = InitialConditionsNonSpatialDistribution
         fields = '__all__'
@@ -149,6 +165,11 @@ class InitialConditionsNonSpatialDistributionImport(ImportSerializerBase):
 
 class TransitionTargetImport(ImportSerializerBase):
     sheet_map = TRANSITION_TARGET
+
+    stratum = name_field()
+    secondary_stratum = name_field()
+    transition_group = name_field()
+    distribution_type = name_field()
 
     class Meta:
         model = TransitionTarget
@@ -158,6 +179,13 @@ class TransitionTargetImport(ImportSerializerBase):
 class TransitionMultiplierValueImport(ImportSerializerBase):
     sheet_map = TRANSITION_MULTIPLIER_VALUE
 
+    stratum = name_field()
+    secondary_stratum = name_field()
+    stateclass = name_field()
+    transition_multiplier_type = name_field()
+    transition_group = name_field()
+    distribution_type = name_field()
+
     class Meta:
         model = TransitionMultiplierValue
         fields = '__all__'
@@ -165,6 +193,9 @@ class TransitionMultiplierValueImport(ImportSerializerBase):
 
 class TransitionSizeDistributionImport(ImportSerializerBase):
     sheet_map = TRANSITION_SIZE_DISTRIBUTION
+
+    stratum = name_field()
+    transition_group = name_field()
 
     class Meta:
         model = TransitionSizeDistribution
@@ -174,6 +205,9 @@ class TransitionSizeDistributionImport(ImportSerializerBase):
 class TransitionSizePrioritizationImport(ImportSerializerBase):
     sheet_map = TRANSITION_SIZE_PRIORITIZATION
 
+    stratum = name_field()
+    transition_group = name_field()
+
     class Meta:
         model = TransitionSizePrioritization
         fields = '__all__'
@@ -182,6 +216,11 @@ class TransitionSizePrioritizationImport(ImportSerializerBase):
 class StateAttributeValueImport(ImportSerializerBase):
     sheet_map = STATE_ATTRIBUTE_VALUE
 
+    stratum = name_field()
+    secondary_stratum = name_field()
+    stateclass = name_field()
+    state_attribute_type = name_field()
+
     class Meta:
         model = StateAttributeValue
         fields = '__all__'
@@ -189,6 +228,12 @@ class StateAttributeValueImport(ImportSerializerBase):
 
 class TransitionAttributeValueImport(ImportSerializerBase):
     sheet_map = TRANSITION_ATTRIBUTE_VALUE
+
+    stratum = name_field()
+    secondary_stratum = name_field()
+    transition_group = name_field()
+    stateclass = name_field()
+    transition_attribute_type = name_field()
 
     class Meta:
         model = TransitionAttributeValue
@@ -199,8 +244,9 @@ class TransitionAttributeTargetImport(ImportSerializerBase):
     sheet_map = TRANSITION_ATTRIBUTE_TARGET
 
     stratum = name_field()
-
+    secondary_stratum = name_field()
     transition_attribute_type = name_field()
+    distribution_type = name_field()
 
     class Meta:
         model = TransitionAttributeTarget
