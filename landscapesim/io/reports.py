@@ -169,5 +169,5 @@ def process_reports(console, project, s, tmp_file):
     console.generate_report('transition-attributes', tmp_file, s.sid)
     create_transition_attribute_summary(project, s, tmp_file)
 
-    print('Imported state-attribute summary report for scenario {}.'.format(s.sid))
+    print('Imported transition-attribute summary report for scenario {}.'.format(s.sid))
     os.remove(tmp_file)
