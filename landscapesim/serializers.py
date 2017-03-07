@@ -1,10 +1,20 @@
 from rest_framework import serializers
-from landscapesim.models import Library, Project, Scenario, Stratum, StateClass,\
-    TransitionType, TransitionGroup, TransitionTypeGroup, Transition, \
+from landscapesim.models import Library, Project, Scenario, Terminology, DistributionType, Stratum, SecondaryStratum,\
+    StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, AttributeGroup, \
+    StateAttributeType, TransitionAttributeType
+
+from landscapesim.models import \
+    DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
+    InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue, TransitionSizeDistribution, \
+    TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
+    TransitionAttributeTarget
+
+from landscapesim.models import \
     StateClassSummaryReport, StateClassSummaryReportRow, \
     TransitionSummaryReport, TransitionSummaryReportRow, \
     TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
-    RunControl, OutputOption
+    StateAttributeSummaryReport, StateAttributeSummaryReportRow, \
+    TransitionAttributeSummaryReport, TransitionAttributeSummaryReportRow
 
 # TODO - simple or complicated? Could have simple and verbose serializers
 
@@ -31,7 +41,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('id', 'name', 'pid', 'scenarios',)
+        fields = '__all__'
 
 
 class ScenarioSerializer(serializers.ModelSerializer):
@@ -47,10 +57,17 @@ class ScenarioSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RunControlSerializer(serializers.ModelSerializer):
+class TerminologySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = RunControl
+        model = Terminology,
+        fields = '__all__'
+
+
+class DistributionTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DistributionType
         fields = '__all__'
 
 
@@ -61,7 +78,17 @@ class StratumSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stratum
-        fields = ('id', 'stratum_id', 'name', 'color', 'project',)
+        fields = '__all__'
+
+
+class SecondaryStratumSerializer(serializers.ModelSerializer):
+
+    project = serializers.HyperlinkedRelatedField(
+        many=False, view_name='project-detail', read_only=True)
+
+    class Meta:
+        model = SecondaryStratum
+        fields = '__all__'
 
 
 class StateClassSerializer(serializers.ModelSerializer):
@@ -71,7 +98,7 @@ class StateClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StateClass
-        fields = ('id', 'stateclass_id', 'name', 'color', 'development', 'structure', 'project',)
+        fields = '__all__'
 
 
 class TransitionTypeSerializer(serializers.ModelSerializer):
@@ -90,12 +117,37 @@ class TransitionGroupSerializer(serializers.ModelSerializer):
 
 class TransitionTypeGroupSerializer(serializers.ModelSerializer):
 
-    transition_type = TransitionTypeSerializer(read_only=True)
-    transition_group = TransitionGroupSerializer(read_only=True)
-
     class Meta:
         model = TransitionTypeGroup
-        fields = ('transition_type', 'transition_group', 'is_primary')
+        fields = '__all__'
+
+
+class TransitionMultiplierTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionMultiplierType
+        fields = '__all__'
+
+
+class AttributeGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AttributeGroup
+        fields = '__all__'
+
+
+class StateAttributeTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StateAttributeType
+        fields = '__all__'
+
+
+class TransitionAttributeTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionAttributeType
+        fields = '__all__'
 
 
 class ProjectDefinitionsSerializer(serializers.Serializer):
@@ -111,107 +163,237 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
     transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Project
         fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
             'transition_type_groups',)
 
-# TODO - Add deterministic transition serializer
 
-
-
-class TransitionSerializer(serializers.ModelSerializer):
-    
-    stratum_src = StratumSerializer(many=False, read_only=True)
-    stateclass_src = StateClassSerializer(many=False, read_only=True)
-    stratum_dest = StratumSerializer(many=False, read_only=True)
-    stateclass_dest = StateClassSerializer(many=False, read_only=True)
+class DistributionValueSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Transition
+        model = DistributionValue
         fields = '__all__'
 
-# TODO - Add initial conditions non spatial serializer
-# TODO - Add initial conditions non spatial values serializer
-# TODO - Add transition target serializer
-# TODO - Add Transition multiplier serializer
-# TODO - Add TransitionSizeDistribution serializer
-# TODO - Add TransitionSizePrioritization serializer
-# TODO - Add state attribute value serializer
-# TODO - Add transition attribute value serializer
-# TODO - Add transition attribute target serializer
 
-
-class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
-
-    #stratum = StratumSerializer(many=False, read_only=True)
-    #stateclass = StateClassSerializer(many=False, read_only=True)
+class RunControlSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = StateClassSummaryReportRow
-        fields = ('iteration','timestep','stratum','stateclass',
-            'amount','proportion_of_landscape', 'proportion_of_stratum')
-
-
-class StateClassSummaryReportSerializer(serializers.ModelSerializer):
-
-    scenario = ScenarioSerializer(many=False, read_only=True)
-    stateclass_results = StateClassSummaryReportRowSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = StateClassSummaryReport
-        fields = ('id', 'scenario','stateclass_results',)
-
-
-class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
-
-    #stratum = StratumSerializer(many=False, read_only=True)
-    #stateclass = StateClassSerializer(many=False, read_only=True)
-    #transition_group = TransitionGroupSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = TransitionSummaryReportRow
-        fields = ('iteration','timestep','stratum', 'amount','transition_group',)
-
-
-class TransitionSummaryReportSerializer(serializers.ModelSerializer):
-
-    scenario = ScenarioSerializer(many=False, read_only=True)
-    transition_results = TransitionSummaryReportRowSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = TransitionSummaryReport
-        fields = ('id', 'scenario','transition_results',)
-
-
-class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializer):
-
-    #stratum = StratumSerializer(many=False, read_only=True)
-    #stateclass_src = StateClassSerializer(many=False, read_only=True)
-    #stateclass_dest = StateClassSerializer(many=False, read_only=True)
-    #transition_type = TransitionTypeSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = TransitionByStateClassSummaryReportRow
-        fields = ('iteration','timestep','stratum','stateclass_src', 'stateclass_dest',
-            'amount','transition_type',)
-
-
-class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer):
-
-    scenario = ScenarioSerializer(many=False, read_only=True)
-    transition_stateclass_results = TransitionByStateClassSummaryReportRowSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = TransitionByStateClassSummaryReport
-        fields = ('id', 'scenario','transition_stateclass_results',)
+        model = RunControl
+        fields = '__all__'
 
 
 class OutputOptionSerializer(serializers.ModelSerializer):
-
-    #scenario = serializers.HyperlinkedRelatedField(view_name='scenario-detail', many=True, read_only=True)
 
     class Meta:
         model = OutputOption
         fields = '__all__'
 
-# TODO - Add remaining report and report_row serializers
+
+class DeterministicTransitionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DeterministicTransition
+        fields = '__all__'
+
+
+class TransitionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Transition
+        fields = '__all__'
+
+
+class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InitialConditionsNonSpatial
+        fields = '__all__'
+
+
+class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InitialConditionsNonSpatialDistribution
+        fields = '__all__'
+
+
+class TransitionTargetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransitionTarget
+        fields = '__all__'
+
+
+class TransitionMultiplierValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionMultiplierValue
+        fields = '__all__'
+
+
+class TransitionSizeDistributionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionSizeDistribution
+        fields = '__all__'
+
+
+class TransitionSizePrioritizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionSizePrioritization
+        fields = '__all__'
+
+
+class TransitionSpatialMultiplierSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionSpatialMultiplier
+        fields = '__all__'
+
+
+class StateAttributeValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StateAttributeValue
+        fields = '__all__'
+
+
+class TransitionAttributeValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionAttributeValue
+        fields = '__all__'
+
+
+class TransitionAttributeTargetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionAttributeTarget
+        fields = '__all__'
+
+
+class ScenarioValuesSerializer(serializers.Serializer):
+
+    pass # TODO - Add this special serializer to include values for the scenario's settings configuration
+
+
+""" Report Serializers """
+
+
+class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StateClassSummaryReportRow
+        fields = '__all__'
+
+
+class StateClassSummaryReportSerializer(serializers.ModelSerializer):
+
+    results = StateClassSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StateClassSummaryReport
+        fields = ('id', 'scenario', 'results',)
+
+
+class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionSummaryReportRow
+        fields = '__all__'
+
+
+class TransitionSummaryReportSerializer(serializers.ModelSerializer):
+
+    results = TransitionSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TransitionSummaryReport
+        fields = ('id', 'scenario', 'results',)
+
+
+class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionByStateClassSummaryReportRow
+        fields = '__all__'
+
+
+class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer):
+
+    results = TransitionByStateClassSummaryReportRowSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = TransitionByStateClassSummaryReport
+        fields = ('id', 'scenario', 'results',)
+
+
+class StateAttributeSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StateAttributeSummaryReportRow
+        fields = '__all__'
+
+
+class StateAttributeSummaryReportSerializer(serializers.ModelSerializer):
+
+    results = StateAttributeSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StateAttributeSummaryReport
+        fields = ('id', 'scenario', 'results',)
+
+
+class TransitionAttributeSummaryReportRowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TransitionAttributeSummaryReportRow
+        fields = '__all__'
+
+
+class TransitionAttributeSummaryReportSerializer(serializers.ModelSerializer):
+
+    results = TransitionAttributeSummaryReportRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TransitionAttributeSummaryReport
+        fields = ('id', 'scenario', 'results',)
+
+
+class QueryScenarioReportSerializer(serializers.ModelSerializer):
+    """
+        Convenient serializer for connecting to available reports for a given scenario
+    """
+
+    stateclass_summary_reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='stateclasssummaryreport-detail'
+    )
+
+    transition_summary_reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='transitionsummaryreport-detail'
+    )
+
+    transition_by_sc_summary_reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='transitionbystateclasssummaryreport-detail'
+    )
+
+    state_attribute_summary_reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='transitionsummaryreport-detail'
+    )
+
+    transition_attribute_summary_reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='transitionsummaryreport-detail'
+    )
+
+    class Meta:
+        model = Scenario
+        fields = ('stateclass_summary_reports',)

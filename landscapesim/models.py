@@ -356,17 +356,6 @@ class TransitionAttributeTarget(TimestepModelBase, SecondaryStratumMixin, Distri
 """
 
 
-class SummaryReportBase(models.Model):
-    """
-    Summary reports only need to know the scenario they were generated from
-    """
-
-    class Meta:
-        abstract = True
-
-    scenario = models.ForeignKey('Scenario')
-
-
 class SummaryReportRowBase(models.Model):
     """
     All summary report rows require the following fields
@@ -382,61 +371,62 @@ class SummaryReportRowBase(models.Model):
     amount = models.FloatField()
 
 
-class StateClassSummaryReport(SummaryReportBase):
+class StateClassSummaryReport(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario', related_name='stateclass_summary_reports', on_delete=models.CASCADE)
 
 
 class StateClassSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
-    report = models.ForeignKey('StateClassSummaryReport', on_delete=models.CASCADE)
+    report = models.ForeignKey('StateClassSummaryReport', related_name='results', on_delete=models.CASCADE)
     stateclass = models.ForeignKey('StateClass')
     proportion_of_landscape = models.FloatField()
     proportion_of_stratum = models.FloatField()
 
 
-class TransitionSummaryReport(SummaryReportBase):
+class TransitionSummaryReport(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario', related_name='transition_summary_reports', on_delete=models.CASCADE)
 
 
 class TransitionSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
-    report = models.ForeignKey('TransitionSummaryReport', on_delete=models.CASCADE)
+    report = models.ForeignKey('TransitionSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_group = models.ForeignKey('TransitionGroup')
 
 
-class TransitionByStateClassSummaryReport(SummaryReportBase):
+class TransitionByStateClassSummaryReport(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario', related_name='transition_by_sc_summary_reports', on_delete=models.CASCADE)
 
 
 class TransitionByStateClassSummaryReportRow(SummaryReportRowBase):
 
-    report = models.ForeignKey('TransitionByStateClassSummaryReport', on_delete=models.CASCADE)
+    report = models.ForeignKey('TransitionByStateClassSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_type = models.ForeignKey('TransitionType')
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_tscr')
     stateclass_dest = models.ForeignKey('StateClass', related_name='stateclass_dest_tscr')
 
 
-class StateAttributeSummaryReport(SummaryReportBase):
+class StateAttributeSummaryReport(models.Model):
 
-    pass
+    scenario = models.ForeignKey('Scenario', related_name='state_attribute_summary_reports', on_delete=models.CASCADE)
 
 
 class StateAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
-    report = models.ForeignKey('StateAttributeSummaryReport', related_name='state_attribute_results', on_delete=models.CASCADE)
+    report = models.ForeignKey('StateAttributeSummaryReport', related_name='results', on_delete=models.CASCADE)
     state_attribute_type = models.ForeignKey('StateAttributeType')
 
 
-class TransitionAttributeSummaryReport(SummaryReportBase):
-    pass
+class TransitionAttributeSummaryReport(models.Model):
+
+    scenario = models.ForeignKey('Scenario', related_name='transition_attribute_summary_reports', on_delete=models.CASCADE)
 
 
 class TransitionAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
-    report = models.ForeignKey('TransitionAttributeSummaryReport', related_name='transition_attribute_results', on_delete=models.CASCADE)
+    report = models.ForeignKey('TransitionAttributeSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_attribute_type = models.ForeignKey('TransitionAttributeType')
 
 """
