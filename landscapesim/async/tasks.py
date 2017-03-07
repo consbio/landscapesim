@@ -22,7 +22,7 @@ def run_model(self, library_name, pid, sid):
         result_sid = int(console.run_model(sid))
     except:
         raise IOError("Error running model")
-    scenario_info = [x for x in console.list_scenario_names(results_only=True)
+    scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
     scenario = Scenario.objects.create(
         project=job.parent_scenario.project,
