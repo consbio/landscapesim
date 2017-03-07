@@ -18,6 +18,11 @@ def run_model(self, library_name, pid, sid):
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
 
+    inputs = json.loads(job.inputs)
+
+    # TODO - extract, validate, and import related fields as necessary
+    #        top-level nodes (i.e. 'transitions' should adhere to the API format we will need to declare
+
     try:
         result_sid = int(console.run_model(sid))
     except:
@@ -66,5 +71,5 @@ def generate_report(self, library_name, pid, sid, report_name):
     os.remove(tmp_file)
 
     job = GenerateReportModel.objects.get(celery_id=self.request.id)
-    job.outputs = json.dumps({report_name: report.id})
+    job.outputs = json.dumps({report_name: report.id})  # TODO - maybe send URL to new endpoint as well?
     job.save()

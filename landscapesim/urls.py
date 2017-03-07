@@ -42,7 +42,7 @@ router.register('transition-attribute-types', TransitionAttributeTypeViewset)
 # Scenario configurations
 router.register('scenarios', ScenarioViewset)
 router.register('transitions', TransitionViewset)
-router.register('deterministic-transition', DeterministicTransitionViewset)
+router.register('deterministic-transitions', DeterministicTransitionViewset)
 router.register('initial-conditions-non-spatial-settings', InitialConditionsNonSpatialViewset)
 router.register('initial-conditions-non-spatial-distributions', InitialConditionsNonSpatialDistributionViewset)
 router.register('transition-targets', TransitionTargetViewset)
