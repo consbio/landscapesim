@@ -44,8 +44,8 @@ class AsyncJobSerializerMixin(object):
 
 class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
 
-    parent_scenario = ScenarioSerializer(many=False, read_only=True)
-    result_scenario = ScenarioSerializer(many=False, read_only=True)
+    parent_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
+    result_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
 
     class Meta:
         model = RunScenarioModel

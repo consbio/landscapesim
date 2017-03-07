@@ -49,7 +49,7 @@ class ProjectViewset(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def definitions(self, *args, **kwargs):
         context = {'request': self.request}
-        return Response(ProjectDefinitionsSerializer(self.get_object(), many=True, context=context).data)
+        return Response(ProjectDefinitionsSerializer(self.get_object(), context=context).data)
 
     @detail_route(methods=['get'])
     def scenarios(self, *args, **kwargs):

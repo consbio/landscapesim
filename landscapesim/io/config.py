@@ -17,7 +17,6 @@ transition_group = ('transition_group', 'TransitionGroupID')
 transition_type = ('transition_type', 'TransitionTypeID')
 state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID')
 transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID'),
-
 iteration = ('iteration', 'Iteration')
 timestep = ('timestep', 'Timestep')
 age_min = ('age_min', 'AgeMin')
@@ -28,7 +27,7 @@ distribution_min = ('distribution_min', 'DistributionMin')
 distribution_max = ('distribution_max', 'DistributionMax')
 
 # Common combinations
-time_common = (timestep, iteration, stratum)
+time_common = (timestep, iteration)
 age_common = (age_min, age_max)
 distribution_common = (distribution_type, distribution_sd, distribution_min, distribution_max)
 
@@ -104,12 +103,14 @@ INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (stratum,
                                                *age_common)
 
 TRANSITION_TARGET = (*time_common,
+                     stratum,
                      secondary_stratum,
                      transition_group,
                      ('target_area', 'Amount'),
                      *distribution_common)
 
 TRANSITION_MULTIPLIER_VALUE = (*time_common,
+                               stratum,
                                secondary_stratum,
                                stateclass,
                                transition_group,
@@ -118,20 +119,24 @@ TRANSITION_MULTIPLIER_VALUE = (*time_common,
                                *distribution_common)
 
 TRANSITION_SIZE_DISTRIBUTION = (*time_common,
+                                stratum,
                                 transition_group,
                                 ('relative_amount', 'RelativeAmount'))
 
 TRANSITION_SIZE_PRIORITIZATION = (*time_common,
+                                  stratum,
                                   transition_group,
                                   ('priority', 'Priority'))
 
 STATE_ATTRIBUTE_VALUE = (*time_common,
+                         stratum,
                          secondary_stratum,
                          stateclass,
                          state_attribute_type,
                          ('value', 'Value'))
 
 TRANSITION_ATTRIBUTE_VALUE = (*time_common,
+                              stratum,
                               secondary_stratum,
                               transition_group,
                               stateclass,
@@ -139,6 +144,7 @@ TRANSITION_ATTRIBUTE_VALUE = (*time_common,
                               ('value', 'Value'))
 
 TRANSITION_ATTRIBUTE_TARGET = (*time_common,
+                               stratum,
                                secondary_stratum,
                                transition_attribute_type,
                                ('target', 'Amount'),
