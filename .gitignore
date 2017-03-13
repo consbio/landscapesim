@@ -5,3 +5,5 @@ landscapesim_project/settings/custom.py
 db.sqlite3
 __pycache__/
 .idea/
+materials/
+config.json
