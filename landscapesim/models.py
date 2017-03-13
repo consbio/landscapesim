@@ -264,6 +264,25 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
     relative_amount = models.FloatField()
 
 
+class InitialConditionsSpatial(models.Model):
+
+    scenario = models.ForeignKey('Scenario', related_name='initial_conditions_spatial_settings')
+    num_rows = models.IntegerField()
+    num_cols = models.IntegerField()
+    num_cells = models.IntegerField()
+    cell_size = models.IntegerField()
+    cell_size_units = models.CharField(max_length=100)
+    cell_area = models.FloatField()
+    cell_area_override = models.BooleanField(default=False)
+    xll_corner = models.FloatField()
+    yll_corner = models.FloatField()
+    srs = models.CharField(max_length=500)    # spatial reference
+    stratum_file_name = models.CharField(max_length=100)
+    secondary_stratum_file_name = models.CharField(max_length=100)
+    stateclass_file_name = models.CharField(max_length=100)
+    age_file_name = models.CharField(max_length=100)
+
+
 class TimestepModelBase(models.Model):
 
     class Meta:
@@ -330,8 +349,8 @@ class TransitionSpatialMultiplier(models.Model):
     timestep = models.IntegerField(null=True, blank=True)
     iteration = models.IntegerField(null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
-    multiplier_type = models.ForeignKey('TransitionMultiplierType', null=True, blank=True)
-    multiplier_file_path = models.FilePathField(match='*.tif')
+    transition_multiplier_type = models.ForeignKey('TransitionMultiplierType', null=True, blank=True)
+    transition_multiplier_file_name = models.CharField(max_length=100)
 
 
 class StateAttributeValue(TimestepModelBase, SecondaryStratumMixin):
@@ -470,3 +489,28 @@ class RunScenarioModel(AsyncJobModel):
 class GenerateReportModel(AsyncJobModel):
 
     report_name = models.CharField(max_length=100)
+
+
+class ScenarioInputServices(models.Model):
+    """
+        ncdjango services for a scenario with spatial inputs. Allows input rasters to be utilized in maps and 3D scenes.
+    """
+
+    scenario = models.ForeignKey('Scenario', related_name='scenario_input_services')
+    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_input_service')
+    #secondary_stratum = models.ForeignKey('Service', related_name='secondary_stratum_input_service', null=True)
+    stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_input_service')
+    #age = models.ForeignKey('Service', related_name='age_input_service', null=True)
+
+
+class ScenarioOutputServices(models.Model):  # TODO - extend with all possible output rasters
+    """
+        ncdjango services for raster outputs from a result scenario. Allows time-series rasters to be animated in maps.
+    """
+
+    scenario = models.ForeignKey('Scenario', related_name='scenario_output_services')
+    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_output_service', null=True)
+    stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
+    #transition = models.ForeignKey('Service', related_name='transition_output_service', null=True)
+    #transition_attribute = models.ForeignKey('Service', related_name='transition_attribute_output_service', null=True)
+    #state_attribute = models.ForeignKey('Service', related_name='state_attribute_output_service', null=True)

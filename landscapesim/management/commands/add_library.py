@@ -9,6 +9,7 @@ from landscapesim.io.reports import process_reports
 from landscapesim.io.consoles import STSimConsole
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.db import transaction
 
 
 class Command(BaseCommand):
@@ -40,58 +41,60 @@ class Command(BaseCommand):
 
         console = STSimConsole(lib_path=file, orig_lib_path=orig_file, exe=settings.STSIM_EXE_PATH)
 
-        # Console works, now create library
-        library = Library.objects.create(name=name, file=file, orig_file=orig_file, tmp_file=tmp_file)
+        with transaction.atomic():
 
-        projects = console.list_projects()
-        all_scenarios = console.list_scenario_attrs()
-        result_scenarios = console.list_scenario_attrs(results_only=True)
-        orig_scenarios = [s for s in all_scenarios if s not in result_scenarios]
+            # Console works, now create library
+            library = Library.objects.create(name=name, file=file, orig_file=orig_file, tmp_file=tmp_file)
 
-        for pid in projects.keys():
-            proj_name = projects[pid]
-            project = Project.objects.create(library=library, name=proj_name, pid=int(pid))
-            print('Created project {} with pid {}'.format(project.name, project.pid))
+            projects = console.list_projects()
+            all_scenarios = console.list_scenario_attrs()
+            result_scenarios = console.list_scenario_attrs(results_only=True)
+            orig_scenarios = [s for s in all_scenarios if s not in result_scenarios]
 
-            # Create original scenarios
-            for s in orig_scenarios:
-                if s['pid'] == pid:
-                    Scenario.objects.create(
-                        project=project,
-                        name=s['name'],
-                        sid=int(s['sid'])
-                    )
-                    print('Created scenario {}.'.format(s['sid']))
+            for pid in projects.keys():
+                proj_name = projects[pid]
+                project = Project.objects.create(library=library, name=proj_name, pid=int(pid))
+                print('Created project {} with pid {}'.format(project.name, project.pid))
 
-            # Create result scenarios
-            for s in result_scenarios:
-                if s['pid'] == pid:
-                    Scenario.objects.create(
-                        project=project,
-                        name=s['name'],
-                        sid=int(s['sid']),
-                        is_result=True
-                    )
-                    print('Created scenario {}.'.format(s['sid']))
+                # Create original scenarios
+                for s in orig_scenarios:
+                    if s['pid'] == pid:
+                        Scenario.objects.create(
+                            project=project,
+                            name=s['name'],
+                            sid=int(s['sid'])
+                        )
+                        print('Created scenario {}.'.format(s['sid']))
 
-            # Import all project definitions
-            process_project_definitions(console, project)
+                # Create result scenarios
+                for s in result_scenarios:
+                    if s['pid'] == pid:
+                        Scenario.objects.create(
+                            project=project,
+                            name=s['name'],
+                            sid=int(s['sid']),
+                            is_result=True
+                        )
+                        print('Created scenario {}.'.format(s['sid']))
 
-            # Now import any scenario-specific information we want to capture
-            scenarios = Scenario.objects.filter(project=project)
-            for s in scenarios:
+                # Import all project definitions
+                process_project_definitions(console, project)
 
-                # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
-                process_scenario_inputs(console, s)
+                # Now import any scenario-specific information we want to capture
+                scenarios = Scenario.objects.filter(project=project)
+                for s in scenarios:
 
-                if os.path.exists(tmp_file):
-                    os.remove(tmp_file)
+                    # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
+                    process_scenario_inputs(console, s)
 
-                if s.is_result:
+                    if os.path.exists(tmp_file):
+                        os.remove(tmp_file)
 
-                    # Import all available reports
-                    process_reports(console, project, s, tmp_file)
+                    if s.is_result:
 
-                print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
-            print("Project {} successfully imported into landscapesim".format(project.name))
-        print("Library {} successfully added to landscapesim.".format(name))
+                        # Import all available reports
+                        process_reports(console, project, s, tmp_file)
+
+                    print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
+                print("Project {} successfully imported into landscapesim".format(project.name))
+            print("Library {} successfully added to landscapesim.".format(name))

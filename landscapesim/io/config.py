@@ -16,7 +16,8 @@ stateclass_dest = ('stateclass_dest', 'StateClassIDDest')
 transition_group = ('transition_group', 'TransitionGroupID')
 transition_type = ('transition_type', 'TransitionTypeID')
 state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID')
-transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID'),
+transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID')
+transition_multiplier_type = ('transition_multiplier_type', 'TransitionMultiplierTypeID')
 iteration = ('iteration', 'Iteration')
 timestep = ('timestep', 'Timestep')
 age_min = ('age_min', 'AgeMin')
@@ -102,6 +103,21 @@ INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (stratum,
                                                ('relative_amount', 'RelativeAmount'),
                                                *age_common)
 
+INITIAL_CONDITIONS_SPATIAL = (('num_rows', 'NumRows'),
+                              ('num_cols', 'NumColumns'),
+                              ('num_cells', 'NumCells'),
+                              ('cell_size', 'CellSize'),
+                              ('cell_size_units', 'CellSizeUnits'),
+                              ('cell_area', 'CellArea'),
+                              ('cell_area_override', 'CellAreaOverride'),
+                              ('xll_corner', 'XLLCorner'),
+                              ('yll_corner', 'YLLCorner'),
+                              ('srs', 'SRS'),
+                              ('stratum_file_name', 'StratumFileName'),
+                              ('secondary_stratum_file_name', 'SecondaryStratumFileName'),
+                              ('stateclass_file_name', 'StateClassFileName'),
+                              ('age_file_name', 'AgeFileName'))
+
 TRANSITION_TARGET = (*time_common,
                      stratum,
                      secondary_stratum,
@@ -114,7 +130,7 @@ TRANSITION_MULTIPLIER_VALUE = (*time_common,
                                secondary_stratum,
                                stateclass,
                                transition_group,
-                               ('transition_multiplier_type', 'TransitionMultiplierTypeID'),
+                               transition_multiplier_type,
                                ('multiplier', 'Amount'),
                                *distribution_common)
 
@@ -127,6 +143,11 @@ TRANSITION_SIZE_PRIORITIZATION = (*time_common,
                                   stratum,
                                   transition_group,
                                   ('priority', 'Priority'))
+
+TRANSITION_SPATIAL_MULTIPLIER = (*time_common,
+                                 transition_group,
+                                 transition_multiplier_type,
+                                 ('transition_multiplier_file_name', 'MultiplierFileName'))
 
 STATE_ATTRIBUTE_VALUE = (*time_common,
                          stratum,

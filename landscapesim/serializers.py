@@ -158,15 +158,14 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
     """
 
     stateclasses = StateClassSerializer(read_only=True, many=True)
-    #strata = StratumSerializer(many=True, read_only=True)
-    #transition_types = TransitionTypeSerializer(many=True, read_only=True)
-    #transition_groups = TransitionGroupSerializer(many=True, read_only=True)
-    #transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
+    strata = StratumSerializer(many=True, read_only=True)
+    transition_types = TransitionTypeSerializer(many=True, read_only=True)
+    transition_groups = TransitionGroupSerializer(many=True, read_only=True)
+    transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
 
     class Meta:
-        fields = ('stateclasses',)
-        #fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
-        #    'transition_type_groups',)
+        fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
+            'transition_type_groups',)
 
 
 class DistributionValueSerializer(serializers.ModelSerializer):
