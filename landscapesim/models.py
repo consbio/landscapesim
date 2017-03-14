@@ -495,6 +495,7 @@ class GenerateReportModel(AsyncJobModel):
     report_name = models.CharField(max_length=100)
 
 
+# TODO - make OneToOne model
 class ScenarioInputServices(models.Model):
     """
         ncdjango services for a scenario with spatial inputs. Allows input rasters to be utilized in maps and 3D scenes.
@@ -507,6 +508,7 @@ class ScenarioInputServices(models.Model):
     #age = models.ForeignKey('Service', related_name='age_input_service', null=True)
 
 
+# TODO - make OneToOne model
 class ScenarioOutputServices(models.Model):  # TODO - extend with all possible output rasters
     """
         ncdjango services for raster outputs from a result scenario. Allows time-series rasters to be animated in maps.
