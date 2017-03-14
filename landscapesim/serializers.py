@@ -5,9 +5,9 @@ from landscapesim.models import Library, Project, Scenario, Terminology, Distrib
 
 from landscapesim.models import \
     DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
-    InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue, TransitionSizeDistribution, \
-    TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
-    TransitionAttributeTarget
+    InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
+    TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, \
+    TransitionAttributeValue, TransitionAttributeTarget
 
 from landscapesim.models import \
     StateClassSummaryReport, StateClassSummaryReportRow, \
@@ -15,8 +15,6 @@ from landscapesim.models import \
     TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
     StateAttributeSummaryReport, StateAttributeSummaryReportRow, \
     TransitionAttributeSummaryReport, TransitionAttributeSummaryReportRow
-
-from landscapesim.io.serializers import name_field
 
 
 class LibrarySerializer(serializers.ModelSerializer):
@@ -61,7 +59,7 @@ class ScenarioSerializer(serializers.ModelSerializer):
 class TerminologySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Terminology,
+        model = Terminology
         fields = '__all__'
 
 
@@ -157,15 +155,20 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
         project definitions in one location
     """
 
+    terminology = TerminologySerializer(read_only=True, many=True)    # TODO - once we make this 1to1, set many=False
     stateclasses = StateClassSerializer(read_only=True, many=True)
     strata = StratumSerializer(many=True, read_only=True)
     transition_types = TransitionTypeSerializer(many=True, read_only=True)
     transition_groups = TransitionGroupSerializer(many=True, read_only=True)
     transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
+    transition_attribute_types = TransitionAttributeTypeSerializer(many=True, read_only=True)
+    state_attribute_types = StateAttributeTypeSerializer(many=True, read_only=True)
+    attribute_groups = AttributeGroupSerializer(many=True, read_only=True)
 
     class Meta:
-        fields = ('stateclasses', 'strata', 'transition_types', 'transition_groups',
-            'transition_type_groups',)
+        fields = (""""'terminology',""" 'stateclasses', 'strata', 'transition_types', 'transition_groups',
+                  'transition_type_groups', 'transition_attribute_types', 'state_attribute_types',
+                  'attribute_groups',)
 
 
 class DistributionValueSerializer(serializers.ModelSerializer):
@@ -191,23 +194,12 @@ class OutputOptionSerializer(serializers.ModelSerializer):
 
 class DeterministicTransitionSerializer(serializers.ModelSerializer):
 
-    stratum_src = name_field()
-    stratum_dest = name_field()
-    stateclass_src = name_field()
-    stateclass_dest = name_field()
-
     class Meta:
         model = DeterministicTransition
         fields = '__all__'
 
 
 class TransitionSerializer(serializers.ModelSerializer):
-
-    stratum_src = name_field()
-    stratum_dest = name_field()
-    stateclass_src = name_field()
-    stateclass_dest = name_field()
-    transition_type = name_field()
 
     class Meta:
         model = Transition
@@ -223,20 +215,19 @@ class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
 
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
 
-    stratum = name_field()
-    stateclass = name_field()
-    secondary_stratum = name_field()
-
     class Meta:
         model = InitialConditionsNonSpatialDistribution
         fields = '__all__'
 
 
-class TransitionTargetSerializer(serializers.ModelSerializer):
+class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
 
-    stratum = name_field()
-    secondary_stratum = name_field()
-    transition_group = name_field()
+    class Meta:
+        model = InitialConditionsSpatial
+        fields = '__all__'
+
+
+class TransitionTargetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TransitionTarget
@@ -245,13 +236,6 @@ class TransitionTargetSerializer(serializers.ModelSerializer):
 
 class TransitionMultiplierValueSerializer(serializers.ModelSerializer):
 
-    stratum = name_field()
-    stateclass = name_field()
-    secondary_stratum = name_field()
-    distribution_type = name_field
-    transition_group = name_field()
-    transition_multiplier_type = name_field()
-
     class Meta:
         model = TransitionMultiplierValue
         fields = '__all__'
@@ -259,18 +243,12 @@ class TransitionMultiplierValueSerializer(serializers.ModelSerializer):
 
 class TransitionSizeDistributionSerializer(serializers.ModelSerializer):
 
-    stratum = name_field()
-    transition_group = name_field()
-
     class Meta:
         model = TransitionSizeDistribution
         fields = '__all__'
 
 
 class TransitionSizePrioritizationSerializer(serializers.ModelSerializer):
-
-    stratum = name_field()
-    transition_group = name_field()
 
     class Meta:
         model = TransitionSizePrioritization
@@ -286,23 +264,12 @@ class TransitionSpatialMultiplierSerializer(serializers.ModelSerializer):
 
 class StateAttributeValueSerializer(serializers.ModelSerializer):
 
-    stratum = name_field()
-    stateclass = name_field()
-    secondary_stratum = name_field()
-    state_attribute_type = name_field()
-
     class Meta:
         model = StateAttributeValue
         fields = '__all__'
 
 
 class TransitionAttributeValueSerializer(serializers.ModelSerializer):
-
-    stratum = name_field()
-    stateclass = name_field()
-    secondary_stratum = name_field()
-    transition_group = name_field()
-    transition_attribute_type = name_field()
 
     class Meta:
         model = TransitionAttributeValue
@@ -318,11 +285,8 @@ class TransitionAttributeTargetSerializer(serializers.ModelSerializer):
 
 class ScenarioValuesSerializer(serializers.Serializer):
 
-    run_controls = RunControlSerializer(many=True, read_only=True)
-    output_options = OutputOptionSerializer(many=True, read_only=True)
     deterministic_transitions = DeterministicTransitionSerializer(many=True, read_only=True)
     transitions = TransitionSerializer(many=True, read_only=True)
-    initial_conditions_nonspatial_settings = InitialConditionsNonSpatialSerializer(many=True, read_only=True)
     initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
     transition_targets = TransitionTargetSerializer(many=True, read_only=True)
     transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
@@ -333,12 +297,23 @@ class ScenarioValuesSerializer(serializers.Serializer):
     transition_attribute_targets = TransitionAttributeTargetSerializer(many=True, read_only=True)
 
     class Meta:
-        fields = ('run_controls', 'output_options', 'deterministic_transitions', 'transitions',
-                  'initial_conditions_nonspatial_settings', 'initial_conditions_nonspatial_distributions',
+        fields = ('deterministic_transitions', 'transitions', 'initial_conditions_nonspatial_distributions',
                   'transition_targets', 'transition_multiplier_values', 'transition_size_distributions',
                   'transition_size_prioritizations', 'state_attribute_values', 'transition_attribute_values',
                   'transition_attribute_targets')
 
+
+class ScenarioConfigSerializer(serializers.Serializer):
+
+    run_controls = RunControlSerializer(many=True, read_only=True)
+    output_options = OutputOptionSerializer(many=True, read_only=True)
+    initial_conditions_nonspatial_settings = InitialConditionsNonSpatialSerializer(many=True, read_only=True, allow_null=True)
+    initial_conditions_spatial_settings = InitialConditionsSpatialSerializer(many=True, read_only=True, allow_null=True)
+    # TODO - add scenario input map services to this serializer
+
+    class Meta:
+        fields = ('run_controls', 'output_options', 'initial_conditions_nonspatial_settings',
+                  'initial_conditions_spatial_settings')
 
 """ Report Serializers """
 

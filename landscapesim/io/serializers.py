@@ -39,7 +39,6 @@ class ImportSerializerBase(serializers.ModelSerializer):
         that SyncroSim expects.
     """
     sheet_map = ()
-    # extra_names = ()
 
     def transform(self):
         """
@@ -59,10 +58,6 @@ class ImportSerializerBase(serializers.ModelSerializer):
                     elif type(transformed_data[pair[1]]) is int:
                         transformed_data[pair[1]] = default_int_to_empty_or_int(transformed_data[pair[1]])
                     break
-
-        # Now handle names which we don't handle yet.
-        #for unhandled in self.extra_names:
-        #   transformed_data[unhandled] = ''
 
         return transformed_data
 

@@ -45,6 +45,7 @@ class Scenario(models.Model):
 """
 
 
+# TODO - make OneToOne
 class Terminology(models.Model):
 
     project = models.ForeignKey('Project', related_name='terminology', on_delete=models.CASCADE)
@@ -91,7 +92,6 @@ class StateClass(models.Model):
     description = models.CharField(max_length=100)
     state_label_x = models.CharField(max_length=100)
     state_label_y = models.CharField(max_length=100)
-    structure = models.CharField(max_length=100)
 
 
 class TransitionType(models.Model):
@@ -179,6 +179,7 @@ class DistributionValue(models.Model):
     relative_frequency = models.FloatField(null=True, blank=True)
 
 
+# TODO - make OneToOne
 class RunControl(models.Model):
     scenario = models.ForeignKey('Scenario', related_name='run_controls')
     min_iteration = models.IntegerField()
@@ -188,6 +189,7 @@ class RunControl(models.Model):
     is_spatial = models.BooleanField(default=False)
 
 
+# TODO - make OneToOne
 class OutputOption(models.Model):
     scenario = models.ForeignKey('Scenario', related_name='output_options')
     sum_sc = models.BooleanField(default=False)
@@ -247,6 +249,7 @@ class Transition(AgeMixin):
     tst_relative = models.FloatField(null=True, blank=True)
 
 
+# TODO - make this a OneToOne model relationship
 class InitialConditionsNonSpatial(models.Model):
 
     scenario = models.ForeignKey('Scenario', related_name='initial_conditions_nonspatial_settings')
@@ -264,6 +267,7 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
     relative_amount = models.FloatField()
 
 
+# TODO - make this a OneToOne model relationship
 class InitialConditionsSpatial(models.Model):
 
     scenario = models.ForeignKey('Scenario', related_name='initial_conditions_spatial_settings')

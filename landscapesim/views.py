@@ -1,18 +1,18 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route, list_route  # TODO - use list_route for scenario dependencies?
+from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
 
 # Project models
-from landscapesim.models import Library, Project, Scenario, Terminology, DistributionType, Stratum, SecondaryStratum, StateClass, \
+from landscapesim.models import Library, Project, Scenario, DistributionType, Stratum, SecondaryStratum, StateClass, \
     TransitionType, TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, AttributeGroup, StateAttributeType,\
     TransitionAttributeType
 
 # Scenario models
-from landscapesim.models import DistributionValue, OutputOption, RunControl, DeterministicTransition, Transition, \
-    InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, TransitionTarget, TransitionMultiplierValue, \
-    TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, \
-    TransitionAttributeValue, TransitionAttributeTarget
+from landscapesim.models import DistributionValue, DeterministicTransition, Transition, \
+    InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, \
+    TransitionMultiplierValue, TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, \
+    StateAttributeValue, TransitionAttributeValue, TransitionAttributeTarget
 
 # Reports
 from landscapesim.models import \
@@ -24,15 +24,16 @@ from landscapesim.serializers import LibrarySerializer, ProjectSerializer, Scena
     StratumSerializer, SecondaryStratumSerializer, StateClassSerializer, TransitionTypeSerializer, \
     TransitionGroupSerializer, TransitionTypeGroupSerializer, DeterministicTransitionSerializer, TransitionSerializer, \
     InitialConditionsNonSpatialSerializer, InitialConditionsNonSpatialDistributionSerializer, \
-    StateClassSummaryReportSerializer, TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer, \
-    RunControlSerializer, OutputOptionSerializer, TransitionMultiplierTypeSerializer, AttributeGroupSerializer, \
+    InitialConditionsSpatialSerializer, StateClassSummaryReportSerializer, TransitionSummaryReportSerializer, \
+    TransitionByStateClassSummaryReportSerializer, TransitionMultiplierTypeSerializer, AttributeGroupSerializer, \
     StateAttributeTypeSerializer, TransitionAttributeTypeSerializer, TransitionTargetSerializer, \
-    TransitionSizeDistributionSerializer, TransitionSizePrioritizationSerializer, TransitionSpatialMultiplierSerializer, \
-    StateAttributeValueSerializer, TransitionAttributeValueSerializer, TransitionAttributeTargetSerializer, \
-    TransitionMultiplierValueSerializer
+    TransitionSizeDistributionSerializer, TransitionSizePrioritizationSerializer, \
+    TransitionSpatialMultiplierSerializer, StateAttributeValueSerializer, TransitionAttributeValueSerializer, \
+    TransitionAttributeTargetSerializer, TransitionMultiplierValueSerializer
 
 # Special-purpose serializers
-from landscapesim.serializers import ProjectDefinitionsSerializer, QueryScenarioReportSerializer, ScenarioValuesSerializer
+from landscapesim.serializers import ProjectDefinitionsSerializer, QueryScenarioReportSerializer, \
+    ScenarioValuesSerializer, ScenarioConfigSerializer
 
 # TODO - Discuss integration of spatial layers into models
 
@@ -72,19 +73,6 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
         return Response(LibrarySerializer(self.get_object().project.library, context=context).data)
 
     @detail_route(methods=['get'])
-    def runcontrol(self, *args, **kwargs):
-        context = {'request': self.request}
-        return Response(RunControlSerializer(RunControl.objects.filter(
-            scenario=self.get_object()).first(), context=context).data
-        )
-
-    @detail_route(methods=['get'])
-    def outputoptions(self, *args, **kwargs):
-        context= {'request': self.request}
-        return Response(OutputOptionSerializer(OutputOption.objects.filter(
-            scenario=self.get_object()).first(), context=context).data)
-
-    @detail_route(methods=['get'])
     def reports(self, *args, **kwargs):
         context = {'request': self.request}
         return Response(QueryScenarioReportSerializer(self.get_object(), context=context).data)
@@ -94,26 +82,20 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
         context = {'request': self.request}
         return Response(ScenarioValuesSerializer(self.get_object(), context=context).data)
 
-    # TODO - Add terminology as detail route
-
-
-    # TODO - include these as a single detail route?
-    # TODOr - Add transitions
-    # TODOr - Add initial conditions
-    # TODOr - Add transition targets
-    # TODOr - Add state attribute values
-    # TODOr - Add transition attribute targets
-    # TODOr - Add transition attribute values (blend w/ targets?)
-    # TODOr - Add transition multipliers
+    @detail_route(methods=['get'])
+    def config(self, *args, **kwargs):
+        context = {'request': self.request}
+        print(self.get_object())
+        return Response(ScenarioConfigSerializer(self.get_object(), context=context).data)
 
     def get_queryset(self):
         if not self.request.query_params.get('results_only'):
             return self.queryset
         else:
             is_result = self.request.query_params.get('results_only')
-            if is_result not in ['true','false']:
+            if is_result not in ['true', 'false']:
                 raise ParseError('Was not true or false.')
-            return self.queryset.filter(is_result=is_result=='true')
+            return self.queryset.filter(is_result=is_result == 'true')
 
 
 class StratumViewset(viewsets.ReadOnlyModelViewSet):
@@ -142,9 +124,10 @@ class TransitionTypeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransitionTypeSerializer
 
     @detail_route(methods=['get'])
-    def groups(self, *args, **kwargs):      # TODO - should this be just the TransitionGroups, and not TransitionTypeGroups?
-        return Response(TransitionTypeGroupSerializer(
-            TransitionTypeGroup.objects.filter(transition_type=self.get_object()), many=True).data)
+    def groups(self, *args, **kwargs):
+        tgrps = [TransitionGroup.objects.get(pk=_['transition_group']) for _ in TransitionTypeGroup.objects.filter(
+            transition_type=self.get_object()).values('transition_group')]
+        return Response(TransitionGroupSerializer(tgrps, many=True).data)
 
 
 class TransitionGroupViewset(viewsets.ReadOnlyModelViewSet):
@@ -152,9 +135,10 @@ class TransitionGroupViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransitionGroupSerializer
 
     @detail_route(methods=['get'])
-    def types(self, *args, **kwargs):       # TODO - should this be just the TransitionTypes, and not TransitionTypeGroups?
-        return Response(TransitionTypeGroupSerializer(
-            TransitionTypeGroup.objects.filter(transition_group=self.get_object()), many=True).data)
+    def types(self, *args, **kwargs):
+        tts = [TransitionType.objects.get(pk=_['transition_type']) for _ in TransitionTypeGroup.objects.filter(
+            transition_group=self.get_object()).values('transition_type')]
+        return Response(TransitionTypeSerializer(tts, many=True).data)
 
 
 class TransitionTypeGroupViewset(viewsets.ReadOnlyModelViewSet):
@@ -205,6 +189,11 @@ class InitialConditionsNonSpatialDistributionViewset(viewsets.ReadOnlyModelViewS
     serializer_class = InitialConditionsNonSpatialDistributionSerializer
 
 
+class InitialConditionsSpatialViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = InitialConditionsSpatial.objects.all()
+    serializer_class = InitialConditionsSpatialSerializer
+
+
 class TransitionTargetViewset(viewsets.ReadOnlyModelViewSet):
     queryset = TransitionTarget.objects.all()
     serializer_class = TransitionTargetSerializer
@@ -223,6 +212,11 @@ class TransitionSizeDistributionViewset(viewsets.ReadOnlyModelViewSet):
 class TransitionSizePrioritizationViewset(viewsets.ReadOnlyModelViewSet):
     queryset = TransitionSizePrioritization.objects.all()
     serializer_class = TransitionSizePrioritizationSerializer
+
+
+class TransitionSpatialMultiplierViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = TransitionSpatialMultiplier.objects.all()
+    serializer_class = TransitionSpatialMultiplierSerializer
 
 
 class StateAttributeValueViewset(viewsets.ReadOnlyModelViewSet):
