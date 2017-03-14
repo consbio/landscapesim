@@ -85,7 +85,6 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def config(self, *args, **kwargs):
         context = {'request': self.request}
-        print(self.get_object())
         return Response(ScenarioConfigSerializer(self.get_object(), context=context).data)
 
     def get_queryset(self):
