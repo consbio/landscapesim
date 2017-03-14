@@ -4,13 +4,11 @@
 
 import json
 from rest_framework import serializers
-from landscapesim.models import Library, Project, Scenario, \
-    RunScenarioModel, GenerateReportModel
-from landscapesim.serializers import ScenarioSerializer
-from landscapesim.async.tasks import run_model, generate_report
+from landscapesim.models import Library, Project, Scenario, RunScenarioModel
+from landscapesim.async.tasks import run_model
 from django.core import exceptions
 
-REGISTERED_JOBS = ['run-model', 'generate-report']
+REGISTERED_JOBS = ['run-model']
 
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
@@ -72,48 +70,6 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         result = run_model.delay(library_name, pid, sid)
         return RunScenarioModel.objects.create(
             parent_scenario=parent_scenario,
-            celery_id=result.id,
-            inputs=json.dumps(validated_data['inputs'])
-        )
-
-
-class GenerateReportSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
-
-    report_name = serializers.CharField()
-
-    class Meta:
-        model = GenerateReportModel
-        fields = ('uuid', 'created', 'status', 'report_name', 'inputs', 'outputs')
-        read_only_fields = ('uuid', 'created', 'status', 'outputs')
-
-    def validate(self, attrs):
-
-        if attrs['report_name'] not in REGISTERED_REPORTS:
-            raise serializers.ValidationError('No report with name {} available'.format(attrs['report_name']))
-
-        # Throw exceptions if scenario select is not a result scenario or does not exist
-        inputs = attrs['inputs']
-        try:
-            scenario = Scenario.objects.get(
-                sid=int(inputs['sid']),
-                project__pid=int(inputs['pid']),
-                project__library__name__exact=inputs['library_name'])
-            if not scenario.is_result:
-                raise serializers.ValidationError('Cannot run a report on non-result scenarios.')
-        except exceptions.ObjectDoesNotExist:
-            raise serializers.ValidationError('Cannot find scenario with provided arguments.')
-
-        return attrs
-
-    def create(self, validated_data):
-
-        library_name = validated_data['inputs']['library_name']
-        pid = validated_data['inputs']['pid']
-        sid = validated_data['inputs']['sid']
-        report_name = validated_data['report_name']
-        result = generate_report.delay(library_name, pid, sid, report_name)
-        return GenerateReportModel.objects.create(
-            report_name=report_name,
             celery_id=result.id,
             inputs=json.dumps(validated_data['inputs'])
         )

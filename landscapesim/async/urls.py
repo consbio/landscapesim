@@ -1,13 +1,10 @@
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from landscapesim.async.views import RunModelViewset, GenerateReportViewset
-
+from landscapesim.async.views import RunModelViewset
 
 router = DefaultRouter()
 router.register('run-model', RunModelViewset)
-router.register('generate-report', GenerateReportViewset)
-
 
 urlpatterns = [
     url(r'^', include(router.urls)),

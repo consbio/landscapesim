@@ -2,40 +2,29 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
-
-# Project models
 from landscapesim.models import Library, Project, Scenario, DistributionType, Stratum, SecondaryStratum, StateClass, \
     TransitionType, TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, AttributeGroup, StateAttributeType,\
     TransitionAttributeType
-
-# Scenario models
+from landscapesim.serializers.projects import LibrarySerializer, ProjectSerializer, \
+    ProjectDefinitionsSerializer, ScenarioSerializer, StratumSerializer, SecondaryStratumSerializer, \
+    StateClassSerializer, TransitionTypeSerializer, TransitionGroupSerializer, TransitionTypeGroupSerializer, \
+    TransitionMultiplierTypeSerializer, AttributeGroupSerializer, StateAttributeTypeSerializer, \
+    TransitionAttributeTypeSerializer
 from landscapesim.models import DistributionValue, DeterministicTransition, Transition, \
     InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, \
     TransitionMultiplierValue, TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, \
     StateAttributeValue, TransitionAttributeValue, TransitionAttributeTarget
-
-# Reports
-from landscapesim.models import \
-    StateClassSummaryReport, TransitionSummaryReport, TransitionByStateClassSummaryReport, \
+from landscapesim.serializers.scenarios import ScenarioConfigSerializer, ScenarioValuesSerializer, \
+    DeterministicTransitionSerializer, TransitionSerializer, InitialConditionsNonSpatialSerializer, \
+    InitialConditionsNonSpatialDistributionSerializer, InitialConditionsSpatialSerializer, \
+    TransitionTargetSerializer, TransitionMultiplierValueSerializer, TransitionSizeDistributionSerializer, \
+    TransitionSizePrioritizationSerializer, TransitionSpatialMultiplierSerializer, \
+    StateAttributeValueSerializer, TransitionAttributeValueSerializer, TransitionAttributeTargetSerializer
+from landscapesim.models import StateClassSummaryReport, TransitionSummaryReport, TransitionByStateClassSummaryReport, \
     StateAttributeSummaryReport, TransitionAttributeSummaryReport
-
-# Serialization glue # TODO - split
-from landscapesim.serializers import LibrarySerializer, ProjectSerializer, ScenarioSerializer, \
-    StratumSerializer, SecondaryStratumSerializer, StateClassSerializer, TransitionTypeSerializer, \
-    TransitionGroupSerializer, TransitionTypeGroupSerializer, DeterministicTransitionSerializer, TransitionSerializer, \
-    InitialConditionsNonSpatialSerializer, InitialConditionsNonSpatialDistributionSerializer, \
-    InitialConditionsSpatialSerializer, StateClassSummaryReportSerializer, TransitionSummaryReportSerializer, \
-    TransitionByStateClassSummaryReportSerializer, TransitionMultiplierTypeSerializer, AttributeGroupSerializer, \
-    StateAttributeTypeSerializer, TransitionAttributeTypeSerializer, TransitionTargetSerializer, \
-    TransitionSizeDistributionSerializer, TransitionSizePrioritizationSerializer, \
-    TransitionSpatialMultiplierSerializer, StateAttributeValueSerializer, TransitionAttributeValueSerializer, \
-    TransitionAttributeTargetSerializer, TransitionMultiplierValueSerializer
-
-# Special-purpose serializers
-from landscapesim.serializers import ProjectDefinitionsSerializer, QueryScenarioReportSerializer, \
-    ScenarioValuesSerializer, ScenarioConfigSerializer
-
-# TODO - Discuss integration of spatial layers into models
+from landscapesim.serializers.reports import QueryScenarioReportSerializer, StateClassSummaryReportSerializer, \
+    TransitionSummaryReportSerializer, TransitionByStateClassSummaryReportSerializer, \
+    StateAttributeSummaryReportSerializer, TransitionAttributeSummaryReportSerializer
 
 
 class LibraryViewset(viewsets.ReadOnlyModelViewSet):
@@ -253,11 +242,11 @@ class TransitionByStateClassSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
 
 class StateAttributeSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = StateAttributeSummaryReport.objects.all()
-    serializer_class = TransitionByStateClassSummaryReportSerializer
+    serializer_class = StateAttributeSummaryReportSerializer
 
 
 class TransitionAttributeSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = TransitionAttributeSummaryReport.objects.all()
-    serializer_class = TransitionByStateClassSummaryReportSerializer
+    serializer_class = TransitionAttributeSummaryReportSerializer
 
 

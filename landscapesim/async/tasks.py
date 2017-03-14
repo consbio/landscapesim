@@ -1,11 +1,10 @@
-from celery import task
-from landscapesim.models import Library, Project, Scenario, RunScenarioModel, GenerateReportModel
+from celery.task import task
+from landscapesim.models import Library, Scenario, RunScenarioModel
 import json
 import os
 from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.reports import create_stateclass_summary, create_transition_sc_summary, create_transition_summary, \
-    create_transition_attribute_summary, create_state_attribute_summary
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
+from landscapesim.io.reports import process_reports
 
 from django.core import exceptions
 from django.conf import settings
@@ -40,36 +39,5 @@ def run_model(self, library_name, pid, sid):
     job.save()
 
     process_scenario_inputs(console, scenario)
+    process_reports(console, scenario, get_random_csv(lib.tmp_file))
 
-
-@task(bind=True)
-def generate_report(self, library_name, pid, sid, report_name):
-    lib = Library.objects.get(name__iexact=library_name)
-    proj = Project.objects.get(library=lib, pid=pid)
-    s = Scenario.objects.filter(project=proj, sid=sid).first()
-    console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
-    tmp_file = get_random_csv(lib.tmp_file)
-
-    try:
-        console.generate_report(report_name, tmp_file, sid)
-    except:
-        raise IOError("Error generating report")
-    if report_name == 'stateclass-summary':
-        report = create_stateclass_summary(proj, s, tmp_file)
-    elif report_name == 'transition-summary':
-        report = create_transition_summary(proj, s, tmp_file)
-    elif report_name == 'transition-stateclass-summary':
-        report = create_transition_sc_summary(proj, s, tmp_file)
-    elif report_name == 'state-attributes':
-        report = create_state_attribute_summary(proj, s, tmp_file)
-    elif report_name == 'transition-attributes':
-        report = create_transition_attribute_summary(proj, s, tmp_file)
-    else:
-        raise exceptions.ObjectDoesNotExist("The {} report for project {}, scenario {} was not found."
-                                            .format(report_name, proj.name, s.sid))
-
-    os.remove(tmp_file)
-
-    job = GenerateReportModel.objects.get(celery_id=self.request.id)
-    job.outputs = json.dumps({report_name: report.id})  # TODO - maybe send URL to new endpoint as well?
-    job.save()

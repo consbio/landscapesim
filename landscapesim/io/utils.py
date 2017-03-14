@@ -596,8 +596,6 @@ def process_scenario_inputs(console, scenario):
             tsm.save()
     print('Imported transition spatial multipliers for scenario {}'.format(scenario.sid))
 
-    # TODO - Import transition spatial multiplier configuration, and if is result, process web outputs
-
     # Import state attribute values
     console.export_sheet('STSim_StateAttributeValue', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:

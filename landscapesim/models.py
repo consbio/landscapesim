@@ -490,11 +490,6 @@ class RunScenarioModel(AsyncJobModel):
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
 
 
-class GenerateReportModel(AsyncJobModel):
-
-    report_name = models.CharField(max_length=100)
-
-
 # TODO - make OneToOne model
 class ScenarioInputServices(models.Model):
     """
@@ -506,6 +501,7 @@ class ScenarioInputServices(models.Model):
     #secondary_stratum = models.ForeignKey('Service', related_name='secondary_stratum_input_service', null=True)
     stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_input_service')
     #age = models.ForeignKey('Service', related_name='age_input_service', null=True)
+    # TODO - find use case for age
 
 
 # TODO - make OneToOne model
