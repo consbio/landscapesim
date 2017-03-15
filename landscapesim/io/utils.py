@@ -7,7 +7,9 @@ from landscapesim.models import DistributionType, Terminology, Stratum, Secondar
     InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
     AttributeGroup, StateAttributeType, TransitionAttributeType, TransitionSizeDistribution, \
     TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
-    TransitionAttributeTarget, ScenarioInputServices, ScenarioOutputServices
+    TransitionAttributeTarget
+
+from landscapesim.io.rasters import process_input_rasters, process_output_rasters
 
 M2_TO_ACRES = 0.000247105
 
@@ -427,29 +429,9 @@ def process_scenario_inputs(console, scenario):
                 age_file_name=init['AgeFileName']
             )
 
-            print('Imported initial conditions spatial settings for scenario {}'.format(scenario.sid))
-
-            if False and any([len(_) for _ in [ics.stratum_file_name,   # TODO - remove False when below todo is done
-                                     ics.secondary_stratum_file_name,
-                                     ics.stateclass_file_name,
-                                     ics.age_file_name]]):
-
-                # TODO - Create utilities for generating ncdjango services for spatial inputs (and outputs)
-
-                if len(ics.stratum_file_name):
-                    pass  # Create stratum input service
-
-                if len(ics.secondary_stratum_file_name):
-                    pass  # Create secondary stratum input service
-
-                if len(ics.stateclass_file_name):
-                    pass  # Create stateclass input service
-
-                if len(ics.age_file_name):
-                    pass  # Create age input service
-
-                sis = ScenarioInputServices.objects.create(scenario=scenario)
-
+            # Create map services
+            process_input_rasters(ics)
+    print('Imported initial conditions spatial settings for scenario {}'.format(scenario.sid))
 
     # Import transition targets
     console.export_sheet('STSim_TransitionTarget', tmp_file, **kwgs)

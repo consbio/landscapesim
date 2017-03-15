@@ -5,6 +5,7 @@
 """
 from django.db import models
 import uuid
+import os
 from celery.result import AsyncResult
 
 # TODO - add a lookup field for the project when it is necessary.
@@ -39,6 +40,20 @@ class Scenario(models.Model):
     # TODO - Add detection for scenario dependencies (as a console action)
     # Note - A scenario can itself have scenarios as dependencies, but a top level scenario won't be a dependency
     is_dependency_of = models.ForeignKey("self", null=True, blank=True)
+
+    def input_directory(self):
+        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
+                            'STSim_InitialConditionsSpatial')
+
+    def output_directory(self):
+        if self.is_result:
+            path = os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
+            if os.path.exists(path):
+                return path
+            else:
+                raise OSError("Scenario {} has no spatial directory. No spatial outputs were created.")
+        else:
+            raise ValueError("Scenario {} is not a result scenario. Output directory does not exist.".format(self.sid))
 
 """
     Project Definitions
@@ -497,11 +512,10 @@ class ScenarioInputServices(models.Model):
     """
 
     scenario = models.ForeignKey('Scenario', related_name='scenario_input_services')
-    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_input_service')
-    #secondary_stratum = models.ForeignKey('Service', related_name='secondary_stratum_input_service', null=True)
-    stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_input_service')
-    #age = models.ForeignKey('Service', related_name='age_input_service', null=True)
-    # TODO - find use case for age
+    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_input_service', null=True)
+    secondary_stratum = models.ForeignKey('ncdjango.Service', related_name='secondary_stratum_input_service', null=True)
+    stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_input_service', null=True)
+    age = models.ForeignKey('ncdjango.Service', related_name='age_input_service', null=True)
 
 
 # TODO - make OneToOne model
@@ -513,6 +527,6 @@ class ScenarioOutputServices(models.Model):  # TODO - extend with all possible o
     scenario = models.ForeignKey('Scenario', related_name='scenario_output_services')
     stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_output_service', null=True)
     stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
-    #transition = models.ForeignKey('Service', related_name='transition_output_service', null=True)
-    #transition_attribute = models.ForeignKey('Service', related_name='transition_attribute_output_service', null=True)
-    #state_attribute = models.ForeignKey('Service', related_name='state_attribute_output_service', null=True)
+    #transition = models.ForeignKey('ncdjango.Service', related_name='transition_output_service', null=True)
+    #transition_attribute = models.ForeignKey('ncdjango.Service', related_name='transition_attribute_output_service', null=True)
+    #state_attribute = models.ForeignKey('ncdjango.Service', related_name='state_attribute_output_service', null=True)
