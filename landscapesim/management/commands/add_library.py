@@ -93,7 +93,7 @@ class Command(BaseCommand):
                     if s.is_result:
 
                         # Import all available reports
-                        process_reports(console, project, s, tmp_file)
+                        process_reports(console, s, tmp_file)
 
                     print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
                 print("Project {} successfully imported into landscapesim".format(project.name))
