@@ -38,3 +38,4 @@ requests==2.13.0
 Shapely==1.5.17
 six==1.10.0
 snuggs==1.4.1
+xarray

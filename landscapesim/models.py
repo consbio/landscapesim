@@ -194,7 +194,7 @@ class DistributionValue(models.Model):
 
 
 class RunControl(models.Model):
-    scenario = models.OneToOneField('Scenario', related_name='run_controls')
+    scenario = models.OneToOneField('Scenario', related_name='run_control')
     min_iteration = models.IntegerField()
     max_iteration = models.IntegerField()
     min_timestep = models.IntegerField()
@@ -203,7 +203,7 @@ class RunControl(models.Model):
 
 
 class OutputOption(models.Model):
-    scenario = models.OneToOneField('Scenario', related_name='output_options')
+    scenario = models.OneToOneField('Scenario', related_name='output_option')
     sum_sc = models.BooleanField(default=False)
     sum_sc_t = models.IntegerField(null=True)
     sum_sc_zeros = models.BooleanField(default=False)
