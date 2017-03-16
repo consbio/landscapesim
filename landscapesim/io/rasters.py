@@ -1,7 +1,7 @@
 import os
 import random
 import subprocess   # TODO - remove when convert_to_netcdf is reimplemented (if needed)
-
+import glob
 import pyproj
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
@@ -185,10 +185,11 @@ def process_input_rasters(ics):
 
     sis.save()
 
+
 @has_nc_root
 def process_output_rasters(scenario):
 
-    # Check if the scenario is result and is spatial
+    assert scenario.is_result   # sanity check
 
     # TODO - well, we have to look at the database to decode transition rasters.
 

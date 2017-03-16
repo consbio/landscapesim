@@ -5,8 +5,7 @@ import os
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
 from landscapesim.io.reports import process_reports
-
-from django.core import exceptions
+from landscapesim.io.rasters import process_output_rasters
 from django.conf import settings
 exe = settings.STSIM_EXE_PATH
 
@@ -39,5 +38,7 @@ def run_model(self, library_name, pid, sid):
     job.save()
 
     process_scenario_inputs(console, scenario)
-    process_reports(console, scenario, get_random_csv(lib.tmp_file))
-
+    tmp_file = get_random_csv(lib.tmp_file)
+    process_reports(console, scenario, tmp_file)
+    os.remove(tmp_file)
+    process_output_rasters(scenario)

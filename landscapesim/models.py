@@ -527,6 +527,12 @@ class ScenarioOutputServices(models.Model):  # TODO - extend with all possible o
     scenario = models.ForeignKey('Scenario', related_name='scenario_output_services')
     stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_output_service', null=True)
     stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
-    #transition = models.ForeignKey('ncdjango.Service', related_name='transition_output_service', null=True)
-    #transition_attribute = models.ForeignKey('ncdjango.Service', related_name='transition_attribute_output_service', null=True)
-    #state_attribute = models.ForeignKey('ncdjango.Service', related_name='state_attribute_output_service', null=True)
+    age = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
+    transition_group = models.ForeignKey('ncdjango.Service', related_name='transition_group_output_service', null=True)
+    state_attribute = models.ForeignKey('ncdjango.Service', related_name='state_attribute_output_service', null=True)
+    transition_attribute = models.ForeignKey(
+        'ncdjango.Service', related_name='transition_attribute_output_service', null=True
+    )
+    avg_annual_transition_group_probability = models.ForeignKey(
+        'ncdjango.Service', related_name='avg_annual_transition_probability_output_service', null=True
+    )

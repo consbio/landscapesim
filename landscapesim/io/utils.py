@@ -431,6 +431,7 @@ def process_scenario_inputs(console, scenario):
 
             # Create map services
             process_input_rasters(ics)
+
     print('Imported initial conditions spatial settings for scenario {}'.format(scenario.sid))
 
     # Import transition targets
