@@ -1,21 +1,30 @@
 import os
-import uuid
-import pyproj
 import random
-from datetime import datetime
-from clover.render.renderers.unique import UniqueValuesRenderer
-from clover.render.renderers.stretched import StretchedRenderer
-from clover.utilities.color import Color
-#from clover.netcdf.variable import SpatialCoordinateVariables, DateVariable
-#from clover.netcdf.crs import set_crs, get_crs
-#from clover.netcdf.utilities import get_pack_atts, get_fill_value
-from clover.geometry.bbox import BBox
-#from clover.netcdf.conversion import raster_to_netcdf
-from clover.netcdf.describe import describe
-from ncdjango.models import Service, Variable
-from landscapesim.models import ScenarioInputServices, ScenarioOutputServices
-from django.db import Error
 import subprocess   # TODO - remove when convert_to_netcdf is reimplemented (if needed)
+
+import pyproj
+from clover.geometry.bbox import BBox
+from clover.netcdf.describe import describe
+from clover.render.renderers.unique import UniqueValuesRenderer
+from clover.utilities.color import Color
+from django.conf import settings
+from django.db import Error
+from ncdjango.models import Service, Variable
+from landscapesim.io.query import ssim_query
+from landscapesim.models import ScenarioInputServices
+
+NC_ROOT = getattr(settings, 'NC_SERVICE_DATA_ROOT')
+
+
+# Sanity check for creating ncdjango services correctly
+def has_nc_root(func):
+    def wrapper(*args, **kwargs):
+        if NC_ROOT:
+            return func(*args, **kwargs)
+        else:
+            print('NC_SERVICE_DATA_ROOT not set. Did you install and setup ncdjango properly?')
+    return wrapper
+
 
 CREATE_SERVICE_ERROR_MSG = "Error creating ncdjango service for {} in scenario {}, skipping..."
 CREATE_RENDERER_ERROR_MSG = "Error creating renderer for {vname}. Did you set ID values for your {vname} definitions?"
@@ -44,7 +53,7 @@ def generate_stretched_renderer(info):
 
 def generate_service(scenario, filename, variable_name, unique=True, has_color=True, has_time=False):
     """
-    Creates one (1) ncdjango service from a single input geotiff.
+    Creates an ncdjango service from a geotiff .
     :param scenario:
     :param filename:
     :param variable_name:
@@ -54,21 +63,35 @@ def generate_service(scenario, filename, variable_name, unique=True, has_color=T
     :return:
     """
     tifpath = os.path.join(scenario.input_directory(), filename)
-    ncpath = tifpath.replace('tif', 'nc')
-    convert_to_netcdf(tifpath, ncpath, variable_name)
-    info = describe(ncpath)
+    nc_rel_path = os.path.join(scenario.project.library.name, scenario.project.name,
+                               'Scenario-'+str(scenario.sid), filename.replace('tif', 'nc'))
+
+    nc_full_path = os.path.join(NC_ROOT, nc_rel_path)
+    if not os.path.exists(os.path.dirname(nc_full_path)):
+        os.makedirs(os.path.dirname(nc_full_path))
+
+    convert_to_netcdf(tifpath, nc_full_path, variable_name)
+    info = describe(nc_full_path)
     grid = info['variables'][variable_name]['spatial_grid']['extent']
     extent = BBox((grid['xmin'], grid['ymin'], grid['xmax'], grid['ymax']), projection=pyproj.Proj(grid['proj4']))
     y, x = list(info['dimensions'].keys())
 
     try:
+        # Create the name of the ncdjango service.
+        service_name = "lib-{}-proj-{}-scenario-{}/{}".format(
+            scenario.project.library_id,
+            scenario.project_id,
+            scenario.id,
+            variable_name
+        )
+
         if has_time:
             # TODO - handle creating services that handle time
             raise NotImplementedError("has_time=True not yet enabled.")
         else:
             service = Service.objects.create(
-                name=uuid.uuid4(),
-                data_path=ncpath,
+                name=service_name,
+                data_path=nc_rel_path,
                 projection=grid['proj4'],
                 full_extent=extent,
                 initial_extent=extent
@@ -135,6 +158,7 @@ def convert_stack_to_netcdf(geotiff_glob, netcdf_out, variable_name):
     raise NotImplementedError("convert_stack_to_netcdf not yet implemented")
 
 
+@has_nc_root
 def process_input_rasters(ics):
     """
     Generates a set of ncdjango services and variables (1 to 1) to associate with a scenario
@@ -156,15 +180,17 @@ def process_input_rasters(ics):
     if len(ics.stateclass_file_name):
         sis.stateclass = generate_service(scenario, ics.stateclass_file_name, 'stateclasses')
 
-    #if len(ics.age_file_name):    # TODO - finish implementing age raster, skip for now
-    #    sis.age = generate_service(scenario, ics.age_file_name, 'age', unique=False)
+    if len(ics.age_file_name):
+        sis.age = generate_service(scenario, ics.age_file_name, 'age', unique=False)
 
     sis.save()
 
-
+@has_nc_root
 def process_output_rasters(scenario):
 
     # Check if the scenario is result and is spatial
+
+    # TODO - well, we have to look at the database to decode transition rasters.
 
     # Generate output services based on output options for scenario
 
