@@ -17,7 +17,7 @@ from celery.result import AsyncResult
 
 class Library(models.Model):
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     file = models.FilePathField(match="*.ssim")
     orig_file = models.FilePathField(match="*.ssim")
     tmp_file = models.FilePathField()
@@ -60,10 +60,9 @@ class Scenario(models.Model):
 """
 
 
-# TODO - make OneToOne
 class Terminology(models.Model):
 
-    project = models.ForeignKey('Project', related_name='terminology', on_delete=models.CASCADE)
+    project = models.OneToOneField('Project', related_name='terminology', on_delete=models.CASCADE)
     amount_label = models.CharField(max_length=100)
     amount_units = models.CharField(max_length=100)
     state_label_x = models.CharField(max_length=100)
@@ -194,9 +193,8 @@ class DistributionValue(models.Model):
     relative_frequency = models.FloatField(null=True, blank=True)
 
 
-# TODO - make OneToOne
 class RunControl(models.Model):
-    scenario = models.ForeignKey('Scenario', related_name='run_controls')
+    scenario = models.OneToOneField('Scenario', related_name='run_controls')
     min_iteration = models.IntegerField()
     max_iteration = models.IntegerField()
     min_timestep = models.IntegerField()
@@ -204,9 +202,8 @@ class RunControl(models.Model):
     is_spatial = models.BooleanField(default=False)
 
 
-# TODO - make OneToOne
 class OutputOption(models.Model):
-    scenario = models.ForeignKey('Scenario', related_name='output_options')
+    scenario = models.OneToOneField('Scenario', related_name='output_options')
     sum_sc = models.BooleanField(default=False)
     sum_sc_t = models.IntegerField(null=True)
     sum_sc_zeros = models.BooleanField(default=False)
@@ -264,10 +261,9 @@ class Transition(AgeMixin):
     tst_relative = models.FloatField(null=True, blank=True)
 
 
-# TODO - make this a OneToOne model relationship
 class InitialConditionsNonSpatial(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='initial_conditions_nonspatial_settings')
+    scenario = models.OneToOneField('Scenario', related_name='initial_conditions_nonspatial_settings')
     total_amount = models.FloatField()
     num_cells = models.IntegerField()
     calc_from_dist = models.BooleanField(default=False)
@@ -282,10 +278,9 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
     relative_amount = models.FloatField()
 
 
-# TODO - make this a OneToOne model relationship
 class InitialConditionsSpatial(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='initial_conditions_spatial_settings')
+    scenario = models.OneToOneField('Scenario', related_name='initial_conditions_spatial_settings')
     num_rows = models.IntegerField()
     num_cols = models.IntegerField()
     num_cells = models.IntegerField()
@@ -417,7 +412,7 @@ class SummaryReportRowBase(models.Model):
 
 class StateClassSummaryReport(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='stateclass_summary_reports', on_delete=models.CASCADE)
+    scenario = models.OneToOneField('Scenario', related_name='stateclass_summary_report', on_delete=models.CASCADE)
 
 
 class StateClassSummaryReportRow(SummaryReportRowBase, AgeMixin):
@@ -430,7 +425,7 @@ class StateClassSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
 class TransitionSummaryReport(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='transition_summary_reports', on_delete=models.CASCADE)
+    scenario = models.OneToOneField('Scenario', related_name='transition_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionSummaryReportRow(SummaryReportRowBase, AgeMixin):
@@ -441,7 +436,7 @@ class TransitionSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
 class TransitionByStateClassSummaryReport(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='transition_by_sc_summary_reports', on_delete=models.CASCADE)
+    scenario = models.OneToOneField('Scenario', related_name='transition_by_sc_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionByStateClassSummaryReportRow(SummaryReportRowBase):
@@ -454,7 +449,7 @@ class TransitionByStateClassSummaryReportRow(SummaryReportRowBase):
 
 class StateAttributeSummaryReport(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='state_attribute_summary_reports', on_delete=models.CASCADE)
+    scenario = models.OneToOneField('Scenario', related_name='state_attribute_summary_report', on_delete=models.CASCADE)
 
 
 class StateAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
@@ -465,7 +460,7 @@ class StateAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
 class TransitionAttributeSummaryReport(models.Model):
 
-    scenario = models.ForeignKey('Scenario', related_name='transition_attribute_summary_reports', on_delete=models.CASCADE)
+    scenario = models.OneToOneField('Scenario', related_name='transition_attribute_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
@@ -505,30 +500,28 @@ class RunScenarioModel(AsyncJobModel):
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
 
 
-# TODO - make OneToOne model
 class ScenarioInputServices(models.Model):
     """
         ncdjango services for a scenario with spatial inputs. Allows input rasters to be utilized in maps and 3D scenes.
     """
 
-    scenario = models.ForeignKey('Scenario', related_name='scenario_input_services')
+    scenario = models.OneToOneField('Scenario', related_name='scenario_input_services')
     stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_input_service', null=True)
     secondary_stratum = models.ForeignKey('ncdjango.Service', related_name='secondary_stratum_input_service', null=True)
     stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_input_service', null=True)
     age = models.ForeignKey('ncdjango.Service', related_name='age_input_service', null=True)
 
 
-# TODO - make OneToOne model
-class ScenarioOutputServices(models.Model):  # TODO - extend with all possible output rasters
+class ScenarioOutputServices(models.Model):
     """
         ncdjango services for raster outputs from a result scenario. Allows time-series rasters to be animated in maps.
     """
-
-    scenario = models.ForeignKey('Scenario', related_name='scenario_output_services')
-    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_output_service', null=True)
+    scenario = models.OneToOneField('Scenario', related_name='scenario_output_services')
     stateclass = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
-    age = models.ForeignKey('ncdjango.Service', related_name='stateclass_output_service', null=True)
     transition_group = models.ForeignKey('ncdjango.Service', related_name='transition_group_output_service', null=True)
+    age = models.ForeignKey('ncdjango.Service', related_name='age_output_service', null=True)
+    tst = models.ForeignKey('ncdjango.Service', related_name='tst_output_service', null=True)
+    stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_output_service', null=True)
     state_attribute = models.ForeignKey('ncdjango.Service', related_name='state_attribute_output_service', null=True)
     transition_attribute = models.ForeignKey(
         'ncdjango.Service', related_name='transition_attribute_output_service', null=True

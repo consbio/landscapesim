@@ -13,6 +13,7 @@ from django.conf import settings
 from django.db import transaction
 
 
+# TODO - add option to import only non-result scenarios (importing all results can be 'very' lengthy)
 class Command(BaseCommand):
 
     help = 'Registers a .ssim library based on the file path.'
