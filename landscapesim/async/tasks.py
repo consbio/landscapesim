@@ -38,7 +38,5 @@ def run_model(self, library_name, pid, sid):
     job.save()
 
     process_scenario_inputs(console, scenario)
-    tmp_file = get_random_csv(lib.tmp_file)
-    process_reports(console, scenario, tmp_file)
-    os.remove(tmp_file)
+    process_reports(console, scenario, get_random_csv(lib.tmp_file))
     process_output_rasters(scenario)

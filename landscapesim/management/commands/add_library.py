@@ -95,7 +95,6 @@ class Command(BaseCommand):
 
                         # Import all available reports
                         process_reports(console, s, tmp_file)
-                        os.remove(tmp_file)
 
                         # Import output rasters
                         process_output_rasters(s)
