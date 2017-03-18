@@ -1,21 +1,13 @@
 """
     Serializers for consuming job submissions for running models and generating reports
 """
-
 import json
 from rest_framework import serializers
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel
 from landscapesim.async.tasks import run_model
-from django.core import exceptions
 
-REGISTERED_JOBS = ['run-model']
 
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
-
-REGISTERED_REPORTS = [
-    'stateclass-summary', 'transition-summary', 'transition-stateclass-summary',
-    'state-attributes', 'transition-attributes'
-]
 
 
 class AsyncJobSerializerMixin(object):

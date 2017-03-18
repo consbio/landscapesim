@@ -337,7 +337,8 @@ def process_scenario_inputs(console, scenario):
                 stateclass_dest=StateClass.objects.filter(name__exact=row['StateClassIDDest'],
                                                           project=project).first(),
                 age_min=default_int(row['AgeMin']),
-                age_max=default_int(row['AgeMax'])
+                age_max=default_int(row['AgeMax']),
+                location=row['Location']
             )
             if len(stratum_dest):
                 t.stratum_dest = Stratum.objects.filter(name__exact=stratum_dest, project=project).first()

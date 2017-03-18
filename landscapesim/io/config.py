@@ -1,39 +1,39 @@
 """
     This creates all of the maps from Django to SyncroSim.
-    This is intended to be imported wherever the map is required.
-
+    The whole module is intended to be imported wherever the map is required.
+    (E.g. from landscapesim.io import config)
     NOTE: Order is intended to match the order in which the config is imported/exported.
 """
 
 # Commonly used mapping components
-stratum = ('stratum', 'StratumID')
-stratum_src = ('stratum_src', 'StratumIDSource')
-stratum_dest = ('stratum_dest', 'StratumIDDest')
-secondary_stratum = ('secondary_stratum', 'SecondaryStratumID')
-stateclass = ('stateclass', 'StateClassID')
-stateclass_src = ('stateclass_src', 'StateClassIDSource')
-stateclass_dest = ('stateclass_dest', 'StateClassIDDest')
-transition_group = ('transition_group', 'TransitionGroupID')
-transition_type = ('transition_type', 'TransitionTypeID')
-state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID')
-transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID')
-transition_multiplier_type = ('transition_multiplier_type', 'TransitionMultiplierTypeID')
-iteration = ('iteration', 'Iteration')
-timestep = ('timestep', 'Timestep')
-age_min = ('age_min', 'AgeMin')
-age_max = ('age_max', 'AgeMax')
-distribution_type = ('distribution_type', 'DistributionTypeID')
-distribution_sd = ('distribution_sd', 'DistributionSD')
-distribution_min = ('distribution_min', 'DistributionMin')
-distribution_max = ('distribution_max', 'DistributionMax')
+_stratum = ('stratum', 'StratumID', 'Stratum')
+_stratum_src = ('stratum_src', 'StratumIDSource', 'Stratum')
+_stratum_dest = ('stratum_dest', 'StratumIDDest', 'Stratum')
+_secondary_stratum = ('secondary_stratum', 'SecondaryStratumID', 'SecondaryStratum')
+_stateclass = ('stateclass', 'StateClassID', 'StateClass')
+_stateclass_src = ('stateclass_src', 'StateClassIDSource', 'StateClass')
+_stateclass_dest = ('stateclass_dest', 'StateClassIDDest', 'StateClass')
+_transition_group = ('transition_group', 'TransitionGroupID', 'TransitionGroup')
+_transition_type = ('transition_type', 'TransitionTypeID', 'TransitionType')
+_state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID', 'StateAttributeType')
+_transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID', 'TransitionAttributeType')
+_transition_multiplier_type = ('transition_multiplier_type', 'TransitionMultiplierTypeID', 'TransitionMultiplierType')
+_iteration = ('iteration', 'Iteration')
+_timestep = ('timestep', 'Timestep')
+_age_min = ('age_min', 'AgeMin')
+_age_max = ('age_max', 'AgeMax')
+_distribution_type = ('distribution_type', 'DistributionTypeID', 'DistributionType')
+_distribution_sd = ('distribution_sd', 'DistributionSD')
+_distribution_min = ('distribution_min', 'DistributionMin')
+_distribution_max = ('distribution_max', 'DistributionMax')
 
 # Common combinations
-time_common = (timestep, iteration)
-age_common = (age_min, age_max)
-distribution_common = (distribution_type, distribution_sd, distribution_min, distribution_max)
+_time_common = (_timestep, _iteration)
+_age_common = (_age_min, _age_max)
+_distribution_common = (_distribution_type, _distribution_sd, _distribution_min, _distribution_max)
 
 
-DISTRIBUTION_VALUE = (distribution_type,
+DISTRIBUTION_VALUE = (_distribution_type,
                       ('dmin', 'Min'),
                       ('dmax', 'Max'),
                       ('relative_frequency', 'RelativeFrequency'))
@@ -73,22 +73,23 @@ OUTPUT_OPTION = (('sum_sc', 'SummaryOutputSC'),
                   ('raster_aatp', 'RasterOutputAATP'),
                   ('raster_aatp_t', 'RasterOutputAATPTimesteps'))
 
-DETERMINISTIC_TRANSITION = (stratum_src,
-                            stateclass_src,
-                            stratum_dest,
-                            stateclass_dest,
-                            *age_common)
+DETERMINISTIC_TRANSITION = (_stratum_src,
+                            _stateclass_src,
+                            _stratum_dest,
+                            _stateclass_dest,
+                            *_age_common,
+                            ('location', 'Location'))
 
-TRANSITION = (stratum_src,
-              stateclass_src,
-              stratum_dest,
-              stateclass_dest,
-              transition_type,
+TRANSITION = (_stratum_src,
+              _stateclass_src,
+              _stratum_dest,
+              _stateclass_dest,
+              _transition_type,
               ('probability', 'Probability'),
               ('proportion', 'Proportion'),
               ('age_relative', 'AgeRelative'),
               ('age_reset', 'AgeReset'),
-              *age_common,
+              *_age_common,
               ('tst_min', 'TSTMin'),
               ('tst_max', 'TSTMax'),
               ('tst_relative', 'TSTRelative'))
@@ -97,11 +98,11 @@ INITIAL_CONDITIONS_NON_SPATIAL = (('total_amount', 'TotalAmount'),
                                   ('num_cells', 'NumCells'),
                                   ('calc_from_dist', 'CaldFromDist'))
 
-INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (stratum,
-                                               secondary_stratum,
-                                               stateclass,
+INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (_stratum,
+                                               _secondary_stratum,
+                                               _stateclass,
                                                ('relative_amount', 'RelativeAmount'),
-                                               *age_common)
+                                               *_age_common)
 
 INITIAL_CONDITIONS_SPATIAL = (('num_rows', 'NumRows'),
                               ('num_cols', 'NumColumns'),
@@ -118,55 +119,55 @@ INITIAL_CONDITIONS_SPATIAL = (('num_rows', 'NumRows'),
                               ('stateclass_file_name', 'StateClassFileName'),
                               ('age_file_name', 'AgeFileName'))
 
-TRANSITION_TARGET = (*time_common,
-                     stratum,
-                     secondary_stratum,
-                     transition_group,
+TRANSITION_TARGET = (*_time_common,
+                     _stratum,
+                     _secondary_stratum,
+                     _transition_group,
                      ('target_area', 'Amount'),
-                     *distribution_common)
+                     *_distribution_common)
 
-TRANSITION_MULTIPLIER_VALUE = (*time_common,
-                               stratum,
-                               secondary_stratum,
-                               stateclass,
-                               transition_group,
-                               transition_multiplier_type,
+TRANSITION_MULTIPLIER_VALUE = (*_time_common,
+                               _stratum,
+                               _secondary_stratum,
+                               _stateclass,
+                               _transition_group,
+                               _transition_multiplier_type,
                                ('multiplier', 'Amount'),
-                               *distribution_common)
+                               *_distribution_common)
 
-TRANSITION_SIZE_DISTRIBUTION = (*time_common,
-                                stratum,
-                                transition_group,
+TRANSITION_SIZE_DISTRIBUTION = (*_time_common,
+                                _stratum,
+                                _transition_group,
                                 ('relative_amount', 'RelativeAmount'))
 
-TRANSITION_SIZE_PRIORITIZATION = (*time_common,
-                                  stratum,
-                                  transition_group,
+TRANSITION_SIZE_PRIORITIZATION = (*_time_common,
+                                  _stratum,
+                                  _transition_group,
                                   ('priority', 'Priority'))
 
-TRANSITION_SPATIAL_MULTIPLIER = (*time_common,
-                                 transition_group,
-                                 transition_multiplier_type,
+TRANSITION_SPATIAL_MULTIPLIER = (*_time_common,
+                                 _transition_group,
+                                 _transition_multiplier_type,
                                  ('transition_multiplier_file_name', 'MultiplierFileName'))
 
-STATE_ATTRIBUTE_VALUE = (*time_common,
-                         stratum,
-                         secondary_stratum,
-                         stateclass,
-                         state_attribute_type,
+STATE_ATTRIBUTE_VALUE = (*_time_common,
+                         _stratum,
+                         _secondary_stratum,
+                         _stateclass,
+                         _state_attribute_type,
                          ('value', 'Value'))
 
-TRANSITION_ATTRIBUTE_VALUE = (*time_common,
-                              stratum,
-                              secondary_stratum,
-                              transition_group,
-                              stateclass,
-                              ('transition_attribute_type', 'TransitionAttributeTypeID'),
+TRANSITION_ATTRIBUTE_VALUE = (*_time_common,
+                              _stratum,
+                              _secondary_stratum,
+                              _transition_group,
+                              _stateclass,
+                              _transition_attribute_type,
                               ('value', 'Value'))
 
-TRANSITION_ATTRIBUTE_TARGET = (*time_common,
-                               stratum,
-                               secondary_stratum,
-                               transition_attribute_type,
+TRANSITION_ATTRIBUTE_TARGET = (*_time_common,
+                               _stratum,
+                               _secondary_stratum,
+                               _transition_attribute_type,
                                ('target', 'Amount'),
-                               *distribution_common)
+                               *_distribution_common)
