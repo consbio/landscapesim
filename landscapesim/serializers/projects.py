@@ -9,7 +9,6 @@ from landscapesim.models import Library, Project, Scenario, Terminology, Distrib
 
 
 class LibrarySerializer(serializers.ModelSerializer):
-
     projects = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -22,7 +21,6 @@ class LibrarySerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-
     scenarios = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -35,7 +33,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ScenarioSerializer(serializers.ModelSerializer):
-
     project = serializers.HyperlinkedRelatedField(
         many=False,
         read_only=True,
@@ -48,93 +45,72 @@ class ScenarioSerializer(serializers.ModelSerializer):
 
 
 class TerminologySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Terminology
         fields = '__all__'
 
 
 class DistributionTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = DistributionType
         fields = '__all__'
 
 
 class StratumSerializer(serializers.ModelSerializer):
-
-    project = serializers.HyperlinkedRelatedField(
-        many=False, view_name='project-detail', read_only=True)
-
     class Meta:
         model = Stratum
         fields = '__all__'
 
 
 class SecondaryStratumSerializer(serializers.ModelSerializer):
-
-    project = serializers.HyperlinkedRelatedField(
-        many=False, view_name='project-detail', read_only=True)
-
     class Meta:
         model = SecondaryStratum
         fields = '__all__'
 
 
 class StateClassSerializer(serializers.ModelSerializer):
-
-    project = serializers.HyperlinkedRelatedField(
-        many=False, view_name='project-detail', read_only=True)
-
     class Meta:
         model = StateClass
         fields = '__all__'
 
 
 class TransitionTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TransitionType
         fields = '__all__'
 
 
 class TransitionGroupSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TransitionGroup
         fields = '__all__'
 
 
 class TransitionTypeGroupSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TransitionTypeGroup
         fields = '__all__'
 
 
 class TransitionMultiplierTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TransitionMultiplierType
         fields = '__all__'
 
 
 class AttributeGroupSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AttributeGroup
         fields = '__all__'
 
 
 class StateAttributeTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = StateAttributeType
         fields = '__all__'
 
 
 class TransitionAttributeTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TransitionAttributeType
         fields = '__all__'
@@ -146,7 +122,7 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
         project definitions in one location
     """
 
-    terminology = TerminologySerializer(read_only=True, many=True)    # TODO - once we make this 1to1, set many=False
+    terminology = TerminologySerializer(read_only=True, many=False)
     stateclasses = StateClassSerializer(read_only=True, many=True)
     strata = StratumSerializer(many=True, read_only=True)
     transition_types = TransitionTypeSerializer(many=True, read_only=True)

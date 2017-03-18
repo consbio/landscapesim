@@ -86,37 +86,37 @@ class QueryScenarioReportSerializer(serializers.ModelSerializer):
         Convenient serializer for connecting to available reports for a given scenario
     """
 
-    stateclass_summary_reports = serializers.HyperlinkedRelatedField(
-        many=True,
+    stateclass_summary_report = serializers.HyperlinkedRelatedField(
+        many=False,
         read_only=True,
         view_name='stateclasssummaryreport-detail'
     )
 
-    transition_summary_reports = serializers.HyperlinkedRelatedField(
-        many=True,
+    transition_summary_report = serializers.HyperlinkedRelatedField(
+        many=False,
         read_only=True,
         view_name='transitionsummaryreport-detail'
     )
 
-    transition_by_sc_summary_reports = serializers.HyperlinkedRelatedField(
-        many=True,
+    transition_by_sc_summary_report = serializers.HyperlinkedRelatedField(
+        many=False,
         read_only=True,
         view_name='transitionbystateclasssummaryreport-detail'
     )
 
-    state_attribute_summary_reports = serializers.HyperlinkedRelatedField(
-        many=True,
+    state_attribute_summary_report = serializers.HyperlinkedRelatedField(
+        many=False,
         read_only=True,
         view_name='stateattributesummaryreport-detail'
     )
 
-    transition_attribute_summary_reports = serializers.HyperlinkedRelatedField(
-        many=True,
+    transition_attribute_summary_report = serializers.HyperlinkedRelatedField(
+        many=False,
         read_only=True,
         view_name='transitionattributesummaryreport-detail'
     )
 
     class Meta:
         model = Scenario
-        fields = ('stateclass_summary_reports', 'transition_summary_reports', 'transition_by_sc_summary_reports',
-                  'state_attribute_summary_reports', 'transition_attribute_summary_reports',)
+        fields = ('stateclass_summary_report', 'transition_summary_report', 'transition_by_sc_summary_report',
+                  'state_attribute_summary_report', 'transition_attribute_summary_report',)
