@@ -203,7 +203,7 @@ class RunControl(models.Model):
 
 
 class OutputOption(models.Model):
-    scenario = models.OneToOneField('Scenario', related_name='output_option')
+    scenario = models.OneToOneField('Scenario', related_name='output_options')
     sum_sc = models.BooleanField(default=False)
     sum_sc_t = models.IntegerField(null=True)
     sum_sc_zeros = models.BooleanField(default=False)

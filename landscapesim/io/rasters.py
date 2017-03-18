@@ -4,6 +4,8 @@ import subprocess
 import glob
 import pyproj
 import xarray
+import datetime
+import uuid
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
 from clover.render.renderers.unique import UniqueValuesRenderer
@@ -32,11 +34,12 @@ CREATE_SERVICE_ERROR_MSG = "Error creating ncdjango service for {} in scenario {
 CREATE_RENDERER_ERROR_MSG = "Error creating renderer for {vname}. Did you set ID values for your {vname} definitions?"
 
 # Some variables don't quite line up, but this is by design.
-# NAME_HASH maps service name to variable named ids
+# NAME_HASH maps service name to variable named ids used by that service
 NAME_HASH = {'strata': 'stratum',
              'secondary_strata': 'secondary_stratum',
              'stateclasses': 'stateclass',
-             'age': 'age'}
+             'age': 'age',
+             'transition_groups': 'transition_type'}   # transition type ids are used in tg rasters
 
 # CTYPE_HASH maps service name to raster class type
 CTYPE_HASH = {'strata': 'str',
@@ -56,6 +59,7 @@ INNER_TABLE = {'transition_groups': TransitionGroup,
                'state_attributes': StateAttributeType,
                'transition_attributes': TransitionAttributeType}
 
+
 def generate_unique_renderer(values, randomize_colors=False):
     if randomize_colors:
         r = random.randint(0, 255)
@@ -71,33 +75,27 @@ def generate_stretched_renderer(info):
     raise NotImplementedError("Stretched renderer not implemented (yet).")
 
 
-def generate_service_name(scenario, variable_name, is_output=False):
-    return "lib-{}-proj-{}-scenario-{}/{}".format(
-        scenario.project.library_id, scenario.project_id, scenario.id,
-        variable_name + '-output' if is_output else variable_name
-    )
-
-
-def generate_service(scenario, filename_or_pattern, variable_name, unique=True, has_color=True, has_time=False):
+def generate_service(scenario, filename_or_pattern, variable_name, unique=True, has_colormap=True,
+                     model_set=None, model_id_lookup=None,):
     """
     Creates an ncdjango service from a geotiff (stack).
     :param scenario:
     :param filename_or_pattern: A local filename or glob pattern.
     :param variable_name:
     :param unique:
-    :param has_color:
-    :param has_time:
-    :return:
+    :param has_color: Indicate whether the service ha
+    :param model_set:
+    :param model_id_lookup:
+    :return: One (1) ncdjango service.
     """
 
-    # Construct relative path for new netcdf file, relative to NC_ROOT
+    has_time = '*' in filename_or_pattern   # pattern if true, filename otherwise
+
+    # Construct relative path for new netcdf file, relative to NC_ROOT. Used as 'data_path' in ncdjango.Service
     nc_rel_path = os.path.join(scenario.project.library.name, scenario.project.name, 'Scenario-' + str(scenario.sid))
     if has_time:
         nc_rel_path = os.path.join(nc_rel_path, 'output', variable_name + '.nc')
     else:
-        if '*' in filename_or_pattern:
-            raise ValueError("Supplied a pattern with no time-enabled component.")
-
         nc_rel_path = os.path.join(nc_rel_path, filename_or_pattern.replace('tif', 'nc'))
 
     # Absolute path where we want the new netcdf to live.
@@ -105,14 +103,15 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
     if not os.path.exists(os.path.dirname(nc_full_path)):
         os.makedirs(os.path.dirname(nc_full_path))
 
-    ctype = None
     variable_names = []
 
+    # No patterns, so create a simple input raster
+    if not has_time:
+        convert_to_netcdf(os.path.join(scenario.input_directory(), filename_or_pattern), nc_full_path, variable_name)
+
     # Time series output pattern, convert to timeseries netcdf
-    if '*' in filename_or_pattern:
-
-        ctype = filename_or_pattern.split('-')[2:][0]
-
+    else:
+        ctype = filename_or_pattern[:-4].split('-')[2:][0]
         assert ctype == CTYPE_HASH[variable_name]   # sanity check
 
         # collect all information to make valid patterns
@@ -130,7 +129,9 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
                 timesteps.append(_)
 
             if len(ctype_id) > 1:
-                ssim_ids.append(int(ctype_id[1]))    # E.g. ['tg', '93'], ['ta', '234'], etc.
+                ssim_id = int(ctype_id[1])
+                if ssim_id not in ssim_ids:
+                    ssim_ids.append(ssim_id)    # E.g. ['tg', '93'], ['ta', '234'], etc.
 
             assert ctype == ctype_id[0] # pattern matching is way off (not sure this would even happen)
 
@@ -139,90 +140,109 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         if len(ssim_ids):
             filename_patterns = []
             ssim_result = ssim_query('select * from ' + SSIM_TABLE[variable_name], scenario.project.library)
+
+            # Create valid hash map
+            ssim_hash = {}
             for id in ssim_ids:
-                id_patterns = []
-                for it in iterations:
-                    inner_id = None
-                    for row in ssim_result:
-                        if id == row[0] and str(scenario.project.pid) == str(row[1]): # matches primary key id and project id
-                            name = row[2]
-                            inner_id = INNER_TABLE[variable_name].objects\
-                                .filter(name__exact=name, project=scenario.project).first()\
-                                .id
+                inner_id = None
+                for row in ssim_result:
+                    # match primary key id and project id, and only create filename_patterns if a match if ound
+                    if id == row[0] and str(scenario.project.pid) == str(row[1]):
+                        name = row[2]
+                        inner_id = INNER_TABLE[variable_name].objects.filter(name__exact=name,
+                                                                             project=scenario.project).first().id
+                        break
+                if inner_id:
+                    ssim_hash[id] = inner_id
 
-                    if inner_id:
-                        id_patterns.append(os.path.join(scenario.output_directory(),
-                                                              it + '-Ts*-' + ctype + '-' + id + '.tif'))
-                filename_patterns.append(id_patterns)
-
-            for pattern_list in filename_patterns:
-                pattern_id = int(pattern_list[0].split(os.sep)[-1].split('-')[-1][:-4])
-                for pattern in pattern_list:
-                    iteration_num = int(pattern.split(os.sep)[-1].split('-')[0][2:])
-                    iteration_var_name = variable_name + '-' + str(pattern_id) + '-' + str(iteration_num)
-                    variable_names.append(iteration_var_name)
-                    iteration_nc_file = os.path.join(scenario.output_directory(),
-                                                     iteration_var_name + '.nc')
-                    convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
-
-            merged_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*-*.nc')
-
-        # no ids
-        # service variables are <variable_name>-<iteration>
-        else:
-            filename_patterns = [os.path.join(scenario.output_directory(),
-                                              it + '-Ts*-' + ctype + '.tif')
-                                 for it in iterations]
-
-            merged_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*.nc')
+            # Now build proper filename_patterns
+            for it in iterations:
+                for id in ssim_ids:
+                    filename_patterns.append(os.path.join(
+                        scenario.output_directory(), '{}-Ts*-{}-{}.tif'.format(it, ctype, id)
+                    ))
 
             for pattern in filename_patterns:
+                pattern_id = ssim_hash[int(pattern.split(os.sep)[-1].split('-')[-1][:-4])]
                 iteration_num = int(pattern.split(os.sep)[-1].split('-')[0][2:])
-                iteration_var_name = variable_name + '-' + str(iteration_num)
+                iteration_var_name = '{variable_name}-{id}-{iteration}'.format(
+                    variable_name=variable_name,
+                    id=pattern_id,
+                    iteration=iteration_num
+                )
                 variable_names.append(iteration_var_name)
                 iteration_nc_file = os.path.join(scenario.output_directory(),
                                                  iteration_var_name + '.nc')
                 convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
 
-        merge_netcdf(merged_nc_pattern, nc_full_path)
+            merge_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*-*.nc')
 
-    # No patterns, so create a simple input raster
-    else:
-        convert_to_netcdf(os.path.join(scenario.input_directory(), filename_or_pattern), nc_full_path, variable_name)
+        # no ids
+        # service variables are <variable_name>-<iteration>
+        else:
+            filename_patterns = [os.path.join(scenario.output_directory(), '{}-Ts*-{}.tif'.format(it, ctype))
+                                 for it in iterations]
+
+            merge_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*.nc')
+
+            for pattern in filename_patterns:
+                iteration_num = int(pattern.split(os.sep)[-1].split('-')[0][2:])
+                iteration_var_name = '{variable_name}-{iteration}'.format(variable_name=variable_name,
+                                                                          iteration=iteration_num)
+                variable_names.append(iteration_var_name)
+                iteration_nc_file = os.path.join(scenario.output_directory(),
+                                                 iteration_var_name + '.nc')
+                convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
+
+        merge_netcdf(merge_nc_pattern, nc_full_path)
 
     info = describe(nc_full_path)
-    grid = info['variables'][variable_name]['spatial_grid']['extent']
+    grid = info['variables'][variable_names[0] if len(variable_names) else variable_name]['spatial_grid']['extent']
     extent = BBox((grid['xmin'], grid['ymin'], grid['xmax'], grid['ymax']), projection=pyproj.Proj(grid['proj4']))
-    y, x = list(info['dimensions'].keys())
+    steps_per_variable = None
+    t = None
+    t_start = None
+    t_end = None
+    dimensions = list(info['dimensions'].keys())
+    if 'x' in dimensions:
+        x, y = ('x', 'y')
+    else:
+        x, y = ('lon', 'lat')
+    if has_time:
+        t = 'time'
+        steps_per_variable = info['dimensions'][t]['length']
+        t_start = datetime.datetime(2000, 1, 1)
+        t_end = t_start + datetime.timedelta(1) * steps_per_variable
 
     try:
-        # Create the name of the ncdjango service.
-        service_name = generate_service_name(scenario, variable_name, is_output=has_time)
-
         service = Service.objects.create(
-            name=service_name,
+            name=uuid.uuid4(),
             data_path=nc_rel_path,
             projection=grid['proj4'],
             full_extent=extent,
             initial_extent=extent
         )
 
-        if has_time and len(variable_names):
+        if has_time and len(variable_names) and steps_per_variable:
 
-            # something something time stuff
-
+            # Set required time fields
+            service.supports_time = True
+            service.time_start = t_start
+            service.time_end = t_end
+            service.time_interval = 1
+            service.time_interval_units = 'days'
+            service.calendar = 'standard'
             service.save()
 
-            pass # TODO - Add info for handling services that are timeseries
-
-
         if unique:
+            model = model_set or getattr(scenario.project, variable_name)
+            unique_id_lookup = model_id_lookup or NAME_HASH[variable_name] + '_id'
             try:
-                if has_color:
-                    queryset = getattr(scenario.project, variable_name).values_list('color', NAME_HASH[variable_name] + '_id')
+                if has_colormap:
+                    queryset = model.values_list('color', unique_id_lookup)
                     renderer = generate_unique_renderer(queryset)
                 else:
-                    queryset = getattr(scenario.project, variable_name).values_list(NAME_HASH[variable_name] + '_id')
+                    queryset = model.values_list(unique_id_lookup)
                     renderer = generate_unique_renderer(queryset, randomize_colors=True)
             except:
                 raise AssertionError(CREATE_RENDERER_ERROR_MSG.format(vname=variable_name))
@@ -230,7 +250,25 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
             renderer = generate_stretched_renderer(info)
 
         if has_time and len(variable_names):
-            pass    # TODO - handle creating variables that handle time
+
+            for name in variable_names:
+                Variable.objects.create(
+                    service=service,
+                    index=variable_names.index(name),
+                    variable=name,
+                    projection=grid['proj4'],
+                    x_dimension=x,
+                    y_dimension=y,
+                    name=name,
+                    renderer=renderer,
+                    full_extent=extent,
+                    supports_time=True,
+                    time_dimension=t,
+                    time_start=t_start,
+                    time_end=t_end,
+                    time_steps=steps_per_variable
+                )
+
         else:
             Variable.objects.create(
                 service=service,
@@ -288,7 +326,8 @@ def process_input_rasters(ics):
         sis.stratum = generate_service(scenario, ics.stratum_file_name, 'strata')
 
     if len(ics.secondary_stratum_file_name):
-        sis.secondary_stratum = generate_service(scenario, ics.secondary_stratum_file_name, 'secondary_strata', has_color=False)
+        sis.secondary_stratum = generate_service(scenario, ics.secondary_stratum_file_name,
+                                                 'secondary_strata', has_colormap=False)
 
     if len(ics.stateclass_file_name):
         sis.stateclass = generate_service(scenario, ics.stateclass_file_name, 'stateclasses')
@@ -312,10 +351,12 @@ def process_output_rasters(scenario):
     oo = scenario.output_options
 
     if oo.raster_sc:
-        sos.stateclass = generate_service(scenario, 'It*-Ts*-sc.tif', 'stateclasses')  # ctype = sc
+        sos.stateclass = generate_service(scenario, 'It*-Ts*-sc.tif', 'stateclasses')
 
     if oo.raster_tr:
-        pass
+        sos.transition_group = generate_service(scenario, 'It*-Ts*-tg-*.tif', 'transition_groups',
+                                                has_colormap=False, model_set=scenario.project.transition_types,
+                                                model_id_lookup='transition_type_id')
 
     if oo.raster_sa:
         pass
@@ -334,3 +375,5 @@ def process_output_rasters(scenario):
 
     #if oo.raster_aatp: # TODO - this is handled weirdly, only outputting 0th iteration and 0th timestep
     #    pass
+
+    sos.save()
