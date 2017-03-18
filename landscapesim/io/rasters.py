@@ -9,6 +9,7 @@ import uuid
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
 from clover.render.renderers.unique import UniqueValuesRenderer
+from clover.render.renderers.stretched import StretchedRenderer
 from clover.utilities.color import Color
 from django.conf import settings
 from django.db import Error
@@ -47,17 +48,20 @@ CTYPE_HASH = {'strata': 'str',
               'stateclasses': 'sc',
               'state_attributes': 'sa',
               'transition_attributes': 'ta',
-              'transition_groups': 'tg'}
+              'transition_groups': 'tg',
+              'avg_annual_transition_probability': 'tgap'}
 
 # Sometimes we need to talk to the ssim dbs directly =)
 SSIM_TABLE = {'transition_groups': 'STSim_TransitionGroup',
               'state_attributes': 'STSim_StateAttributeType',
-              'transition_attributes': 'STSim_TransitionAttributeType'}
+              'transition_attributes': 'STSim_TransitionAttributeType',
+              'avg_annual_transition_probability': 'STSim_TransitionGroup'}  # must match ids, since they're duplicated
 
 # We need to match up the ssim name values to our table
 INNER_TABLE = {'transition_groups': TransitionGroup,
                'state_attributes': StateAttributeType,
-               'transition_attributes': TransitionAttributeType}
+               'transition_attributes': TransitionAttributeType,
+               'avg_annual_transition_probability': TransitionGroup}
 
 
 def generate_unique_renderer(values, randomize_colors=False):
@@ -71,8 +75,21 @@ def generate_unique_renderer(values, randomize_colors=False):
 
 
 def generate_stretched_renderer(info):
-
-    raise NotImplementedError("Stretched renderer not implemented (yet).")
+    v_min = None
+    v_max = None
+    for var in info['variables'].keys():
+        if var not in ['x', 'y', 'lat', 'lon', 'latitude', 'longitude']:
+            variable = info['variables'][var]
+            min = variable['min']
+            max = variable['max']
+            v_min = min if not v_min or min < v_min else v_min
+            v_max = min if not v_max or max < v_max else v_max
+    v_mid = (v_max - v_min) / 2 + v_min
+    return StretchedRenderer([
+        (v_min, Color(240, 59, 32)),
+        (v_mid, Color(254, 178, 76)),
+        (v_max, Color(255, 237, 160))
+    ])
 
 
 def generate_service(scenario, filename_or_pattern, variable_name, unique=True, has_colormap=True,
@@ -342,7 +359,7 @@ def process_input_rasters(ics):
 def process_output_rasters(scenario):
     """
     Generates a set of ncdjango services and time-series variables to associate with a scenario.
-    :param scenario: A result scenario.
+    :param scenario: A result scenario containing output rasters.
     """
 
     assert scenario.is_result   # sanity check
@@ -359,21 +376,24 @@ def process_output_rasters(scenario):
                                                 model_id_lookup='transition_type_id')
 
     if oo.raster_sa:
-        pass
+        sos.state_attribute = generate_service(scenario, 'It*-Ts*-sa-*.tif', 'state_attributes', unique=False)
 
     if oo.raster_ta:
-        pass
+        sos.transition_attribute = generate_service(scenario, 'It*-Ts*-sa-*.tif', 'transition_attributes', unique=False)
 
     if oo.raster_strata:
-        pass
+        sos.stratum = generate_service(scenario, 'It*-Ts*-str.tif', 'strata')
 
     if oo.raster_age:
-        pass
+        sos.age = generate_service(scenario, 'It*-Ts*-age.tif', 'age', unique=False)
 
     if oo.raster_tst:
-        pass
+        # TODO - implement RasterOutputTST (find use case first)
+        print("RasterOutputTST not implemented yet. For now, please disable this output option.")
 
-    #if oo.raster_aatp: # TODO - this is handled weirdly, only outputting 0th iteration and 0th timestep
-    #    pass
+    if oo.raster_aatp:
+        sos.avg_annual_transition_group_probability = generate_service(scenario, 'It*-Ts*-tgap-*.tif',
+                                                                       'avg_annual_transition_probability',
+                                                                       unique=False)
 
     sos.save()
