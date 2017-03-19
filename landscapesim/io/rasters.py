@@ -48,6 +48,7 @@ CTYPE_HASH = {'strata': 'str',
               'stateclasses': 'sc',
               'state_attributes': 'sa',
               'transition_attributes': 'ta',
+              'age': 'age',
               'transition_groups': 'tg',
               'avg_annual_transition_probability': 'tgap'}
 
