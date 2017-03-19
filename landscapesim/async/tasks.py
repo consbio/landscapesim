@@ -1,7 +1,7 @@
 from celery.task import task
 from landscapesim.models import Library, Scenario, RunScenarioModel
 import json
-import os
+from django.db import transaction
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
 from landscapesim.io.reports import process_reports
@@ -27,16 +27,18 @@ def run_model(self, library_name, pid, sid):
         raise IOError("Error running model")
     scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
-    scenario = Scenario.objects.create(
-        project=job.parent_scenario.project,
-        name=scenario_info['name'],
-        sid=result_sid,
-        is_result=True
-    )
-    job.result_scenario = scenario
-    job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
-    job.save()
 
-    process_scenario_inputs(console, scenario)
-    process_reports(console, scenario, get_random_csv(lib.tmp_file))
-    process_output_rasters(scenario)
+    with transaction.atomic():
+        scenario = Scenario.objects.create(
+            project=job.parent_scenario.project,
+            name=scenario_info['name'],
+            sid=result_sid,
+            is_result=True
+        )
+        job.result_scenario = scenario
+        job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
+        job.save()
+
+        process_scenario_inputs(console, scenario)
+        process_reports(console, scenario, get_random_csv(lib.tmp_file))
+        process_output_rasters(scenario)
