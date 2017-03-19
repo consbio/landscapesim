@@ -106,25 +106,6 @@ class TransitionAttributeTargetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ScenarioValuesSerializer(serializers.Serializer):
-    deterministic_transitions = DeterministicTransitionSerializer(many=True, read_only=True)
-    transitions = TransitionSerializer(many=True, read_only=True)
-    initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
-    transition_targets = TransitionTargetSerializer(many=True, read_only=True)
-    transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
-    transition_size_distributions = TransitionSizeDistributionSerializer(many=True, read_only=True)
-    transition_size_prioritizations = TransitionSizePrioritizationSerializer(many=True, read_only=True)
-    state_attribute_values = StateAttributeValueSerializer(many=True, read_only=True)
-    transition_attribute_values = TransitionAttributeValueSerializer(many=True, read_only=True)
-    transition_attribute_targets = TransitionAttributeTargetSerializer(many=True, read_only=True)
-
-    class Meta:
-        fields = ('deterministic_transitions', 'transitions', 'initial_conditions_nonspatial_distributions',
-                  'transition_targets', 'transition_multiplier_values', 'transition_size_distributions',
-                  'transition_size_prioritizations', 'state_attribute_values', 'transition_attribute_values',
-                  'transition_attribute_targets')
-
-
 class ScenarioInputServicesSerializer(serializers.ModelSerializer):
 
     stratum = serializers.SerializerMethodField(allow_null=True)
@@ -239,6 +220,7 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
 
 class ScenarioConfigSerializer(serializers.Serializer):
+    # OneToOne fields
     run_control = RunControlSerializer(many=False, read_only=True)
     output_options = OutputOptionSerializer(many=False, read_only=True)
     initial_conditions_nonspatial_settings = InitialConditionsNonSpatialSerializer(many=False, read_only=True, allow_null=True)
@@ -246,6 +228,22 @@ class ScenarioConfigSerializer(serializers.Serializer):
     scenario_input_services = ScenarioInputServicesSerializer(many=False, read_only=True)
     scenario_output_services = ScenarioOutputServicesSerializer(many=False, read_only=True)
 
+    # Values
+    deterministic_transitions = DeterministicTransitionSerializer(many=True, read_only=True)
+    transitions = TransitionSerializer(many=True, read_only=True)
+    initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
+    transition_targets = TransitionTargetSerializer(many=True, read_only=True)
+    transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
+    transition_size_distributions = TransitionSizeDistributionSerializer(many=True, read_only=True)
+    transition_size_prioritizations = TransitionSizePrioritizationSerializer(many=True, read_only=True)
+    state_attribute_values = StateAttributeValueSerializer(many=True, read_only=True)
+    transition_attribute_values = TransitionAttributeValueSerializer(many=True, read_only=True)
+    transition_attribute_targets = TransitionAttributeTargetSerializer(many=True, read_only=True)
+
     class Meta:
         fields = ('run_control', 'output_options', 'initial_conditions_nonspatial_settings',
-                  'initial_conditions_spatial_settings', 'scenario_input_services', 'scenario_output_services')
+                  'initial_conditions_spatial_settings', 'scenario_input_services', 'scenario_output_services',
+                  'deterministic_transitions', 'transitions', 'initial_conditions_nonspatial_distributions',
+                  'transition_targets', 'transition_multiplier_values', 'transition_size_distributions',
+                  'transition_size_prioritizations', 'state_attribute_values', 'transition_attribute_values',
+                  'transition_attribute_targets')

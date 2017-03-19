@@ -14,7 +14,7 @@ from landscapesim.models import DistributionValue, DeterministicTransition, Tran
     InitialConditionsNonSpatial, InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, \
     TransitionMultiplierValue, TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, \
     StateAttributeValue, TransitionAttributeValue, TransitionAttributeTarget
-from landscapesim.serializers.scenarios import ScenarioConfigSerializer, ScenarioValuesSerializer, \
+from landscapesim.serializers.scenarios import ScenarioConfigSerializer, \
     DeterministicTransitionSerializer, TransitionSerializer, InitialConditionsNonSpatialSerializer, \
     InitialConditionsNonSpatialDistributionSerializer, InitialConditionsSpatialSerializer, \
     TransitionTargetSerializer, TransitionMultiplierValueSerializer, TransitionSizeDistributionSerializer, \
@@ -65,11 +65,6 @@ class ScenarioViewset(viewsets.ReadOnlyModelViewSet):
     def reports(self, *args, **kwargs):
         context = {'request': self.request}
         return Response(QueryScenarioReportSerializer(self.get_object(), context=context).data)
-
-    @detail_route(methods=['get'])
-    def values(self, *args, **kwargs):
-        context = {'request': self.request}
-        return Response(ScenarioValuesSerializer(self.get_object(), context=context).data)
 
     @detail_route(methods=['get'])
     def config(self, *args, **kwargs):
