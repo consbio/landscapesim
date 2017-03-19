@@ -379,7 +379,7 @@ def process_output_rasters(scenario):
         sos.state_attribute = generate_service(scenario, 'It*-Ts*-sa-*.tif', 'state_attributes', unique=False)
 
     if oo.raster_ta:
-        sos.transition_attribute = generate_service(scenario, 'It*-Ts*-sa-*.tif', 'transition_attributes', unique=False)
+        sos.transition_attribute = generate_service(scenario, 'It*-Ts*-ta-*.tif', 'transition_attributes', unique=False)
 
     if oo.raster_strata:
         sos.stratum = generate_service(scenario, 'It*-Ts*-str.tif', 'strata')
