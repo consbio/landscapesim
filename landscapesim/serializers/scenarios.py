@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 from django.core.urlresolvers import reverse
-from landscapesim.models import \
+from landscapesim.models import Scenario, \
     DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
     InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
     TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, \
@@ -239,7 +239,7 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
 
 class ScenarioConfigSerializer(serializers.Serializer):
-    run_controls = RunControlSerializer(many=False, read_only=True)
+    run_control = RunControlSerializer(many=False, read_only=True)
     output_options = OutputOptionSerializer(many=False, read_only=True)
     initial_conditions_nonspatial_settings = InitialConditionsNonSpatialSerializer(many=False, read_only=True, allow_null=True)
     initial_conditions_spatial_settings = InitialConditionsSpatialSerializer(many=False, read_only=True, allow_null=True)
@@ -247,5 +247,5 @@ class ScenarioConfigSerializer(serializers.Serializer):
     scenario_output_services = ScenarioOutputServicesSerializer(many=False, read_only=True)
 
     class Meta:
-        fields = ('run_controls', 'output_options', 'initial_conditions_nonspatial_settings',
+        fields = ('run_control', 'output_options', 'initial_conditions_nonspatial_settings',
                   'initial_conditions_spatial_settings', 'scenario_input_services', 'scenario_output_services')
