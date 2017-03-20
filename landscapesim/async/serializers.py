@@ -16,7 +16,7 @@ BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
 CONFIG_INPUTS = (('run_control', RunControlImport),
                  ('output_options', OutputOptionImport),
-                 #('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
+                 ('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
                  #('initial_conditions_spatial_settings', InitialConditionsSpatialImport)
                  )
 

@@ -112,7 +112,7 @@ class TransitionImport(BaseImportSerializer):
 
 
 class InitialConditionsNonSpatialImport(BaseImportSerializer):
-    drf_serializer = serializers.InitialConditionsNonSpatial
+    drf_serializer = serializers.InitialConditionsNonSpatialSerializer
     sheet_map = config.INITIAL_CONDITIONS_NON_SPATIAL
 
 
