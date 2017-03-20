@@ -11,15 +11,17 @@ from landscapesim.serializers.imports import RunControlImport, OutputOptionImpor
     TransitionSizeDistributionImport, TransitionSizePrioritizationImport, StateAttributeValueImport, \
     TransitionAttributeValueImport, TransitionAttributeTargetImport
 
-
+# Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
+# Configuration flags for initialization
 CONFIG_INPUTS = (('run_control', RunControlImport),
                  ('output_options', OutputOptionImport),
                  ('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
                  #('initial_conditions_spatial_settings', InitialConditionsSpatialImport)
                  )
 
+# Configuration of input data (probabilities, mappings, etc.)
 VALUE_INPUTS = (('deterministic_transitions', DeterministicTransitionImport),
                 ('transitions', TransitionImport),
                 ('initial_conditions_nonspatial_distributions', InitialConditionsNonSpatialDistributionImport),
@@ -33,6 +35,9 @@ VALUE_INPUTS = (('deterministic_transitions', DeterministicTransitionImport),
 
 
 class AsyncJobSerializerMixin(object):
+    """
+        A base mixin for serializing the inputs and outputs, and validating that the minimum job info is provided.
+    """
 
     status = serializers.CharField(read_only=True)
     inputs = serializers.JSONField(allow_null=True)
@@ -55,6 +60,9 @@ class AsyncJobSerializerMixin(object):
 
 
 class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
+    """
+        Main model run validation and transformation of data into importable info into SyncroSim.
+    """
 
     parent_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
     result_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
