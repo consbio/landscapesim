@@ -163,8 +163,11 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
                   'stratum', 'state_attribute', 'transition_attribute',
                   'avg_annual_transition_group_probability')
 
-    def _get_url(self, service):
-        variable_name = service.variable_set.first().name
+    def _get_url(self, service, many=False, variable_name=None):
+        if many:
+            return list(set([self._get_url(service, variable_name=x[0]) for x in service.variable_set.values_list('name')]))
+
+        variable_name = variable_name or service.variable_set.first().name
         path_parts = reverse('timeseries_tiles_get_image', args=[
             service.name, variable_name, 0, 0, 0, 0]).split('/')[:-5]
         iteration_pattern = variable_name[:-len(variable_name.split('-')[-1])] + '{it}'
@@ -178,7 +181,7 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
     def get_transition_group(self, obj):
         if obj.transition_group:
-            return self._get_url(obj.transition_group)
+            return self._get_url(obj.transition_group, many=True)
         else:
             return None
 
@@ -202,19 +205,19 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
     def get_state_attribute(self, obj):
         if obj.state_attribute:
-            return self._get_url(obj.state_attribute)
+            return self._get_url(obj.state_attribute, many=True)
         else:
             return None
 
     def get_transition_attribute(self, obj):
         if obj.transition_attribute:
-            return self._get_url(obj.transition_attribute)
+            return self._get_url(obj.transition_attribute, many=True)
         else:
             return None
 
     def get_avg_annual_transition_group_probability(self, obj):
         if obj.avg_annual_transition_group_probability:
-            return self._get_url(obj.avg_annual_transition_group_probability)
+            return self._get_url(obj.avg_annual_transition_group_probability, many=True)
         else:
             return None
 
