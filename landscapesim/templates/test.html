@@ -1,0 +1,21 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Run Model Test</title>
+</head>
+<body>
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous">
+</script>
+<script src="{% static "js/three.min.js" %}"></script>
+<script src="{% static "js/main.js" %}"></script>
+<div id="container" style="position: initial; width: 1000px;">
+    <button id="get_config" style=" width: 500px; height: 200px; left: 50px; top: 50px;">Get Configuration</button>
+    <button id="run_model" style=" width: 500px; height: 200px; left: 50px; top: 50px;">Run Model</button>
+</div>
+</body>
+</html>
