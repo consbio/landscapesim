@@ -11,43 +11,54 @@ from landscapesim.io import config
 from django.conf import settings
 exe = settings.STSIM_EXE_PATH
 
-
+# TODO - move this constant to ../config.py
 CONFIG_IMPORTS = (('run_control', 'STSim_RunControl', config.RUN_CONTROL),
                   ('output_options', 'STSim_OutputOptions', config.OUTPUT_OPTION),
                   ('initial_conditions_nonspatial_settings', 'STSim_InitialConditionsNonSpatial', config.INITIAL_CONDITIONS_NON_SPATIAL),
                   #('initial_conditions_spatial_settings', 'STSim_InitialConditionsSpatial')
                   )
 
+# TODO - move this constant to ../config.py
 # Configuration of input data (probabilities, mappings, etc.)
-VALUE_IMPORTS = (('deterministic_transitions', 'STSim_DeterministicTransition'),
-                 ('transitions', 'STSim_Transition'),
-                 ('initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution'),
-                 ('transition_targets', 'STSim_TransitionTarget'),
-                 ('transition_multiplier_values', 'STSim_TransitionMultiplierValue'),
-                 ('transition_size_distributions', 'STSim_TransitionSizeDistribution'),
-                 ('transition_size_prioritizations', 'STSim_TransitionSizePrioritization'),
-                 ('state_attribute_values', 'STSim_StateAttributeValue'),
-                 ('transition_attribute_values', 'STSim_TransitionAttributeValue'),
-                 ('transition_attribute_targets', 'STSim_TransitionAttributeTarget'))
+VALUE_IMPORTS = (('deterministic_transitions', 'STSim_DeterministicTransition', config.DETERMINISTIC_TRANSITION),
+                 ('transitions', 'STSim_Transition', config.TRANSITION),
+                 ('initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution',
+                  config.INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION),
+                 ('transition_targets', 'STSim_TransitionTarget', config.TRANSITION_TARGET),
+                 ('transition_multiplier_values', 'STSim_TransitionMultiplierValue',
+                  config.TRANSITION_MULTIPLIER_VALUE),
+                 ('transition_size_distributions', 'STSim_TransitionSizeDistribution',
+                  config.TRANSITION_SIZE_DISTRIBUTION),
+                 ('transition_size_prioritizations', 'STSim_TransitionSizePrioritization',
+                  config.TRANSITION_SIZE_PRIORITIZATION),
+                 ('state_attribute_values', 'STSim_StateAttributeValue',
+                  config.STATE_ATTRIBUTE_VALUE),
+                 ('transition_attribute_values', 'STSim_TransitionAttributeValue',
+                  config.TRANSITION_ATTRIBUTE_VALUE),
+                 ('transition_attribute_targets', 'STSim_TransitionAttributeTarget',
+                  config.TRANSITION_ATTRIBUTE_TARGET))
 
 
 def import_configuration(console, config, sid, tmp_file):
 
     print('Importing configuration for scenario {}'.format(sid))
-    for pair in CONFIG_IMPORTS:
+    for pair in CONFIG_IMPORTS + VALUE_IMPORTS:
         key = pair[0]
         sheet_name = pair[1]
-        fieldnames = [x[1] for x in pair[2]]
+        field_map = pair[2]
+        fieldnames = [x[1] for x in field_map]
         importable_data = config[key]
         with open(tmp_file, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerow(importable_data)
+            if pair in CONFIG_IMPORTS:
+                writer.writerow(importable_data)
+            else:
+                for row in importable_data:
+                    writer.writerow(row)
         print('Importing data for {}'.format(sheet_name))
         console.import_sheet(sheet_name, tmp_file, sid=sid, cleanup=True)
-
-    # TODO - import value sheets
-    print('Successfully import configuration for scenario {}'.format(sid))
+    print('Successfully imported run configuration for scenario {}'.format(sid))
 
 
 @task(bind=True)
