@@ -6,12 +6,12 @@ web-based applications.
 
 # Why?
 We needed to provide a reusable and extendable interface that transports information easily to incorporate STSM models into
- web-based tools for landscape managers and researchers. This allows us to drive visualization tools for the web, while utilizing
+ web-based tools for landscape managers and researchers. This allows us to drive visualization tools for the web while utilizing
  a standardized platform that can be incorporated into other tools.
 
 # Use cases
 [landscapesim.org](http://landscapesim.org) utilizes a custom implementation of landscapesim, enabling managers and researchs to utilize 
- information provided from STSMs from within a web application. It provides a simple toolbox change parameters to an STSM model, and
+ information provided from STSMs from within a web application. It provides a simple toolbox to change parameters to an STSM model and
  exposes results to drive the visualizations in the tool, including 3D terrain visualizations, tables and charts.
 
 # Attribution
