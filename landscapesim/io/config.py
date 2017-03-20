@@ -1,8 +1,8 @@
 """
     This creates all of the maps from Django to SyncroSim.
-    The whole module is intended to be imported wherever the map is required.
-    (E.g. from landscapesim.io import config)
-    NOTE: Order is intended to match the order in which the config is imported/exported.
+    The module and it's CONSTANTS are intended to be imported wherever a serialization, deserialization, or
+    map is required. (E.g. from landscapesim.io import config)
+    NOTE: Explicit order is intended to match the order in which the config is imported/exported from SyncroSim.
 """
 
 # Commonly used mapping components
@@ -171,3 +171,29 @@ TRANSITION_ATTRIBUTE_TARGET = (*_time_common,
                                _transition_attribute_type,
                                ('target', 'Amount'),
                                *_distribution_common)
+
+# Configuration of run outputs, time control, distributions, etc.
+CONFIG_IMPORTS = (('run_control', 'STSim_RunControl', RUN_CONTROL),
+                  ('output_options', 'STSim_OutputOptions', OUTPUT_OPTION),
+                  ('initial_conditions_nonspatial_settings', 'STSim_InitialConditionsNonSpatial', INITIAL_CONDITIONS_NON_SPATIAL),
+                  #('initial_conditions_spatial_settings', 'STSim_InitialConditionsSpatial', INITIAL_CONDITIONS_SPATIAL)
+                  )
+
+# Configuration of input data (probabilities, mappings, etc.)
+VALUE_IMPORTS = (('deterministic_transitions', 'STSim_DeterministicTransition', DETERMINISTIC_TRANSITION),
+                 ('transitions', 'STSim_Transition', TRANSITION),
+                 ('initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution',
+                  INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION),
+                 ('transition_targets', 'STSim_TransitionTarget', TRANSITION_TARGET),
+                 ('transition_multiplier_values', 'STSim_TransitionMultiplierValue',
+                  TRANSITION_MULTIPLIER_VALUE),
+                 ('transition_size_distributions', 'STSim_TransitionSizeDistribution',
+                  TRANSITION_SIZE_DISTRIBUTION),
+                 ('transition_size_prioritizations', 'STSim_TransitionSizePrioritization',
+                  TRANSITION_SIZE_PRIORITIZATION),
+                 ('state_attribute_values', 'STSim_StateAttributeValue',
+                  STATE_ATTRIBUTE_VALUE),
+                 ('transition_attribute_values', 'STSim_TransitionAttributeValue',
+                  TRANSITION_ATTRIBUTE_VALUE),
+                 ('transition_attribute_targets', 'STSim_TransitionAttributeTarget',
+                  TRANSITION_ATTRIBUTE_TARGET))

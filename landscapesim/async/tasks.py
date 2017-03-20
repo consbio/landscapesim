@@ -7,39 +7,19 @@ from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
 from landscapesim.io.reports import process_reports
 from landscapesim.io.rasters import process_output_rasters
-from landscapesim.io import config
+from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from django.conf import settings
 exe = settings.STSIM_EXE_PATH
 
-# TODO - move this constant to ../config.py
-CONFIG_IMPORTS = (('run_control', 'STSim_RunControl', config.RUN_CONTROL),
-                  ('output_options', 'STSim_OutputOptions', config.OUTPUT_OPTION),
-                  ('initial_conditions_nonspatial_settings', 'STSim_InitialConditionsNonSpatial', config.INITIAL_CONDITIONS_NON_SPATIAL),
-                  #('initial_conditions_spatial_settings', 'STSim_InitialConditionsSpatial')
-                  )
-
-# TODO - move this constant to ../config.py
-# Configuration of input data (probabilities, mappings, etc.)
-VALUE_IMPORTS = (('deterministic_transitions', 'STSim_DeterministicTransition', config.DETERMINISTIC_TRANSITION),
-                 ('transitions', 'STSim_Transition', config.TRANSITION),
-                 ('initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution',
-                  config.INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION),
-                 ('transition_targets', 'STSim_TransitionTarget', config.TRANSITION_TARGET),
-                 ('transition_multiplier_values', 'STSim_TransitionMultiplierValue',
-                  config.TRANSITION_MULTIPLIER_VALUE),
-                 ('transition_size_distributions', 'STSim_TransitionSizeDistribution',
-                  config.TRANSITION_SIZE_DISTRIBUTION),
-                 ('transition_size_prioritizations', 'STSim_TransitionSizePrioritization',
-                  config.TRANSITION_SIZE_PRIORITIZATION),
-                 ('state_attribute_values', 'STSim_StateAttributeValue',
-                  config.STATE_ATTRIBUTE_VALUE),
-                 ('transition_attribute_values', 'STSim_TransitionAttributeValue',
-                  config.TRANSITION_ATTRIBUTE_VALUE),
-                 ('transition_attribute_targets', 'STSim_TransitionAttributeTarget',
-                  config.TRANSITION_ATTRIBUTE_TARGET))
-
 
 def import_configuration(console, config, sid, tmp_file):
+    """
+    Imports validated run configuration into csv formatted sheets for import.
+    :param console: An instance of a landscapesim.io.consoles.STSimConsole
+    :param config: Fully formatted dict object with validated data.
+    :param sid: The scenario id which we are importing into.
+    :param tmp_file: An absolute path to a csv file
+    """
 
     print('Importing configuration for scenario {}'.format(sid))
     for pair in CONFIG_IMPORTS + VALUE_IMPORTS:
@@ -63,6 +43,15 @@ def import_configuration(console, config, sid, tmp_file):
 
 @task(bind=True)
 def run_model(self, library_name, pid, sid):
+    """
+    Where all the magic happens. We perform a full import process into SyncroSim, let the model run complete, and then
+    capture a snapshot of the library inputs and outputs and record them in our database. We also create all necessary
+    input and output ncdjango services to provide map information.
+    :param self: The celery task instance
+    :param library_name: Unique name of the library containing the project.
+    :param pid: The project id of the scenario (possibly unneeded)
+    :param sid: The scenario id which we are running the model on. The scenario must not be a result scenario.
+    """
     lib = Library.objects.get(name__iexact=library_name)
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
