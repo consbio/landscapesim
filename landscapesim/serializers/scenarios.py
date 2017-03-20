@@ -13,97 +13,98 @@ from landscapesim.models import Scenario, \
 class DistributionValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = DistributionValue
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class RunControlSerializer(serializers.ModelSerializer):
     class Meta:
         model = RunControl
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class OutputOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OutputOption
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class DeterministicTransitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeterministicTransition
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transition
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
     class Meta:
         model = InitialConditionsNonSpatial
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
     class Meta:
         model = InitialConditionsNonSpatialDistribution
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
     class Meta:
         model = InitialConditionsSpatial
-        fields = '__all__'
+        exclude = ('scenario', 'age_file_name', 'stratum_file_name',
+                   'stateclass_file_name', 'secondary_stratum_file_name')
 
 
 class TransitionTargetSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionTarget
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionMultiplierValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionMultiplierValue
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionSizeDistributionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionSizeDistribution
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionSizePrioritizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionSizePrioritization
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionSpatialMultiplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionSpatialMultiplier
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class StateAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = StateAttributeValue
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionAttributeValue
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class TransitionAttributeTargetSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransitionAttributeTarget
-        fields = '__all__'
+        exclude = ('scenario',)
 
 
 class ScenarioInputServicesSerializer(serializers.ModelSerializer):

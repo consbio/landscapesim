@@ -62,8 +62,10 @@ class BaseImportSerializer(object):
                     break
 
         if len(list(transformed_data.keys())) != len(self.sheet_map):
-            raise ValidationError("Invalid conversion occured. Didn't satisfy all values stored in this serializer's"
-                                  "sheet_map configuration")
+            # Determine missing keys
+            missing = [x[0] for x in self.sheet_map if x[0] not in transformed_data.keys()]
+            raise ValidationError("Invalid conversion occured. Didn't satisfy all values stored in this serializer's "
+                                  "sheet_map configuration. Missing: {}".format(', '.join(missing)))
 
         return transformed_data
 

@@ -6,23 +6,23 @@
 """
 
 # Commonly used mapping components
-_stratum = ('stratum', 'StratumID', 'Stratum')
-_stratum_src = ('stratum_src', 'StratumIDSource', 'Stratum')
-_stratum_dest = ('stratum_dest', 'StratumIDDest', 'Stratum')
-_secondary_stratum = ('secondary_stratum', 'SecondaryStratumID', 'SecondaryStratum')
-_stateclass = ('stateclass', 'StateClassID', 'StateClass')
-_stateclass_src = ('stateclass_src', 'StateClassIDSource', 'StateClass')
-_stateclass_dest = ('stateclass_dest', 'StateClassIDDest', 'StateClass')
-_transition_group = ('transition_group', 'TransitionGroupID', 'TransitionGroup')
-_transition_type = ('transition_type', 'TransitionTypeID', 'TransitionType')
-_state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID', 'StateAttributeType')
-_transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID', 'TransitionAttributeType')
-_transition_multiplier_type = ('transition_multiplier_type', 'TransitionMultiplierTypeID', 'TransitionMultiplierType')
+_stratum = ('stratum', 'StratumID')
+_stratum_src = ('stratum_src', 'StratumIDSource')
+_stratum_dest = ('stratum_dest', 'StratumIDDest')
+_secondary_stratum = ('secondary_stratum', 'SecondaryStratumID')
+_stateclass = ('stateclass', 'StateClassID')
+_stateclass_src = ('stateclass_src', 'StateClassIDSource')
+_stateclass_dest = ('stateclass_dest', 'StateClassIDDest')
+_transition_group = ('transition_group', 'TransitionGroupID')
+_transition_type = ('transition_type', 'TransitionTypeID')
+_state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID')
+_transition_attribute_type = ('transition_attribute_type', 'TransitionAttributeTypeID')
+_transition_multiplier_type = ('transition_multiplier_type', 'TransitionMultiplierTypeID')
 _iteration = ('iteration', 'Iteration')
 _timestep = ('timestep', 'Timestep')
 _age_min = ('age_min', 'AgeMin')
 _age_max = ('age_max', 'AgeMax')
-_distribution_type = ('distribution_type', 'DistributionTypeID', 'DistributionType')
+_distribution_type = ('distribution_type', 'DistributionTypeID')
 _distribution_sd = ('distribution_sd', 'DistributionSD')
 _distribution_min = ('distribution_min', 'DistributionMin')
 _distribution_max = ('distribution_max', 'DistributionMax')
@@ -96,7 +96,7 @@ TRANSITION = (_stratum_src,
 
 INITIAL_CONDITIONS_NON_SPATIAL = (('total_amount', 'TotalAmount'),
                                   ('num_cells', 'NumCells'),
-                                  ('calc_from_dist', 'CaldFromDist'))
+                                  ('calc_from_dist', 'CalcFromDist'))
 
 INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (_stratum,
                                                _secondary_stratum,

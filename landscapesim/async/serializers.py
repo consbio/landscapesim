@@ -16,8 +16,9 @@ BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
 CONFIG_INPUTS = (('run_control', RunControlImport),
                  ('output_options', OutputOptionImport),
-                 ('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
-                 ('initial_conditions_spatial_settings', InitialConditionsSpatialImport))
+                 #('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
+                 #('initial_conditions_spatial_settings', InitialConditionsSpatialImport)
+                 )
 
 VALUE_INPUTS = (('deterministic_transitions', DeterministicTransitionImport),
                 ('transitions', TransitionImport),
@@ -64,25 +65,22 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
     def validate_inputs(self, value):
-        value = super(AsyncJobSerializerMixin).validate_inputs(value)
+        value = super(RunModelSerializer, self).validate_inputs(value)
         if value:
             try:
-                if all(x in value.keys() for x in CONFIG_INPUTS):
-                    return value    # TODO - use the inner meta validated data to serialize the data
+                config = value['config']
+                if all(x[0] in config.keys() for x in CONFIG_INPUTS) and all(x[0] in config.keys() for x in VALUE_INPUTS):
+                    for pair in CONFIG_INPUTS + VALUE_INPUTS:
+                        key = pair[0]
+                        deserializer = pair[1]
+                        config[key] = deserializer(config[key]).validated_data
+                    value['config'] = config
+                    return value
                 else:
-                    raise serializers.ValidationError('Missing one of {}'.format(CONFIG_INPUTS))
+                    raise serializers.ValidationError('Missing one of {}. Got {}'.format(CONFIG_INPUTS, list(config.keys())))
             except ValueError:
                 raise serializers.ValidationError('Invalid configuration')
         return {}
-
-    #def validate(self, attrs):
-
-        # TODO - validate other inputs (transition probabilities, state/transition attributes, etc...)
-        # This will be necessary to import other items if we want to run the new values
-        # We don't need to add database rows into the system as those will be captured after a model run is complete
-        # For now, it is enough that we can run scenarios as stock models
-
-    #    return attrs
 
     def create(self, validated_data):
 
