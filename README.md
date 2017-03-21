@@ -18,7 +18,7 @@ We needed to provide a reusable and extendable interface that transports informa
 Project funding was provided by the Bureau of Land Management through Oregon State University (AwardL14AC00103).
 A special thanks to  Dr. Louisa Evers (BLM) for her continued support.
 
-landscapesim would not be possible without the exhaustive work on [SyncroSim](syncrosim.com) from Colin J. Daniel, Leonardo Fid, Benjamin M. Sleeter, 
+landscapesim would not be possible without the exhaustive work on [SyncroSim](syncrosim.com) from Colin J. Daniel, Leonardo Frid, Benjamin M. Sleeter, 
 Marie-Josee Fortin, and many, many others pushing the bounds on spatially explicit simulation models focused on ecology and landscape management.
 
 Daniel, C., Frid, L., Sleeter, B., & Fortin, M. J. 2016. [State-and-transition simulation models: a framework for 
