@@ -22,8 +22,9 @@ _iteration = ('iteration', 'Iteration')
 _timestep = ('timestep', 'Timestep')
 _age_min = ('age_min', 'AgeMin')
 _age_max = ('age_max', 'AgeMax')
-_distribution_type = ('distribution_type', 'DistributionTypeID')
-_distribution_sd = ('distribution_sd', 'DistributionSD')
+_distribution_type_id = ('distribution_type', 'DistributionTypeID')  # Slight discrepancy in use for distributions.
+_distribution_type = ('distribution_type', 'DistributionType')       # Make sure not to use both *type and *type_id
+_distribution_sd = ('distribution_sd', 'DistributionSD')             # concurrently.
 _distribution_min = ('distribution_min', 'DistributionMin')
 _distribution_max = ('distribution_max', 'DistributionMax')
 
@@ -33,7 +34,7 @@ _age_common = (_age_min, _age_max)
 _distribution_common = (_distribution_type, _distribution_sd, _distribution_min, _distribution_max)
 
 
-DISTRIBUTION_VALUE = (_distribution_type,
+DISTRIBUTION_VALUE = (_distribution_type_id,
                       ('dmin', 'Min'),
                       ('dmax', 'Max'),
                       ('relative_frequency', 'RelativeFrequency'))
