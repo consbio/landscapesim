@@ -128,12 +128,12 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
     transition_types = TransitionTypeSerializer(many=True, read_only=True)
     transition_groups = TransitionGroupSerializer(many=True, read_only=True)
     transition_type_groups = TransitionTypeGroupSerializer(many=True, read_only=True)
-    transition_attribute_types = TransitionAttributeTypeSerializer(many=True, read_only=True)
-    state_attribute_types = StateAttributeTypeSerializer(many=True, read_only=True)
+    transition_attributes = TransitionAttributeTypeSerializer(many=True, read_only=True)
+    state_attributes = StateAttributeTypeSerializer(many=True, read_only=True)
     attribute_groups = AttributeGroupSerializer(many=True, read_only=True)
 
     class Meta:
         fields = ('terminology', 'stateclasses', 'strata', 'transition_types', 'transition_groups',
-                  'transition_type_groups', 'transition_attribute_types', 'state_attribute_types',
+                  'transition_type_groups', 'transition_attributes', 'state_attributes',
                   'attribute_groups',)
 
