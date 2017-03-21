@@ -60,12 +60,13 @@ def run_model(self, library_name, pid, sid):
     import_configuration(console, inputs['config'], sid, get_random_csv(lib.tmp_file))
 
     try:
+        print('Running scenario {}...'.format(sid))
         result_sid = int(console.run_model(sid))
     except:
         raise IOError("Error running model")
     scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
-
+    print('Scenario run complete, processing results for scenario {}'.format(result_sid))
     with transaction.atomic():
         scenario = Scenario.objects.create(
             project=job.parent_scenario.project,
