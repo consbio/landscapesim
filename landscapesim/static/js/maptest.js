@@ -1,5 +1,4 @@
-
-
+/* Main file for ./maptest/ */
 var available_libraries = [];
 var current_library = {};
 var project_url = '';
@@ -8,22 +7,16 @@ var current_project = {};
 var available_scenarios = [];
 var scenario_url = '';
 var current_scenario = {};
-var run_model_url = '/api/jobs/run-model/';
-var result_url = ''
-
 
 // Basemap
 var basemap = L.esri.basemapLayer("Gray");
 var basemaps = {"Basemap": basemap};
-
 
 var map = L.map("map", {
     clickable: false,
     drawcontrol: false,
     layers: [basemap]
 }).setView([40, -113], 5);
-
-
 
 
 // Title
@@ -54,31 +47,36 @@ title.addTo(map);
 
 function addServices(config) {
 
-    //var elevation = L.tileLayer("http://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png").addTo(map);
+    var elevation = L.tileLayer("http://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png");
+    var t0it1 = {'t': 0, 'it': 1};
+    var t0it0 = {'t': 0, 'it': 0};
 
-    // inputs
     var stratum = L.tileLayer(config.scenario_input_services.stratum);
     var stateclass_initial = L.tileLayer(config.scenario_input_services.stateclass);
-
-    // outputs
-    var age = L.tileLayer(config.scenario_output_services.age, {'t': 1, 'it': 1});
-    var aatp = L.tileLayer(config.scenario_output_services.avg_annual_transition_group_probability[0], {'t': 1, 'it': 1});
-    var state_attribute = L.tileLayer(config.scenario_output_services.state_attribute[0], {'t': 1, 'it': 1});
-    var stateclass_output = L.tileLayer(config.scenario_output_services.stateclass, {'t': 1, 'it': 1});
-    var transition_attribute = L.tileLayer(config.scenario_output_services.transition_attribute[0], {'t': 1, 'it': 1});
-    var transition_group = L.tileLayer(config.scenario_output_services.transition_group[0], {'t': 1, 'it': 1});
-
+    var age = L.tileLayer(config.scenario_output_services.age, t0it1);
+    var stateclass_output = L.tileLayer(config.scenario_output_services.stateclass, t0it1);
 
     var overlaymaps = {
+        "Elevation (encoded)": elevation,
         "Strata": stratum,
         "State Classes (Initial)": stateclass_initial,
         "Age": age,
-        "AATP": aatp,
-        "State Attribute [0]": state_attribute,
-        "State Classes (Output)": stateclass_output,
-        "Transition Attribute [0]": transition_attribute,
-        "Transition Group [0]": transition_group
+        "State Classes (Output)": stateclass_output
     };
+
+    // per-type outputs
+    for (var i = 0; i < config.scenario_output_services.state_attribute.length; i++) {
+        overlaymaps['State Attribute ' + String(i)] = L.tileLayer(config.scenario_output_services.state_attribute[i], t0it1);
+    }
+    for (var i = 0; i < config.scenario_output_services.transition_attribute.length; i++) {
+        overlaymaps['Transition Attribute ' + String(i)] = L.tileLayer(config.scenario_output_services.transition_attribute[i], t0it1);
+    }
+    for (var i = 0; i < config.scenario_output_services.transition_group.length; i++) {
+        overlaymaps['Transition Group ' + String(i)] = L.tileLayer(config.scenario_output_services.transition_group[i], t0it1);
+    }
+    for (var i = 0; i < config.scenario_output_services.avg_annual_transition_group_probability.length; i++) {
+        overlaymaps['Avg. Ann. Transition Prob. ' + String(i)] = L.tileLayer(config.scenario_output_services.avg_annual_transition_group_probability[i], t0it0);
+    }
 
     // Add base layers
     L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
@@ -94,18 +92,13 @@ function addServices(config) {
     });
 
     timestep_slider.on('input change', function (e) {
-        age.options.t = Number(e.value);
-        aatp.options.t = 0;     // doesn't iterate
-        state_attribute.options.t = Number(e.value);
-        stateclass_output.options.t = Number(e.value);
-        transition_attribute.options.t = Number(e.value);
-        transition_group.options.t = Number(e.value);
-        age.redraw();
-        //aatp.redraw();
-        state_attribute.redraw();
-        stateclass_output.redraw();
-        transition_attribute.redraw();
-        transition_group.redraw();
+
+    for (var prop in overlaymaps) {
+        if (overlaymaps.hasOwnProperty(prop)) {
+            overlaymaps[prop].options.t = Number(e.value);
+            overlaymaps[prop].redraw();
+        }
+    }
     });
 
     map.addControl(timestep_slider);
@@ -151,7 +144,7 @@ $.getJSON('/api/libraries/').done(function (res) {
 
         })
     })
-})
+});
 
 
 
