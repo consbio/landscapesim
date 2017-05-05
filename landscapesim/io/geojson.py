@@ -1,29 +1,30 @@
 import rasterio
-import fiona
 from rasterio import features
+from rasterio.warp import transform_geom
+
 
 def rasterize_geojson(geojson, template_path, out_path):
     """
     Takes the path to a (temporary?) geojson file, extracts the shapes, and then
     burns the raster value to the specified output path with the same shape as a template raster.
-    :param geojson: GeoJSON-formatted .json file.
+    :param geojson: GeoJSON-formatted dictionary. Assumed to be geographic (EPSG:4326)
     :param template_path: Path to the template raster to constrain the shapes to.
     :param out_path: Path to the outputted raster with burned shapes into it.
     """
 
-    with rasterio.open(template_path, 'r') as src:
-        out_shape = src.shape
-        out_meta = src.meta.copy()
-        out_transform = src.transform
+    # Handle single geometries as well as lists
+    if type(geojson) is dict:
+        geojson = [geojson]
 
-    with fiona.open(geojson, 'r') as shp:
-        shp_features = [f['geometry'] for f in shp]
-
-    with rasterio.open(out_path, 'w', **out_meta) as dest:
-        dest.write(
-            features.rasterize(
-                ((g, 255.0) for g in shp_features),  # todo, should value be 255 or just 100?
-                out_shape=out_shape,
-                transform=out_transform,
-                dtype='float64'
-            ), 1)
+    with rasterio.open(template_path, 'r') as template:
+        with rasterio.open(out_path, 'w', **template.meta.copy()) as dest:
+            dest.write(
+                features.rasterize(
+                    # Todo, should value be 255 or just 100?
+                    ((transform_geom({'init': 'EPSG:4326'}, template.crs, g), 255.0)
+                        for g in [f['geometry'] for f in geojson]),
+                    out_shape=template.shape,
+                    transform=template.transform,
+                    dtype='float64'
+                ), 1
+            )
