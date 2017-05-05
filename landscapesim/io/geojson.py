@@ -1,3 +1,4 @@
+import os
 import rasterio
 from rasterio import features
 from rasterio.warp import transform_geom
@@ -17,6 +18,9 @@ def rasterize_geojson(geojson, template_path, out_path):
         geojson = [geojson]
 
     with rasterio.open(template_path, 'r') as template:
+        if not os.path.exists(os.path.dirname(out_path)):
+            os.makedirs(os.path.dirname(out_path))
+
         with rasterio.open(out_path, 'w', **template.meta.copy()) as dest:
             dest.write(
                 features.rasterize(

@@ -239,6 +239,7 @@ class ScenarioConfigSerializer(serializers.Serializer):
     transition_targets = TransitionTargetSerializer(many=True, read_only=True)
     transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
     transition_size_distributions = TransitionSizeDistributionSerializer(many=True, read_only=True)
+    transition_spatial_multipliers = TransitionSpatialMultiplierSerializer(many=True, read_only=True)
     transition_size_prioritizations = TransitionSizePrioritizationSerializer(many=True, read_only=True)
     state_attribute_values = StateAttributeValueSerializer(many=True, read_only=True)
     transition_attribute_values = TransitionAttributeValueSerializer(many=True, read_only=True)
@@ -249,5 +250,5 @@ class ScenarioConfigSerializer(serializers.Serializer):
                   'initial_conditions_spatial_settings', 'scenario_input_services', 'scenario_output_services',
                   'deterministic_transitions', 'transitions', 'initial_conditions_nonspatial_distributions',
                   'transition_targets', 'transition_multiplier_values', 'transition_size_distributions',
-                  'transition_size_prioritizations', 'state_attribute_values', 'transition_attribute_values',
-                  'transition_attribute_targets')
+                  'transition_spatial_multipliers', 'transition_size_prioritizations', 'state_attribute_values',
+                  'transition_attribute_values', 'transition_attribute_targets')

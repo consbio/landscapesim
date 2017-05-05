@@ -2,14 +2,16 @@
     Serializers for consuming job submissions for running models and generating reports
 """
 import json
+import os
 from rest_framework import serializers
-from landscapesim.models import Library, Project, Scenario, RunScenarioModel
+from landscapesim.io.geojson import rasterize_geojson
+from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
 from landscapesim.async.tasks import run_model
 from landscapesim.serializers.imports import RunControlImport, OutputOptionImport, InitialConditionsNonSpatialImport, \
     InitialConditionsSpatialImport, DeterministicTransitionImport, TransitionImport, \
     InitialConditionsNonSpatialDistributionImport, TransitionTargetImport, TransitionMultiplierValueImport, \
-    TransitionSizeDistributionImport, TransitionSizePrioritizationImport, StateAttributeValueImport, \
-    TransitionAttributeValueImport, TransitionAttributeTargetImport
+    TransitionSizeDistributionImport, TransitionSizePrioritizationImport, TransitionSpatialMultiplierImport, \
+    StateAttributeValueImport, TransitionAttributeValueImport, TransitionAttributeTargetImport
 
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
@@ -29,6 +31,7 @@ VALUE_INPUTS = (('deterministic_transitions', DeterministicTransitionImport),
                 ('transition_multiplier_values', TransitionMultiplierValueImport),
                 ('transition_size_distributions', TransitionSizeDistributionImport),
                 ('transition_size_prioritizations', TransitionSizePrioritizationImport),
+                ('transition_spatial_multipliers', TransitionSpatialMultiplierImport),
                 ('state_attribute_values', StateAttributeValueImport),
                 ('transition_attribute_values', TransitionAttributeValueImport),
                 ('transition_attribute_targets', TransitionAttributeTargetImport))
@@ -72,12 +75,63 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         fields = ('uuid', 'created', 'status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
+    @staticmethod
+    def _filter_and_create_ics(config, library_name, pid, sid):
+        return config   # Todo - create spatially-explicit initial conditions from special arguments (e.g. Landfire)
+
+    @staticmethod
+    def _filter_and_create_tsms(config, library_name, pid, sid):
+        """ Takes a configuration, filters out geojson-specific data, and returns a valid configuration for import. """
+
+        lib = Library.objects.get(name__exact=library_name)
+        proj = Project.objects.get(library=lib, pid=pid)
+        scenario = Scenario.objects.get(project=proj, sid=int(sid))
+        is_spatial = scenario.run_control.is_spatial
+        if is_spatial:
+
+            # For each transition spatial multipler, create spatial multiplier files where needed
+            for tsm in config['transition_spatial_multipliers']:
+                tg = TransitionGroup.objects.get(id=tsm['transition_group']).name
+                iterations = int(tsm['iteration']) if tsm['iteration'] is not None and len(tsm['iteration']) else 'all'
+                timesteps = int(tsm['timestep']) if tsm['timestep'] is not None and len(tsm['timestep']) else 'all'
+                tsm_file_name = "{tg}_{it}_{ts}.tif".format(tg=tg, it=iterations, ts=timesteps)
+                tsm['transition_multiplier_file_name'] = tsm_file_name
+                try:
+                    geojson = tsm.pop('geojson')    # always remove the geojson entry
+                    try:
+                        rasterize_geojson(geojson,
+                                          os.path.join(scenario.input_directory(),
+                                                       scenario.initial_conditions_spatial_settings.
+                                                       stratum_file_name),
+                                          os.path.join(scenario.multiplier_directory(),
+                                                       tsm_file_name))
+                    except:
+                        raise IOError("Error rasterizing geojson.")
+                except KeyError:
+                    print('{tg} multiplier did not have geojson attached, skipping...'.format(tg=tg))
+        else:
+            # We don't want to import any spatial multipliers, so filter out of configuration
+            config['transition_spatial_multipliers'] = []
+        return config
+
     def validate_inputs(self, value):
         value = super(RunModelSerializer, self).validate_inputs(value)
         if value:
             try:
                 config = value['config']
-                if all(x[0] in config.keys() for x in CONFIG_INPUTS) and all(x[0] in config.keys() for x in VALUE_INPUTS):
+
+                # At this stage we know these are valid and deserialized
+                library_name = value['library_name']
+                pid = value['pid']
+                sid = value['sid']
+
+                if all(x[0] in config.keys() for x in CONFIG_INPUTS + VALUE_INPUTS):
+
+                    # Handle special filtering and file creation prior to model runs
+                    config = self._filter_and_create_ics(config, library_name, pid, sid)
+                    config = self._filter_and_create_tsms(config, library_name, pid, sid)
+
+                    # Now validate pre-filtered deserialization
                     for pair in CONFIG_INPUTS + VALUE_INPUTS:
                         key = pair[0]
                         deserializer = pair[1]

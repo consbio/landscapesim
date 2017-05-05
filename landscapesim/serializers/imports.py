@@ -22,11 +22,7 @@ class BaseImportSerializer(object):
         self._many = type(initial_data) is list
 
     def _ignore(self, val):
-        if val == 'id':
-            return True
-        elif val == 'scenario':
-            return True
-        return False
+        return val in ['id', 'scenario']
 
     def _transform(self, data):
         """
@@ -144,6 +140,11 @@ class TransitionSizeDistributionImport(BaseImportSerializer):
 class TransitionSizePrioritizationImport(BaseImportSerializer):
     drf_serializer = serializers.TransitionSizePrioritizationSerializer
     sheet_map = config.TRANSITION_SIZE_PRIORITIZATION
+
+
+class TransitionSpatialMultiplierImport(BaseImportSerializer):
+    drf_serializer = serializers.TransitionSpatialMultiplierSerializer
+    sheet_map = config.TRANSITION_SPATIAL_MULTIPLIER
 
 
 class StateAttributeValueImport(BaseImportSerializer):

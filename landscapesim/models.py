@@ -45,6 +45,10 @@ class Scenario(models.Model):
         return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
                             'STSim_InitialConditionsSpatial')
 
+    def multiplier_directory(self):
+        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
+                            'STSim_TransitionSpatialMultiplier')
+
     def output_directory(self):
         if self.is_result:
             path = os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')

@@ -11,7 +11,7 @@ from landscapesim.views import LibraryViewset, ProjectViewset, ScenarioViewset,\
 from landscapesim.views import DeterministicTransitionViewset, TransitionViewset, InitialConditionsNonSpatialViewset, \
     InitialConditionsNonSpatialDistributionViewset, TransitionTargetViewset, TransitionMultiplierValueViewset, \
     TransitionSizeDistributionViewset, TransitionSizePrioritizationViewset, StateAttributeValueViewset, \
-    TransitionAttributeValueViewset, TransitionAttributeTargetViewset
+    TransitionAttributeValueViewset, TransitionAttributeTargetViewset, TransitionSpatialMultiplierViewset
 
 # Report viewsets
 from landscapesim.views import \
@@ -47,6 +47,7 @@ router.register('initial-conditions-non-spatial-settings', InitialConditionsNonS
 router.register('initial-conditions-non-spatial-distributions', InitialConditionsNonSpatialDistributionViewset)
 router.register('transition-targets', TransitionTargetViewset)
 router.register('transition-multiplier-values', TransitionMultiplierValueViewset)
+router.register('transition-spatial-multipliers', TransitionSpatialMultiplierViewset)
 router.register('transition-size-distributions', TransitionSizeDistributionViewset)
 router.register('transition-size-prioritizations', TransitionSizePrioritizationViewset)
 router.register('state-attribute-values', StateAttributeValueViewset)
