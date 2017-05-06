@@ -1,5 +1,6 @@
 import os
 import rasterio
+import numpy
 from rasterio import features
 from rasterio.warp import transform_geom
 
@@ -22,13 +23,12 @@ def rasterize_geojson(geojson, template_path, out_path):
             os.makedirs(os.path.dirname(out_path))
 
         with rasterio.open(out_path, 'w', **template.meta.copy()) as dest:
-            dest.write(
-                features.rasterize(
-                    # Todo, should value be 255 or just 100?
-                    ((transform_geom({'init': 'EPSG:4326'}, template.crs, g), 255.0)
-                        for g in [f['geometry'] for f in geojson]),
-                    out_shape=template.shape,
-                    transform=template.transform,
-                    dtype='float64'
-                ), 1
+            image = features.rasterize(
+                ((transform_geom({'init': 'EPSG:4326'}, template.crs, g), 255.0) # Todo, should value be 255 or 100?
+                 for g in [f['geometry'] for f in geojson]),
+                out_shape=template.shape,
+                transform=template.transform,
+                dtype='float64'
             )
+            image[numpy.where(image == 0)] = 1.0    # Where a polygon wasn't drawn, set multiplier to 1.0
+            dest.write(image, 1)
