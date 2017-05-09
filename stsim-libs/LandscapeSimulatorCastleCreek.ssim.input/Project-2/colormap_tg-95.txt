@@ -1,0 +1,2 @@
+# Syncrosim Generated Transition Group (Annual Exotic Invasion) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT

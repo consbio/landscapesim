@@ -1,0 +1,3 @@
+# Syncrosim Generated Transition Group (Reference Restoration H) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT
+5005,0,0,255,255,REF-Restoration H

@@ -1,0 +1,3 @@
+# Syncrosim Generated Transition Group (Restoration Annual Grass H) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT
+5008,64,0,128,255,Restoration Annual Grass Threshold

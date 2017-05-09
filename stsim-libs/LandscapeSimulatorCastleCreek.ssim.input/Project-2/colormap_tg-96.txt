@@ -1,0 +1,2 @@
+# Syncrosim Generated Transition Group (CWG-Restoration) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT

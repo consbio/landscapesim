@@ -1,0 +1,19 @@
+# Syncrosim Generated State Class Color Map (QGIS-compatible),,,,,
+INTERPOLATION:EXACT
+34006,128,0,0,255,Annual Grasses Mono-specific:Open Canopy
+34003,255,0,0,255,Annual Grasses:Open Canopy
+34004,255,255,0,255,Crested Wheat Grass:Open Canopy
+34017,0,128,0,255,Mature 2:Open Canopy
+24012,0,128,0,255,Mature:Closed Canopy
+34012,0,128,0,255,Mature:Open Canopy
+34016,0,255,0,255,Mid 2:Open Canopy
+24011,0,255,0,255,Mid:Closed Canopy
+34011,0,255,0,255,Mid:Open Canopy
+34001,255,255,0,255,Seeded:Open Canopy
+24002,255,128,0,255,Shrubs and Annual Grasses:Closed Canopy
+24015,255,128,0,255,Shrubs Depleted:Closed Canopy
+24014,255,0,0,255,Tree Encroachment Threat:Closed Canopy
+34013,255,128,0,255,Tree Encroachment:Open Canopy
+24005,128,0,0,255,Trees and Annual Grasses:Closed Canopy
+34005,128,0,0,255,Trees and Annual Grasses:Open Canopy
+34010,128,255,128,255,Young:Open Canopy

@@ -1,0 +1,2 @@
+# Syncrosim Generated Transition Group (Overgrazing) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT

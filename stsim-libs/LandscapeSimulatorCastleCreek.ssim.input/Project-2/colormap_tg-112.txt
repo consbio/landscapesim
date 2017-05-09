@@ -1,0 +1,3 @@
+# Syncrosim Generated Transition Group (Restoration Depleted Sage L) Color Map (QGIS-compatible) Export File,,,,,
+INTERPOLATION:EXACT
+5011,0,0,255,255,Restoration Depleted Sage L
