@@ -14,6 +14,7 @@ if settings.DEBUG:
     from django.views.generic import TemplateView
     urlpatterns += [
         url(r'^basictest/$', TemplateView.as_view(template_name='test.html')),
-        url(r'^maptest/$', TemplateView.as_view(template_name='mapviewer.html'))
+        url(r'^maptest/$', TemplateView.as_view(template_name='mapviewer.html')),
+        url(r'^$', TemplateView.as_view(template_name='index.html'))
     ]
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

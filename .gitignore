@@ -2,3 +2,5 @@ manage.py
 landscapesim_project/settings/custom.py
 __pycache__/
 config.json
+Archive/
+Materials/

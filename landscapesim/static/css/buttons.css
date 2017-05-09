@@ -1,0 +1,75 @@
+﻿a {
+	cursor:pointer
+}
+
+ul.buttons {
+	font-size: 0;
+	margin: 0;
+	list-style-type: none;
+	text-align: left;
+	border-top: none;
+	border-bottom: none;
+	white-space: nowrap;
+	height: 40px;
+	margin-top: 8px;
+	left: -40px;
+	position: relative;
+	z-index: 9999;
+	top: 56px;
+	margin-left: 10px;
+}
+
+ul.buttons li
+{
+    display: inline;
+}
+        
+ul.buttons li a {
+	font: 12px Verdana;
+	font-weight:bold;
+	position: relative;
+	padding: 17px 20px;
+	color: #878787;
+	outline: none;
+	background-color: #c4c4c4;
+	box-shadow: inset 1px 2px 3px rgba(245,255,255,0.5);
+	border:1px solid #C4C4C4;
+}
+
+ul.buttons li:first-child a {
+	border-radius: 5px;
+}
+
+ul.buttons li:last-child a {
+	margin-left:2px;
+	border-radius: 5px;
+}
+
+ul.buttons li a:hover
+{
+    background-image: -webkit-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+    background-image: -moz-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+    background-image: -ms-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+    background-image: -o-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+    background-image: linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+}
+
+ul.buttons li.selected a, ul.buttons li.selected a:hover {
+	position: relative;
+	top: 0px;
+	font-weight: bold;
+	background: #0092D1;
+	color: white;
+	box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
+	border:0px;
+}
+
+ul.buttons li.selected a:hover
+{
+	background-image: -webkit-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+	background-image: -moz-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+	background-image: -ms-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+	background-image: -o-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+	background-image: linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,0));
+}
+
