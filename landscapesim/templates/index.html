@@ -61,7 +61,7 @@
 
         <div id="left">
             <div id="welcome">
-                <div class="step_header">Welcome & Getting Started </div>
+                <div class="header" id="welcome_header">Welcome & Getting Started </div>
                 <div id="intro">
                     The 3D Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
                     <p>
@@ -83,63 +83,69 @@
             </div>
 
             <div id="inputs">
-                <div id="general_settings" class="collapsible_step_div">
-                    <div class="step_header">1. General Settings</div>
-                    <table id="general_settings_table">
-                        <tr>
-                            <td>
-                                <div id="library_div" class="general_settings_div"> Library: </div>
-                            </td>
-                            <td>
-                                <div class="select_container_2">
-                                   <form class="select_form2">
-                                       <!-- On change, create the charts, passing in whichever variables the user has selectd in all 3 dropdowns -->
-                                       <div class="styled-select2" id="ss1"> <select class="model_selection" name="model_selection" id="model_selection2"> </select> </div>
-                                   </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div id="run_mode_div" class="general_settings_div"> Spatial Output: </div>
-                            </td>
-                            <td>
-                                <ul id="button_list2" class="buttons buttons2" data-persist="false">
-                                    <li id="spatial_button"><a id="spatial_link">Enable</a></li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div id="timesteps_div" class="general_settings_div"> Timesteps: </div>
-                            </td>
-                            <td>
-                                <div class="select_container_2"> <input id="settings_timesteps" type="text" value="20"> </div> </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div id="iterations_div" class="general_settings_div"> Iterations: </div>
-                            </td>
-                            <td>
-                                <div class="select_container_2"> <input id="settings_iterations" type="text" value="5"> </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div id="input_initial_veg" class="collapsible_step_div">
-                    <div class="step_header" id="steps_initial_vegetation_cover">2. Specify Initial Vegetation Cover</div>
-                    <div class="lefthand_scroll">
-                        <div id="vegtype_slider_container">
-                            <table id="vegTypeSliderTable" class="sliderTable"></table>
-                        </div>
+                <div id="general_settings">
+                    <div class="header">1. General Settings</div>
+                    <div class="collapsible_div" visibility="visible">
+                        <table id="general_settings_table">
+                            <tr>
+                                <td>
+                                    <div id="library_div" class="general_settings_div"> Library: </div>
+                                </td>
+                                <td>
+                                    <div class="select_container_2">
+                                       <form class="select_form2">
+                                           <!-- On change, create the charts, passing in whichever variables the user has selectd in all 3 dropdowns -->
+                                           <div class="styled-select2" id="ss1"> <select class="model_selection" name="model_selection" id="model_selection2"> </select> </div>
+                                       </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="run_mode_div" class="general_settings_div"> Spatial Output: </div>
+                                </td>
+                                <td>
+                                    <ul id="button_list2" class="buttons buttons2" data-persist="false">
+                                        <li id="spatial_button"><a id="spatial_link">Enable</a></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="timesteps_div" class="general_settings_div"> Timesteps: </div>
+                                </td>
+                                <td>
+                                    <div class="select_container_2"> <input id="settings_timesteps" type="text" value="20"> </div> </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="iterations_div" class="general_settings_div"> Iterations: </div>
+                                </td>
+                                <td>
+                                    <div class="select_container_2"> <input id="settings_iterations" type="text" value="5"> </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div id="total_input_percent_div">Total Percent Cover: <div id="total_input_percent">100%</div></div>
                 </div>
 
-                <div id="input_probabilistic_transitions" class="collapsible_step_div">
-                    <div class="step_header">3. Probabilistic Transitions</div>
-                    <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
+                <div id="input_initial_veg">
+                    <div class="header" id="steps_initial_vegetation_cover">2. Initial Vegetation Cover</div>
+                    <div class="collapsible_div" visibility="visible">
+                        <div class="lefthand_scroll">
+                            <div id="vegtype_slider_container">
+                                <table id="vegTypeSliderTable" class="sliderTable"></table>
+                            </div>
+                        </div>
+                        <div id="total_input_percent_div">Total Percent Cover: <div id="total_input_percent">100%</div></div>
+                    </div>
+                </div>
+
+                <div id="input_probabilistic_transitions">
+                    <div class="header">3. Probabilistic Transitions</div>
+                    <div class="collapsible_div" style="display:none">
+                        <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
+                    </div>
                 </div>
 
                 <input id="run_button" value="Run Model" class="my-button my-button-ok" type="submit">

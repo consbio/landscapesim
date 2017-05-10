@@ -248,7 +248,9 @@ function createVegInitialConditionsDict(){
 
         var state_class_object = $.grep(current_project.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
         var state_class_name = state_class_object[0].name;
-        veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
+        if (object.relative_amount != 0 ) {
+            veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
+        }
     });
 }
 
@@ -560,6 +562,13 @@ $(document).on('change', '#settings_library', function() {
             feature_id = newLibraryName;
         }
     })
+});
+
+$(document).ready(function () {
+    $(".header").click(function () {
+        var collapsible_div = $(this).siblings(".collapsible_div");
+        collapsible_div.slideToggle(400, function(){});
+    });
 });
 
 

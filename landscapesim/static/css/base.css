@@ -46,7 +46,10 @@ canvas {
 	top: 50px;
 	background-color: white;
 	height: calc(100% - 90px);
+	max-height: calc(100% - 90px);
 	padding: 20px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 #inputs{
@@ -143,7 +146,8 @@ canvas {
     background:white
 }
 
-.step_header {
+.header {
+	cursor: pointer;
 	background-color: #0092D1;
 	height: 22px;
 	color: #FFF;
@@ -152,9 +156,13 @@ canvas {
 	line-height: 22px;
 	padding: 9px 0px 9px 9px;
 	border-radius: 5px;
-	width: 94%;
+	width: 318px;
 	font-size: 1.1em;
 	margin-bottom: 10px;
+}
+
+#welcome_header {
+	cursor:default;
 }
 
 .lefthand_scroll {
@@ -171,7 +179,6 @@ canvas {
 }
 
 #steps_initial_vegetation_cover{
-	margin-bottom:4px;
 }
 
 #running_st_sim{
@@ -1034,6 +1041,10 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 .initial_veg_cover_input_table {
 
+}
+
+.veg_state_class_entry{
+	width: 50px
 }
 
 #settings_timesteps{
