@@ -413,6 +413,67 @@ function setInitialConditionsSidebar(initial_conditions) {
         });
     }
 
+
+/*********************************** Probabilistic Transitions Slider Inputs ******************************************/
+
+    probabilistic_transitions_json={"fire":0}
+    var management_actions_dict = {};
+    var probability_labels = {};
+
+    probability_labels[-1] = "0% Probability";
+    probability_labels[-.75] = "Very Low (-75%)";
+    probability_labels[-.50] = "Low (-50%)";
+    probability_labels[-.25] = "Moderately Low (-25%)";
+    probability_labels[0] = "Default Probabilities";
+    probability_labels[.25] = "Moderately High (+25%)";
+    probability_labels[.50] = "High (+50%)";
+    probability_labels[.75] = "Very High (+75%)";
+    probability_labels[1] = "100% Probability";
+
+    var probability_iteration = 1;
+
+    $.each(probabilistic_transitions_json, function (transition_type, state_class_list) {
+
+        //Create a skeleton to house the intital conditions slider bar and  state class input table.
+        //probabilistic_transitions_table_id = transition_type.replace(/ /g, "_").replace(/&/g, "__")   // TODO - is this used?
+        $("#probabilisticTransitionSliderTable").append("<tr><td><label for='amount_veg1'><span class='transition_type'>" + transition_type + ": </span></label>" +
+            "<input type='text' id='probabilistic_transition" + probability_iteration + "_label' class='current_probability_slider_setting' readonly>" +
+            "<div class='slider_bars probabilistic_transition_sliders' id='probabilistic_transition" + probability_iteration + "_slider'></div>" +
+            "</td></tr>"
+        );
+
+        // Create a slider bar
+        create_probability_slider(probability_iteration, transition_type, 0)
+
+        $("#probabilisticTransitionSliderTable").append("</td></td>")
+
+        probability_iteration++;
+
+    });
+
+    function create_probability_slider(iterator, transition_type) {
+
+        $(function () {
+            $("#probabilistic_transition" + iterator + "_slider").slider({
+                range: "min",
+                value: 0,
+                min: -1,
+                max: 1,
+                step: .25,
+                slide: function (event, ui) {
+                    $("#probabilistic_transition" + iterator + "_label").val(probability_labels[ui.value]);
+                    $("#climate_future_disabled").show()
+                },
+                change: function (event, ui) {
+                    probabilistic_transitions_slider_values[transition_type] = ui.value
+                },
+            });
+
+        });
+    }
+
+    //initializeStateClassColorMap();
+    $(".current_probability_slider_setting").val("Default Probabilities");
 }
 
 function total_percent_action(value){
@@ -432,12 +493,58 @@ function total_percent_action(value){
     }
 }
 
+function activate_map() {
+    $("#map_button").addClass("selected")
+    $("#scene_button").removeClass("selected")
+    $("#map").show()
+    $("#scene").hide()
+    $("#selected_features").hide()
+    window.removeEventListener('resize', landscape_viewer.resize, false);
+    $("#scene_legend").hide()
+    $("#general_settings_instructions").html("Select an area of interest by clicking on a reporting unit (e.g., a watershed), or by using the rectangle tool to define your own area of interest.")
+    $("div.leaflet-control-layers:nth-child(1)").css("top","55px")
+}
 
+function activate_scene(){
+    $("#map_button").removeClass("selected")
+    $("#scene_button").addClass("selected")
+    $("#scene").show()
+    $("#map").hide()
+    $("#step1").hide()
+    $("#selected_features").show()
+    window.addEventListener('resize', landscape_viewer.resize, false);
+    landscape_viewer.resize();
+    $("#scene_legend").show()
+    $("#general_settings_instructions").html("Now use the controls below to define the scenario you'd like to simulate. When you are ready, push the Run Model button to conduct a model run.")
+}
 
+$("#spatial_link").click(function(){
+    var button = $('#spatial_button');
+    if (button.hasClass('selected')) {
+        button.removeClass('selected');
+    } else {
+        button.addClass('selected');
+    }
+    settings['spatial'] = button.hasClass('selected');
+});
 
+$(document).on('change', '#settings_library', function() {
+    var newLibraryName = $(this).val();
+    $.getJSON(newLibraryName + '/info/').done(function(definitions) {
+        setLibrary(newLibraryName, definitions);
+        if (definitions.has_predefined_extent) {
+            feature_id = newLibraryName;
+        }
+    })
+});
 
+function hideSceneLoadingDiv() {
+    $('#scene_loading_div').hide();
+}
 
-
+function showSceneLoadingDiv() {
+    $('#scene_loading_div').show();
+}
 
 
 

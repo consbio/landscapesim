@@ -157,10 +157,10 @@ canvas {
 	margin-bottom: 10px;
 }
 
-.lefthand_scroll{
+.lefthand_scroll {
 	direction: rtl;
 	overflow-x: hidden !important;
-	height: 19vh;
+	height: 36vh;
 	z-index: 999999;
 	width: 700px;
 }

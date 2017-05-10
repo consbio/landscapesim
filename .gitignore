@@ -4,3 +4,11 @@ __pycache__/
 config.json
 Archive/
 Materials/
+*.bat
+*.swp
+.idea
+.idea/misc.xml
+.idea/misc.xml
+.idea/misc.xml
+.idea/workspace.xml
+.idea
