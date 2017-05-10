@@ -522,7 +522,7 @@ div#pop-up {
 }
 
 .slider_bars {
-	width: 113px;
+	width: 163px;
 	margin: 4px 3px 2px 8px;
 }
 
@@ -562,6 +562,17 @@ div.callout {
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 5px 5px 20px RGBA(42, 42, 42, 0.91);
 	top: -55px;
 }
+
+.close_state_class {
+	height: 8px;
+	float: right;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	cursor: pointer;
+	opacity: .8;
+}
+
 /*
 .callout::before {
 	content: "";

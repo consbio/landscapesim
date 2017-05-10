@@ -324,16 +324,20 @@ function setInitialConditionsSidebar(initial_conditions) {
             "<div class='show_state_classes_link state_class_div'> <span class='state_class_span'>State Classes</span></div>" +
             "<div class='sub_slider_text_inputs' style='display:none'>" +
             "<div class='callout right '>" +
-            "<table id='" + veg_table_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "</div></td></tr></table>" +
+            "<table id='" + veg_table_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
             "</div></div>" +
-            "</td><td>" +
+            "</td>" +
+             /*
+            "<td>" +
             "<div class='manage_div'><span class='manage_span'>Manage</span></div>" +
             "<div class='management_action_inputs' style='display:none'>" +
             "<div class='manage_callout callout right'>" +
             "<table id='" + management_table_id + "' class='sub_slider_table' title='" + veg_type + "'></table>" +
             "</div>" +
             "</div>" +
-            "</td></tr></table>" +
+            "</td>
+            */
+            "</tr></table>" +
             "</td></tr>"
         );
 
@@ -583,5 +587,8 @@ $(document).ready(function () {
     });
 });
 
+$(document).on("click", ".close_state_class", function(){
+    $(this).parents(".sub_slider_text_inputs").hide()
+});
 
 
