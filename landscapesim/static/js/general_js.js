@@ -66,6 +66,10 @@ $(document).ready(function() {
 
         var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
         collapsible_div.slideToggle(400, function(){});
+
+        var collapse_icon = $("#welcome_header").children(".collapse_icon");
+        toggleIcon(collapse_icon)
+
         $("#inputs").show();
 
         current_library = available_libraries[$(this).val()];
@@ -584,11 +588,25 @@ $(document).ready(function () {
             });
         });
 
+        collapse_icon = $(this).children(".collapse_icon");
+        toggleIcon(collapse_icon)
+
     });
 });
 
 $(document).on("click", ".close_state_class", function(){
     $(this).parents(".sub_slider_text_inputs").hide()
 });
+
+function toggleIcon(collapse_icon){
+    // Rotate the arrow icon.
+
+    if (collapse_icon.hasClass("rotate90")){
+        $(collapse_icon).removeClass("rotate90");
+    }
+    else {
+        $(collapse_icon).addClass("rotate90");
+    }
+}
 
 
