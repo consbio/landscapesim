@@ -69,7 +69,7 @@ canvas {
 }
 
 .collapsible_div {
-	background-color: rgb(255,255,255,.9);
+	background-color: rgba(255,255,255,.9);
 	width: 327px;
 	padding: 5px 0px;
 	margin-bottom: 10px;
@@ -80,13 +80,6 @@ canvas {
 	max-height: calc(100vh - 400px);
 }
 
-.transition_ease {
-	-webkit-transition: all 2s ease;
-	-moz-transition: all 2s ease;
-	-ms-transition: all 2s ease;
-	-o-transition: all 2s ease;
-	transition: all 2s ease;
-}
 
 #inputs{
 	display:none;
@@ -538,8 +531,8 @@ div#pop-up {
 }
 
 .sub_slider_text_inputs {
-	position: absolute;
-	left: 325px;
+	position: fixed;
+	left: 290px;
 }
 
 .management_action_inputs{

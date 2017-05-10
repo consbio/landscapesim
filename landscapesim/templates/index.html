@@ -91,6 +91,7 @@
                     <div class="header">General Settings</div>
                     <div class="collapsible_div" visibility="visible">
                         <table id="general_settings_table">
+                            {%  comment %}
                             <tr>
                                 <td>
                                     <div id="library_div" class="general_settings_div"> Library: </div>
@@ -104,16 +105,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div id="run_mode_div" class="general_settings_div"> Spatial Output: </div>
-                                </td>
-                                <td>
-                                    <ul id="button_list2" class="buttons buttons2" data-persist="false">
-                                        <li id="spatial_button"><a id="spatial_link">Enable</a></li>
-                                    </ul>
-                                </td>
-                            </tr>
+                            {%  endcomment %}
                             <tr>
                                 <td>
                                     <div id="timesteps_div" class="general_settings_div"> Timesteps: </div>
@@ -127,6 +119,16 @@
                                 </td>
                                 <td>
                                     <div class="select_container_2"> <input id="settings_iterations" type="text" value="5"> </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="run_mode_div" class="general_settings_div"> Spatial Output: </div>
+                                </td>
+                                <td>
+                                    <ul id="button_list2" class="buttons buttons2" data-persist="false">
+                                        <li id="spatial_button"><a id="spatial_link">Enable</a></li>
+                                    </ul>
                                 </td>
                             </tr>
                         </table>
