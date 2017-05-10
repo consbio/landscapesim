@@ -530,11 +530,19 @@ div#pop-up {
 	width: 280px;
 }
 
-.sub_slider_text_inputs {
-	position: fixed;
-	left: 290px;
+.state_class_header {
+	border-radius: 3px;
+	background-color: #D7D7D7;
+	color: rgb(68, 67, 67);
+	margin-right: 10px;
+	padding: 3px;
 }
 
+.sub_slider_text_inputs {
+	position: fixed;
+	left: 370px;
+	/* top: -25px; */
+}
 .management_action_inputs{
 	position:absolute;
 	left:350px;
@@ -552,9 +560,9 @@ div.callout {
 	border: 1px solid #006D9C;
 	z-index: 9999;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 5px 5px 20px RGBA(42, 42, 42, 0.91);
-	top: -25px;
+	top: -55px;
 }
-
+/*
 .callout::before {
 	content: "";
 	width: 0px;
@@ -568,6 +576,7 @@ div.callout {
 	top: 3px;
 	border-right: 10px solid #0070A1;
 }
+*/
 
 .manage_callout{
 	width: 93%;

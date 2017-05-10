@@ -324,7 +324,7 @@ function setInitialConditionsSidebar(initial_conditions) {
             "<div class='show_state_classes_link state_class_div'> <span class='state_class_span'>State Classes</span></div>" +
             "<div class='sub_slider_text_inputs' style='display:none'>" +
             "<div class='callout right '>" +
-            "<table id='" + veg_table_id + "' class='sub_slider_table' title='" + veg_type + "'></table>" +
+            "<table id='" + veg_table_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "</div></td></tr></table>" +
             "</div></div>" +
             "</td><td>" +
             "<div class='manage_div'><span class='manage_span'>Manage</span></div>" +
