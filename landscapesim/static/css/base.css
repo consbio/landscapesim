@@ -80,6 +80,14 @@ canvas {
 	max-height: calc(100vh - 400px);
 }
 
+.transition_ease {
+	-webkit-transition: all 2s ease;
+	-moz-transition: all 2s ease;
+	-ms-transition: all 2s ease;
+	-o-transition: all 2s ease;
+	transition: all 2s ease;
+}
+
 #inputs{
 	display:none;
 }

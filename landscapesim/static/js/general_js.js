@@ -567,8 +567,17 @@ $(document).on('change', '#settings_library', function() {
 
 $(document).ready(function () {
     $(".header").click(function () {
-        collapsible_div = $(this).siblings(".collapsible_div");
+        var collapsible_div = $(this).siblings(".collapsible_div");
         collapsible_div.slideToggle(400, function(){
+            // Go through each collapsible div and calculate the max-height based on
+            $.each($(".collapsible_div"), function(){
+                var this_div_position = $(this).offset().top;
+                var max_height = $(window).height() - this_div_position - 100
+                $(this).addClass('transition_ease');
+                $(this).css('max-height',max_height);
+                $(this).removeClass('transition_ease')
+
+            });
         });
 
     });
