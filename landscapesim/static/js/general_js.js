@@ -25,6 +25,7 @@ $(document).ready(function() {
 
     });
 
+    // Run button functions
     $('#run_button').on('click', function() {
 
         var inputs = {
@@ -60,6 +61,7 @@ $(document).ready(function() {
             })
     });
 
+    // Change model functions
     $(".model_selection").on("change", function(){
 
         $("#welcome").hide();
@@ -69,6 +71,7 @@ $(document).ready(function() {
         available_projects = current_library.projects;
         project_url = available_projects[0];
 
+        // Get Stuff from the Web API
         $.getJSON(project_url).done(function (project) {
             console.log("current_project ->");
             console.log(project);
@@ -99,9 +102,8 @@ $(document).ready(function() {
                     current_scenario.config.output_options.raster_tr=false;
                     current_scenario.config.output_options.raster_tr_t=-1;
 
-                    var veg_initial_conditions = createVegInitialConditionsDict();
-
                     // Create Objects from Web API data
+                    createVegInitialConditionsDict();
                     createVegTypeStateClassesJSON(veg_initial_conditions);
 
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
@@ -202,7 +204,7 @@ $(document).ready(function() {
 
     $("#reset_default_probabilistic_transitions").on("click", function(){
         reset_probabilistic_transitions();
-    })
+    });
 
     function reset_probabilistic_transitions() {
         var count=1;
@@ -225,9 +227,14 @@ $(document).ready(function() {
 });
 
 /*************************************** Create Objects from Web API **************************************************/
+
+// Creates two objects used to create the sliders
+//  veg_initial_conditions
+//  veg_type_state_classes_json
+
 function createVegInitialConditionsDict(){
 
-    var veg_initial_conditions = {};
+    veg_initial_conditions = {};
     veg_initial_conditions["veg_sc_pct"] = {};
 
     $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, object){
@@ -241,8 +248,6 @@ function createVegInitialConditionsDict(){
         var state_class_name = state_class_object[0].name;
         veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
     });
-
-    return veg_initial_conditions
 }
 
 function createVegTypeStateClassesJSON(veg_initial_conditions){
@@ -256,9 +261,8 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
             count+=1;
         });
 
-    })
+    });
 }
-
 
 /*************************************** Initial Vegetation Cover Inputs **********************************************/
 
@@ -296,7 +300,7 @@ function setInitialConditionsSidebar(initial_conditions) {
         //veg_slider_values[veg_type] = 0
 
         // Count the number of state classes
-        var state_class_count = state_class_list.length
+        var state_class_count = state_class_list.length;
 
         //Create a skeleton to house the intital conditions slider bar and  state class input table.
         var veg_table_id = veg_type.replace(/ /g, "_").replace(/&/g, "__")
