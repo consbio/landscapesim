@@ -100,7 +100,11 @@ $(document).ready(function() {
                     current_scenario.config.output_options.raster_tr_t=-1;
 
                     var veg_initial_conditions = createVegInitialConditionsDict();
+
+                    // Create Objects from Web API data
                     createVegTypeStateClassesJSON(veg_initial_conditions);
+
+                    // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
                     setInitialConditionsSidebar(veg_initial_conditions)
                 })
 
@@ -108,8 +112,6 @@ $(document).ready(function() {
         })
 
     });
-
-       //$("select").selectBoxIt();
 
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
@@ -222,9 +224,7 @@ $(document).ready(function() {
 
 });
 
-/*************************************** Initial Vegetation Cover Inputs **********************************************/
-
-
+/*************************************** Create Objects from Web API **************************************************/
 function createVegInitialConditionsDict(){
 
     var veg_initial_conditions = {};
@@ -258,6 +258,10 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
 
     })
 }
+
+
+/*************************************** Initial Vegetation Cover Inputs **********************************************/
+
 
 var veg_slider_values = {};
 var slider_values = {};
@@ -354,7 +358,6 @@ function setInitialConditionsSidebar(initial_conditions) {
 
     function create_slider(iterator, veg_type, state_class_count) {
 
-        console.log(typeof(veg_type))
         $(function () {
 
             var initial_slider_value = 0;
@@ -365,12 +368,10 @@ function setInitialConditionsSidebar(initial_conditions) {
 
             });
 
-            veg_slider_values[veg_type] = Math.ceil(initial_slider_value)
+            veg_slider_values[veg_type] = Math.ceil(initial_slider_value);
 
-            slider_values[iterator] = 0
-            veg_proportion[iterator] = 0
-
-            console.log(initial_slider_value)
+            slider_values[iterator] = 0;
+            veg_proportion[iterator] = 0;
 
             $("#veg" + iterator + "_slider").slider({
                 range: "min",
@@ -379,27 +380,27 @@ function setInitialConditionsSidebar(initial_conditions) {
                 max: 100,
                 step: 1,
                 slide: function (event, ui) {
-                    veg_slider_values[veg_type] = ui.value
+                    veg_slider_values[veg_type] = ui.value;
                     $("#veg" + iterator + "_label").val(ui.value + "%");
                     $("#total_input_percent").html(total_input_percent + ui.value + "%");
-                    total_percent_action(total_input_percent + ui.value)
+                    total_percent_action(total_input_percent + ui.value);
 
                     // Populate state class values equally
-                    veg_proportion[iterator] = (ui.value / state_class_count).toFixed(2)
+                    veg_proportion[iterator] = (ui.value / state_class_count).toFixed(2);
                     for (i = 1; i <= state_class_count; i++) {
                         $("#veg_" + iterator + "_" + i).val(veg_proportion[iterator])
                     }
 
-                    veg_slider_values_state_class[veg_type] = {}
+                    veg_slider_values_state_class[veg_type] = {};
                 },
                 start: function (event, ui) {
-                    total_input_percent = total_input_percent - ui.value
+                    total_input_percent = total_input_percent - ui.value;
                 },
                 stop: function (event, ui) {
-                    total_input_percent = total_input_percent + ui.value
+                    total_input_percent = total_input_percent + ui.value;
 
                     $.each(veg_type_state_classes_json[veg_type], function (index, state_class) {
-                        veg_slider_values_state_class[veg_type][state_class] = veg_proportion[iterator]
+                        veg_slider_values_state_class[veg_type][state_class] = veg_proportion[iterator];
 
                     })
 
@@ -415,9 +416,11 @@ function setInitialConditionsSidebar(initial_conditions) {
 
 
 /*********************************** Probabilistic Transitions Slider Inputs ******************************************/
+
     probabilistic_transitions_json = {};
+
     $.each(current_project.definitions.transition_groups, function(index, object){
-        probabilistic_transitions_json[object.name] = 0
+        probabilistic_transitions_json[object.name] = 0;
     });
 
     var management_actions_dict = {};
@@ -446,9 +449,9 @@ function setInitialConditionsSidebar(initial_conditions) {
         );
 
         // Create a slider bar
-        create_probability_slider(probability_iteration, transition_type, 0)
+        create_probability_slider(probability_iteration, transition_type, 0);
 
-        $("#probabilisticTransitionSliderTable").append("</td></td>")
+        $("#probabilisticTransitionSliderTable").append("</td></td>");
 
         probability_iteration++;
 
@@ -481,44 +484,45 @@ function setInitialConditionsSidebar(initial_conditions) {
 
 function total_percent_action(value){
     if (value == 100 ){
-        $("#total_input_percent").css('background-color', '#1EBA36')
-        $("#total_input_percent").css('color', 'white')
+        $("#total_input_percent").css('background-color', '#1EBA36');
+        $("#total_input_percent").css('color', 'white');
         $("#run_button").removeClass('disabled');
         $('input:submit').attr("disabled", false);
         $("#run_button").val('Run Model');
     }
     else {
-        $("#total_input_percent").css('background-color','#E47369')
-        $("#total_input_percent").css('color', '#444343')
+        $("#total_input_percent").css('background-color','#E47369');
+        $("#total_input_percent").css('color', '#444343');
         $("#run_button").addClass('disabled');
         $('input:submit').attr("disabled", true);
         $("#run_button").val('Total Percent Cover Must Equal 100%');
     }
 }
 
+/***********************************************Map and 3D Scene Controls  ********************************************/
 function activate_map() {
-    $("#map_button").addClass("selected")
-    $("#scene_button").removeClass("selected")
-    $("#map").show()
-    $("#scene").hide()
-    $("#selected_features").hide()
+    $("#map_button").addClass("selected");
+    $("#scene_button").removeClass("selected");
+    $("#map").show();
+    $("#scene").hide();
+    $("#selected_features").hide();
     window.removeEventListener('resize', landscape_viewer.resize, false);
-    $("#scene_legend").hide()
-    $("#general_settings_instructions").html("Select an area of interest by clicking on a reporting unit (e.g., a watershed), or by using the rectangle tool to define your own area of interest.")
+    $("#scene_legend").hide();
+    $("#general_settings_instructions").html("Select an area of interest by clicking on a reporting unit (e.g., a watershed), or by using the rectangle tool to define your own area of interest.");
     $("div.leaflet-control-layers:nth-child(1)").css("top","55px")
 }
 
 function activate_scene(){
-    $("#map_button").removeClass("selected")
-    $("#scene_button").addClass("selected")
-    $("#scene").show()
-    $("#map").hide()
-    $("#step1").hide()
-    $("#selected_features").show()
+    $("#map_button").removeClass("selected");
+    $("#scene_button").addClass("selected");
+    $("#scene").show();
+    $("#map").hide();
+    $("#step1").hide();
+    $("#selected_features").show();
     window.addEventListener('resize', landscape_viewer.resize, false);
     landscape_viewer.resize();
-    $("#scene_legend").show()
-    $("#general_settings_instructions").html("Now use the controls below to define the scenario you'd like to simulate. When you are ready, push the Run Model button to conduct a model run.")
+    $("#scene_legend").show();
+    $("#general_settings_instructions").html("Now use the controls below to define the scenario you'd like to simulate. When you are ready, push the Run Model button to conduct a model run.");
 }
 
 $("#spatial_link").click(function(){
@@ -531,6 +535,16 @@ $("#spatial_link").click(function(){
     settings['spatial'] = button.hasClass('selected');
 });
 
+function hideSceneLoadingDiv() {
+    $('#scene_loading_div').hide();
+}
+
+function showSceneLoadingDiv() {
+    $('#scene_loading_div').show();
+}
+
+/*********************************************** Other Functions ******************************************************/
+
 $(document).on('change', '#settings_library', function() {
     var newLibraryName = $(this).val();
     $.getJSON(newLibraryName + '/info/').done(function(definitions) {
@@ -540,16 +554,6 @@ $(document).on('change', '#settings_library', function() {
         }
     })
 });
-
-function hideSceneLoadingDiv() {
-    $('#scene_loading_div').hide();
-}
-
-function showSceneLoadingDiv() {
-    $('#scene_loading_div').show();
-}
-
-
 
 
 
