@@ -64,7 +64,8 @@ $(document).ready(function() {
     /********************************************** Change Model Functions ********************************************/
     $(".model_selection").on("change", function(){
 
-        $("#welcome").hide();
+        var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
+        collapsible_div.slideToggle(400, function(){});
         $("#inputs").show();
 
         current_library = available_libraries[$(this).val()];
@@ -566,8 +567,10 @@ $(document).on('change', '#settings_library', function() {
 
 $(document).ready(function () {
     $(".header").click(function () {
-        var collapsible_div = $(this).siblings(".collapsible_div");
-        collapsible_div.slideToggle(400, function(){});
+        collapsible_div = $(this).siblings(".collapsible_div");
+        collapsible_div.slideToggle(400, function(){
+        });
+
     });
 });
 

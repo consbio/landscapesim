@@ -62,29 +62,33 @@
         <div id="left">
             <div id="welcome">
                 <div class="header" id="welcome_header">Welcome & Getting Started </div>
-                <div id="intro">
-                    The 3D Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
-                    <p>
-                    It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, disturbance probabilities, and management actions.
-                    <p>
-                    To get started,
-                    <select class="model_selection" name="model_selection" id="model_selection1">
-                        <option value="" disabled selected>Select an ST-Sim Library</option>
-                    </select>
-                    <!--
-                    <p>
-                    Then, select an area of interest by clicking on a reporting unit (e.g., a watershed or county)...
-                    <div id="click_div"><img id="click_icon" src="{% static 'img/map_click.png' %}"></div>
-                    ...or by using the rectangle tool <span style="font-size:20px">&#9632; </span>to define your own area of interest.
-                    <p>
-                    <div id="click_div"><img id="select_icon" src="{% static 'img/map_select.png' %}"></div>
-                    -->
+                <div class="collapsible_div" visibility="visible">
+                    <div id="intro">
+                        The 3D Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
+                        <p>
+                        It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, disturbance probabilities, and management actions.
+                        <p>
+                        To get started, select an ST-Sim Library from the list below <p>
+                        <div id="model_selection_container">
+                            <select class="model_selection" name="model_selection" id="model_selection1">
+                                <option value="" disabled selected>Select an ST-Sim Library</option>
+                            </select>
+                        </div>
+                        <!--
+                        <p>
+                        Then, select an area of interest by clicking on a reporting unit (e.g., a watershed or county)...
+                        <div id="click_div"><img id="click_icon" src="{% static 'img/map_click.png' %}"></div>
+                        ...or by using the rectangle tool <span style="font-size:20px">&#9632; </span>to define your own area of interest.
+                        <p>
+                        <div id="click_div"><img id="select_icon" src="{% static 'img/map_select.png' %}"></div>
+                        -->
+                    </div>
                 </div>
             </div>
 
             <div id="inputs">
                 <div id="general_settings">
-                    <div class="header">1. General Settings</div>
+                    <div class="header">General Settings</div>
                     <div class="collapsible_div" visibility="visible">
                         <table id="general_settings_table">
                             <tr>
@@ -130,7 +134,7 @@
                 </div>
 
                 <div id="input_initial_veg">
-                    <div class="header" id="steps_initial_vegetation_cover">2. Initial Vegetation Cover</div>
+                    <div class="header" id="steps_initial_vegetation_cover">Initial Vegetation Cover</div>
                     <div class="collapsible_div" visibility="visible">
                         <div class="lefthand_scroll">
                             <div id="vegtype_slider_container">
@@ -142,7 +146,7 @@
                 </div>
 
                 <div id="input_probabilistic_transitions">
-                    <div class="header">3. Probabilistic Transitions</div>
+                    <div class="header">Probabilistic Transitions</div>
                     <div class="collapsible_div" style="display:none">
                         <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
                     </div>
