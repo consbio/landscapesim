@@ -488,7 +488,7 @@ label, td{
 	width: 201px;
 	text-align: right;
 	font-size: .9em;
-	right: 10px;
+	left: 33px;
 	position: relative;
 	margin: 10px 10px 15px 0px;
 }
@@ -536,6 +536,7 @@ div#pop-up {
 	color: rgb(68, 67, 67);
 	margin-right: 10px;
 	padding: 3px;
+	margin-bottom: 6px;
 }
 
 .sub_slider_text_inputs {
