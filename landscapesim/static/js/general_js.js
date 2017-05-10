@@ -415,8 +415,11 @@ function setInitialConditionsSidebar(initial_conditions) {
 
 
 /*********************************** Probabilistic Transitions Slider Inputs ******************************************/
+    probabilistic_transitions_json = {};
+    $.each(current_project.definitions.transition_groups, function(index, object){
+        probabilistic_transitions_json[object.name] = 0
+    });
 
-    probabilistic_transitions_json={"fire":0}
     var management_actions_dict = {};
     var probability_labels = {};
 
