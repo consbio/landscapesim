@@ -25,7 +25,7 @@ $(document).ready(function() {
 
     });
 
-    // Run button functions
+    /******************************************* Run Model Button Functions *******************************************/
     $('#run_button').on('click', function() {
 
         var inputs = {
@@ -61,7 +61,7 @@ $(document).ready(function() {
             })
     });
 
-    // Change model functions
+    /********************************************** Change Model Functions ********************************************/
     $(".model_selection").on("change", function(){
 
         $("#welcome").hide();
@@ -102,7 +102,7 @@ $(document).ready(function() {
                     current_scenario.config.output_options.raster_tr=false;
                     current_scenario.config.output_options.raster_tr_t=-1;
 
-                    // Create Objects from Web API data
+                    // Create objects from Web API data
                     createVegInitialConditionsDict();
                     createVegTypeStateClassesJSON(veg_initial_conditions);
 
@@ -114,6 +114,8 @@ $(document).ready(function() {
         })
 
     });
+
+    /**************************************General Initialization Functions *******************************************/
 
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
@@ -226,7 +228,7 @@ $(document).ready(function() {
 
 });
 
-/*************************************** Create Objects from Web API **************************************************/
+/***************************************** Create objects from Web API ************************************************/
 
 // Creates two objects used to create the sliders
 //  veg_initial_conditions
@@ -504,6 +506,7 @@ function total_percent_action(value){
 }
 
 /***********************************************Map and 3D Scene Controls  ********************************************/
+
 function activate_map() {
     $("#map_button").addClass("selected");
     $("#scene_button").removeClass("selected");
