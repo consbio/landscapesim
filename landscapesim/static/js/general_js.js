@@ -40,11 +40,12 @@ $(document).ready(function() {
                 console.log('Job running:');
                 console.log(res);
 
-                var job = res;
+                job = res;
 
                 (function poll() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
+                            test=update
                             console.log(update);
                             if (update.status === 'success') {
                                 result_url = update.result_scenario;
@@ -158,15 +159,15 @@ $(document).ready(function() {
     // On state class value entry move slider bar
     //$(".veg_state_class_entry").keyup(function(){
     $(document).on('keyup', '.veg_state_class_entry', function() {
-        veg_type_id = this.id.split("_")[1];
-        veg_type = this.closest('table').title;
+        var veg_type_id = this.id.split("_")[1];
+        var veg_type = this.closest('table').title;
 
         //Subtract the current slider value from the total percent
         //total_input_percent=total_input_percent - veg_slider_values[veg_type]
         total_input_percent = total_input_percent - veg_slider_values[veg_type];
 
         veg_slider_values_state_class[veg_type]={};
-        veg_state_class_value_totals=0.0;
+        var veg_state_class_value_totals=0.0;
 
         /* New Web API version */
         // Update the value in the initial conditions object for this veg type/state class
@@ -183,7 +184,14 @@ $(document).ready(function() {
             });
         }
 
+        // Recalculate the total amount for this state class.
+        $("#" + veg_type_id).find('input').each(function(){
+             veg_state_class_value_totals += parseFloat($(this).val())
+        });
+
+         /* Old Version */
         // On keyup, go through each state class in the given veg type and add the values in each text entry field to the veg_slider_values_state_class dictionary
+        /*
         $.each(veg_type_state_classes_json[veg_type],function(index, state_class){
             var veg_state_class_id=index+1
             var veg_state_class_value=$("#veg_"+veg_type_id+"_"+veg_state_class_id).val()
@@ -194,6 +202,7 @@ $(document).ready(function() {
             veg_slider_values_state_class[veg_type][state_class]=veg_state_class_value
 
         });
+        */
 
         // To avoid initialization error
         if ($("#veg" + veg_type_id + "_slider").slider()) {
@@ -334,7 +343,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             "<div class='show_state_classes_link state_class_div'> <span class='state_class_span'>State Classes</span></div>" +
             "<div class='sub_slider_text_inputs' style='display:none'>" +
             "<div class='callout right '>" +
-            "<table id='" + veg_table_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
+            "<table id='" + veg_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
             "</div></div>" +
             "</td>" +
              /*
@@ -363,7 +372,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             var state_class_match = $.grep(current_project.definitions.stateclasses, function(e){ return e.name == state_class; });
             var state_class_id = state_class_match[0].id;
 
-            $("#" + veg_table_id).append("<tr><td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
+            $("#" + veg_id).append("<tr><td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
         });
 
         /*
@@ -413,9 +422,10 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
                     // Populate state class values equally
                     veg_proportion[veg_id] = parseFloat((ui.value / state_class_count).toFixed(2));
-                    for (i = 1; i <= state_class_count; i++) {
-                        $("#veg_" + veg_id + "_" + i).val(veg_proportion[veg_id])
-                    }
+
+                    $("#" + veg_id).find('input').each(function(){
+                        $(this).val(veg_proportion[veg_id])
+                    });
 
                     veg_slider_values_state_class[veg_type] = {};
                 },
