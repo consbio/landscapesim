@@ -158,8 +158,8 @@ $(document).ready(function() {
     // On state class value entry move slider bar
     //$(".veg_state_class_entry").keyup(function(){
     $(document).on('keyup', '.veg_state_class_entry', function() {
-        veg_type_id=this.id.split("_")[1];
-        veg_type=this.closest('table').title;
+        veg_type_id = this.id.split("_")[1];
+        veg_type = this.closest('table').title;
 
         //Subtract the current slider value from the total percent
         //total_input_percent=total_input_percent - veg_slider_values[veg_type]
@@ -168,6 +168,18 @@ $(document).ready(function() {
         veg_slider_values_state_class[veg_type]={};
         veg_state_class_value_totals=0.0;
 
+        /* New Web API version */
+        // Modify the values in the initial conditions for this veg type.
+        var state_class_id = this.id.split("_")[2];
+        var state_class_value = parseFloat($(this).val());
+        $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, veg_type_state_class_object){
+            if (veg_type_state_class_object.stratum ==  parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)){
+                veg_type_state_class_object.relative_amount =  state_class_value;
+            }
+        });
+
+        /* Old version */
+        // Modify the values in the initial conditions for this veg type.
         // On keyup, go through each state class in the given veg type and add the values in each text entry field to the veg_slider_values_state_class dictionary
         $.each(veg_type_state_classes_json[veg_type],function(index, state_class){
             var veg_state_class_id=index+1
@@ -178,7 +190,7 @@ $(document).ready(function() {
             veg_state_class_value_totals+=parseFloat(veg_state_class_value)
             veg_slider_values_state_class[veg_type][state_class]=veg_state_class_value
 
-        })
+        });
 
         // To avoid initialization error
         if ($("#veg" + veg_type_id + "_slider").slider()) {
