@@ -169,17 +169,20 @@ $(document).ready(function() {
         veg_state_class_value_totals=0.0;
 
         /* New Web API version */
-        // Modify the values in the initial conditions for this veg type.
+        // Update the value in the initial conditions object for this veg type/state class
         var state_class_id = this.id.split("_")[2];
         var state_class_value = parseFloat($(this).val());
-        $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, veg_type_state_class_object){
-            if (veg_type_state_class_object.stratum ==  parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)){
-                veg_type_state_class_object.relative_amount =  state_class_value;
-            }
-        });
+        if (!isNaN(state_class_value)) {
+            $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, veg_type_state_class_object) {
+                if (veg_type_state_class_object.stratum == parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)) {
+                    if (state_class_value == '') {
+                        state_class_value = 0;
+                    }
+                    veg_type_state_class_object.relative_amount = state_class_value;
+                }
+            });
+        }
 
-        /* Old version */
-        // Modify the values in the initial conditions for this veg type.
         // On keyup, go through each state class in the given veg type and add the values in each text entry field to the veg_slider_values_state_class dictionary
         $.each(veg_type_state_classes_json[veg_type],function(index, state_class){
             var veg_state_class_id=index+1
@@ -200,9 +203,6 @@ $(document).ready(function() {
         }
 
         //Add the current slider value from the total percent
-        //total_input_percent=total_input_percent + veg_slider_values[veg_type]
-        //total_input_percent = total_input_percent + $("#veg" + veg_type_id + "_slider").slider("option", "value");
-
         total_input_percent = total_input_percent + veg_slider_values[veg_type];
 
         if (veg_state_class_value_totals > 100){
@@ -313,6 +313,7 @@ function setInitialConditionsSidebar(initial_conditions) {
     */
 
     $.each(veg_type_state_classes_json, function (veg_type, state_class_list) {
+        console.log(state_class_list)
 
         if (!(veg_type in veg_initial_conditions.veg_sc_pct)) {
             return true;    // skips this entry
