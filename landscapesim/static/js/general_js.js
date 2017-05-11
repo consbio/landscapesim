@@ -173,20 +173,24 @@ $(document).ready(function() {
         // Update the value in the initial conditions object for this veg type/state class
         var state_class_id = this.id.split("_")[2];
         var state_class_value = parseFloat($(this).val());
-        if (!isNaN(state_class_value)) {
-            $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, veg_type_state_class_object) {
-                if (veg_type_state_class_object.stratum == parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)) {
-                    if (state_class_value == '') {
-                        state_class_value = 0;
-                    }
-                    veg_type_state_class_object.relative_amount = state_class_value;
-                }
-            });
+
+        if (isNaN(state_class_value)) {
+            state_class_value = 0;
         }
+
+        $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, veg_type_state_class_object) {
+            if (veg_type_state_class_object.stratum == parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)) {
+                veg_type_state_class_object.relative_amount = state_class_value;
+            }
+        });
 
         // Recalculate the total amount for this state class.
         $("#" + veg_type_id).find('input').each(function(){
-             veg_state_class_value_totals += parseFloat($(this).val())
+            var input_value =  parseFloat($(this).val());
+            if (isNaN(input_value)) {
+                input_value = 0;
+            }
+             veg_state_class_value_totals += input_value;
         });
 
          /* Old Version */
