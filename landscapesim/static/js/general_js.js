@@ -373,7 +373,9 @@ function setInitialConditionsSidebar(initial_conditions) {
 
     });
 
-    function create_slider(iterator, veg_type, state_class_count) {
+    function create_slider(veg_id, veg_type, state_class_count) {
+        // veg_id is currently based on the order in which the veg types occur in the veg_type_state_classes_json
+        // This happens to be mappable to the id in curent_project.definitions.strata. Will this always be true?
 
         $(function () {
 
@@ -387,10 +389,10 @@ function setInitialConditionsSidebar(initial_conditions) {
 
             veg_slider_values[veg_type] = Math.ceil(initial_slider_value);
 
-            slider_values[iterator] = 0;
-            veg_proportion[iterator] = 0;
+            slider_values[veg_id] = 0;
+            veg_proportion[veg_id] = 0;
 
-            $("#veg" + iterator + "_slider").slider({
+            $("#veg" + veg_id + "_slider").slider({
                 range: "min",
                 value: initial_slider_value,
                 min: 0,
@@ -398,14 +400,14 @@ function setInitialConditionsSidebar(initial_conditions) {
                 step: 1,
                 slide: function (event, ui) {
                     veg_slider_values[veg_type] = ui.value;
-                    $("#veg" + iterator + "_label").val(ui.value + "%");
+                    $("#veg" + veg_id + "_label").val(ui.value + "%");
                     $("#total_input_percent").html(total_input_percent + ui.value + "%");
                     total_percent_action(total_input_percent + ui.value);
 
                     // Populate state class values equally
-                    veg_proportion[iterator] = (ui.value / state_class_count).toFixed(2);
+                    veg_proportion[veg_id] = parseFloat((ui.value / state_class_count).toFixed(2));
                     for (i = 1; i <= state_class_count; i++) {
-                        $("#veg_" + iterator + "_" + i).val(veg_proportion[iterator])
+                        $("#veg_" + veg_id + "_" + i).val(veg_proportion[veg_id])
                     }
 
                     veg_slider_values_state_class[veg_type] = {};
@@ -416,15 +418,26 @@ function setInitialConditionsSidebar(initial_conditions) {
                 stop: function (event, ui) {
                     total_input_percent = total_input_percent + ui.value;
 
+                    /* New Web API version */
+                    // Modify the values in the initial conditions for this veg type.
+                    $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, veg_type_state_class_object){
+                        if (veg_type_state_class_object.stratum ==  veg_id){
+                            veg_type_state_class_object.relative_amount =  veg_proportion[veg_id];
+                        }
+                    });
+
+                    /* Old Version */
+                    // Modify the values in the veg_slider_values_state_class
+                    /*
                     $.each(veg_type_state_classes_json[veg_type], function (index, state_class) {
-                        veg_slider_values_state_class[veg_type][state_class] = veg_proportion[iterator];
+                        veg_slider_values_state_class[veg_type][state_class] = veg_proportion[veg_id];
 
                     })
-
+                    */
                 },
                 create: function (event, ui) {
 
-                    $("#veg" + iterator + "_label").val($(this).slider('value') + "%");
+                    $("#veg" + veg_id + "_label").val($(this).slider('value') + "%");
                 },
             });
 
