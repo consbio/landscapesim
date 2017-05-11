@@ -40,16 +40,37 @@ $(document).ready(function() {
                 console.log('Job running:');
                 console.log(res);
 
-                job = res;
+                var job = res;
 
                 (function poll() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
-                            test=update
                             console.log(update);
                             if (update.status === 'success') {
                                 result_url = update.result_scenario;
                                 alert('Model run complete!')
+
+                                // Determine the reports URL
+                                var url_array = result_url.split('/');
+                                var base_url = url_array[2];
+                                var results_model_id = url_array[url_array.length -2];
+                                reports_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
+
+                                // Get the list of reports
+                                $.getJSON(reports_url).done(function (res) {
+
+                                    // Get the state class summary report url
+                                    stateclass_summary_report_url = res['stateclass_summary_report'];
+
+                                    // Get the output data
+                                    $.getJSON(stateclass_summary_report_url).done(function (res) {
+                                        // Process the output data
+                                        processStateClassSummaryReport(res);
+
+                                    });
+
+                                });
+
                             } else if (update.status === 'failure') {
                                 alert('Something has gone terribly, terribly wrong...')
                             } else {
@@ -642,5 +663,48 @@ function toggleIcon(collapse_icon){
         $(collapse_icon).addClass("rotate90");
     }
 }
+
+
+function processStateClassSummaryReport(res){
+
+
+    console.log(res);
+    data = res["results"]
+
+    iterations = 1;
+    timesteps =  5;
+
+    results_data_json={};
+
+    for (var i=1; i <= iterations; i++ ){
+
+        results_data_json[i]={};
+        this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
+
+        for (var j=1; j <= timesteps; j++){
+
+            this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
+
+            results_data_json[i][j]={};
+
+            $.each(this_timestep_object_list, function(index, object){
+
+                console.log(object.stratum)
+                if (! (object.stratum in results_data_json[i][j]) ) {
+                    results_data_json[i][j][object.stratum] = {}
+                }
+                results_data_json[i][j][object.stratum][object.stateclass] = object.proportion_of_landscape
+
+            });
+
+        }
+
+    }
+
+    create_area_charts(results_data_json, run)
+    create_column_charts(results_data_json, run)
+
+}
+
 
 
