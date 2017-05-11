@@ -292,13 +292,9 @@ var veg_slider_values = {};
 var slider_values = {};
 var veg_proportion = {};
 
-function setInitialConditionsSidebar(initial_conditions) {
+function setInitialConditionsSidebar(veg_initial_conditions) {
 
     total_input_percent = 100;
-    veg_initial_conditions = initial_conditions;
-    var veg_iteration = 1;
-    //console.log(initial_conditions.veg_names);
-    //console.log(initial_conditions.veg_sc_pct);
 
     // empty the tables
     $("#vegTypeSliderTable").empty();
@@ -306,36 +302,33 @@ function setInitialConditionsSidebar(initial_conditions) {
 
     // Create the legend
     $("#scene_legend").empty();
-    /*
-    $.each(state_class_color_map, function (key, value) {
-        $("#scene_legend").append("<div id='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
-    });
-    */
 
-    $.each(veg_type_state_classes_json, function (veg_type, state_class_list) {
-        console.log(state_class_list)
+    // Iterate over each of the veg types. Access the state class object for each
+    $.each(veg_initial_conditions["veg_sc_pct"], function (veg_type, state_class_object) {
 
         if (!(veg_type in veg_initial_conditions.veg_sc_pct)) {
             return true;    // skips this entry
         }
 
-        //veg_slider_values[veg_type] = 0
+        // Get the Veg ID for this veg type from the Web API current project definitions
+        var veg_match = $.grep(current_project.definitions.strata, function(e){ return e.name == veg_type; });
+        var veg_id = veg_match[0].id;
 
-        // Count the number of state classes
-        var state_class_count = state_class_list.length;
+        // Count the number of state classes in this veg type.
+        var state_class_count = Object.keys(state_class_object).length;
 
         //Create a skeleton to house the intital conditions slider bar and  state class input table.
-        var veg_table_id = veg_type.replace(/ /g, "_").replace(/&/g, "__")
-        var management_table_id = veg_table_id + "_management"
+        var veg_table_id = veg_type.replace(/ /g, "_").replace(/&/g, "__");
+        var management_table_id = veg_table_id + "_management";
         $("#vegTypeSliderTable").append("<tr><td>" +
             "<table class='initial_veg_cover_input_table'>" +
             "<tr><td colspan='4'>" +
             "<label for='amount_veg1'><div class='imageOverlayLink'>" + veg_type + " </div></label>" +
             "</td></tr>" +
             "<tr><td>" +
-            "<div class='slider_bars' id='veg" + veg_iteration + "_slider'></div>" +
+            "<div class='slider_bars' id='veg" + veg_id + "_slider'></div>" +
             "</td><td>" +
-            "<input type='text' id='veg" + veg_iteration + "_label' class='current_slider_setting' readonly>" +
+            "<input type='text' id='veg" + veg_id + "_label' class='current_slider_setting' readonly>" +
             "</td>" +
             "<td>" +
             "<div class='show_state_classes_link state_class_div'> <span class='state_class_span'>State Classes</span></div>" +
@@ -359,16 +352,18 @@ function setInitialConditionsSidebar(initial_conditions) {
         );
 
         // Set the initial slider values equal to initial conditions defined in the library (REQUIRED).
-        veg_slider_values_state_class = veg_initial_conditions["veg_sc_pct"]
+        veg_slider_values_state_class = veg_initial_conditions["veg_sc_pct"];
 
         // Create a slider bar
-        create_slider(veg_iteration, veg_type, state_class_count)
+        create_slider(veg_id, veg_type, state_class_count);
 
-        // Make a row for each state class.
-        state_class_count = 1;
-        $.each(state_class_list, function (index, state_class) {
-            $("#" + veg_table_id).append("<tr><td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_iteration + "_" + state_class_count + "' type='text' size='2' value=" + veg_initial_conditions['veg_sc_pct'][veg_type][state_class] + ">%</td></tr>")
-            state_class_count++
+        // Make a row in the state class table for each state class.
+        $.each(state_class_object, function (state_class, pct_cover) {
+
+            var state_class_match = $.grep(current_project.definitions.stateclasses, function(e){ return e.name == state_class; });
+            var state_class_id = state_class_match[0].id;
+
+            $("#" + veg_table_id).append("<tr><td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
         });
 
         /*
@@ -382,7 +377,6 @@ function setInitialConditionsSidebar(initial_conditions) {
         */
 
         $("#vegTypeSliderTable").append("</td></td>")
-        veg_iteration++;
 
     });
 
