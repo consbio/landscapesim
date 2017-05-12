@@ -107,7 +107,6 @@ function create_area_chart(veg_type, chart_div_id) {
 }
 
 function create_area_charts(results_data_json, run, iteration) {
-        console.log(results_data_json)
 
         $("#view" + run +"_tab").css("display", "inline")
         $("#area_charts_" +run).empty()
@@ -181,6 +180,9 @@ function create_area_charts(results_data_json, run, iteration) {
             chart_count++;
 
         });
+
+        // New for Web API transition.
+        $("#area_charts_" + run).show();
 }
 
 function bind_click_to_collapse(chart_div_id, run) {

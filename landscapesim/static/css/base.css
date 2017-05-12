@@ -163,6 +163,7 @@ canvas {
 	float: right;
 	left: 5px;
     margin-right:1px;
+	z-index: 9999;
 }
 
 #animation_container {
@@ -829,7 +830,7 @@ div.callout {
 }
 
 #tab_container{
-    /* display:none; */
+    display:none;
     margin-right:9px;
 }
 

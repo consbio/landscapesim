@@ -26,7 +26,36 @@ $(document).ready(function() {
     });
 
     /******************************************* Run Model Button Functions *******************************************/
+    run=0;
+    iteration=1;
+    timestep=1;
+
+    // Send the scenario and initial conditions to ST-Sim.
+    settings=[];
+    settings["spatial"]=false;
+    feature_id = current_library.name;
+
     $('#run_button').on('click', function() {
+
+        settings["library"]= current_library.name;
+        settings["timesteps"]= $("#settings_timesteps").val();
+        settings["iterations"]= $("#settings_iterations").val();
+        settings["spatial"]= $("#spatial_button").hasClass('selected')
+
+        iterations = settings["iterations"];
+        timesteps = settings["timesteps"]
+
+        $(".slider_bars").slider( "option", "disabled", true );
+        $('input:submit').attr("disabled", true);
+        $("#run_button").addClass('disabled');
+        $("#run_button").val('Please Wait...');
+        $("#run_button").addClass('please_wait');
+        $("#running_st_sim").show()
+
+        //$("#results_table").empty()
+        $("#output").show();
+        $("#running_st_sim").html("Running ST-Sim...");
+        $("#results_loading").html("<img src='/static/img/spinner.gif'>")
 
         var inputs = {
             'sid': current_scenario.sid,
@@ -48,7 +77,6 @@ $(document).ready(function() {
                             console.log(update);
                             if (update.status === 'success') {
                                 result_url = update.result_scenario;
-                                alert('Model run complete!')
 
                                 // Determine the reports URL
                                 var url_array = result_url.split('/');
@@ -62,17 +90,43 @@ $(document).ready(function() {
                                     // Get the state class summary report url
                                     stateclass_summary_report_url = res['stateclass_summary_report'];
 
+                                    $("#results_loading").empty();
+                                    $("#column_charts_" + run).empty();
+                                    $("#area_charts_" + run).empty();
+
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
-                                        // Process the output data
+                                        // Restructure the results to create the results_data_json object.
                                         processStateClassSummaryReport(res);
-
                                     });
+
+                                    // Maximum of 4 model runs
+                                    if (run == 4) {
+                                        run = 1;
+                                    }
+                                    else {
+                                        run += 1;
+                                    }
+                                    $("#tab_container").css("display", "block");
 
                                 });
 
+                                $("#run_button").val('Run Model');
+                                $("#run_button").removeClass('disabled');
+                                $("#run_button").removeClass('please_wait');
+                                $('input:submit').attr("disabled", false);
+                                $('#button_container').attr("disabled", false);
+
+
                             } else if (update.status === 'failure') {
-                                alert('Something has gone terribly, terribly wrong...')
+                                alert('An error occurred. Please try again.')
+
+                                $("#run_button").val('Run Model');
+                                $("#run_button").removeClass('disabled');
+                                $("#run_button").removeClass('please_wait');
+                                $('input:submit').attr("disabled", false);
+                                $('#button_container').attr("disabled", false);
+
                             } else {
                                 poll();
                             }
@@ -80,7 +134,8 @@ $(document).ready(function() {
                     }, 5000)
                 })();
 
-            })
+
+            });
     });
 
     /********************************************** Change Model Functions ********************************************/
@@ -178,7 +233,6 @@ $(document).ready(function() {
     delegatedPopupContext('.manage_div', '.management_action_inputs');
 
     // On state class value entry move slider bar
-    //$(".veg_state_class_entry").keyup(function(){
     $(document).on('keyup', '.veg_state_class_entry', function() {
         var veg_type_id = this.id.split("_")[1];
         var veg_type = this.closest('table').title;
@@ -666,40 +720,23 @@ function toggleIcon(collapse_icon){
 
 
 function processStateClassSummaryReport(res){
-    settings={};
-    settings["timesteps"] = 5;
 
-    console.log(res);
     data = res["results"];
-
-    iterations = 1;
-    timesteps =  5;
-    timestep = 1;
-
-    run = 1;
-    iteration = 1;
-    feature_id = "Castle Creek";
-
-
     results_data_json={};
 
     for (var i=1; i <= iterations; i++ ){
 
         results_data_json[i]={};
         this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
-        console.log(results_data_json)
 
         for (var j=1; j <= timesteps; j++){
-            console.log(results_data_json)
 
             this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
 
             results_data_json[i][j]={};
 
             $.each(this_timestep_object_list, function(index, object){
-                console.log(results_data_json)
 
-                console.log(object.stratum)
                 var strata_object = $.grep(current_project.definitions.strata, function(e){ return e.id == object.stratum; });
                 var strata_name = strata_object[0].name;
                 if (! (strata_name in results_data_json[i][j]) ) {
@@ -716,22 +753,23 @@ function processStateClassSummaryReport(res){
     }
 
     update_results_table(run);
-
-    create_area_charts(results_data_json, run, iteration)
+    create_area_charts(results_data_json, run, iteration);
     //create_column_charts(results_data_json, run, iteration)
-
+    $("#view" + run + "_link").click();
 }
 
 /****************************************  Results Table & Output Charts **********************************************/
 
 //function update_results_table(timestep,run) { // see TODO below
 function update_results_table(run) {
-
+    console.log(1)
     // Create the Results Table
     $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Location </td><td colspan='2'>" + feature_id + "</td></tr>");
+    console.log(2)
 
     $("#view" + run).append("<table id='selected_location_table_" + run + "' class='selected_location_table' ><tr></tr></table> <div id='area_charts_" + run + "' class='area_charts' style='display:none'></div><div id='column_charts_" + run + "' class='column_charts'> </div>")
 
+    console.log(3)
     // Probabilistic Transitions Row
     if (typeof probabilistic_transitions_slider_values != "undefined") {
         var sum_probabilities = 0
@@ -739,6 +777,7 @@ function update_results_table(run) {
         $.each(probabilistic_transitions_slider_values, function (transition_type, probability) {
             sum_probabilities += Math.abs(probability)
         });
+        console.log(4)
 
         if (sum_probabilities != 0) {
 
@@ -762,6 +801,7 @@ function update_results_table(run) {
             $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr'><td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>Disturbance Probabilities</td><td class='probabilistic_transitions_values_header'>Defaults</td></tr>");
         }
     }
+    console.log(5)
 
     // Chart Type row
     $("#results_table_" + run).append("<tr class='chart_type_tr'>" +
@@ -783,6 +823,9 @@ function update_results_table(run) {
         $("#area_charts_" + run).hide()
         $("#veg_output_th_" + run).html("Vegetation Cover in " + settings["timesteps"] + " Years")
     });
+
+    console.log(6)
+
 
     // Chart button click functions
     $("#stacked_area_chart_td_button_" + run).click(function () {
@@ -812,6 +855,7 @@ function update_results_table(run) {
     $.each(results_data_json[iteration][timestep], function (key, value) {
         veg_type_list.push(key)
     });
+    console.log(7)
 
     var sorted_veg_type_list = veg_type_list.sort()
 
@@ -820,6 +864,8 @@ function update_results_table(run) {
     $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
     // Go through each sorted veg_type
     $.each(sorted_veg_type_list, function (index, value) {
+
+        console.log(8)
 
         var veg_type = value
 
@@ -844,6 +890,8 @@ function update_results_table(run) {
 
     });
 
+    console.log(9)
+
     // Show/Hide state class data
     $('.show_state_classes_results_link').unbind('click');
     $('.show_state_classes_results_link').click(function () {
@@ -857,6 +905,8 @@ function update_results_table(run) {
         }
         $(this).closest('tr').nextUntil('tr.veg_type_percent_tr').slideToggle(0);
     });
+
+    console.log(10)
 
     // Show/Hide run specific annual disturbances probabilities
     $('.show_disturbance_probabilities_link').unbind('click');
