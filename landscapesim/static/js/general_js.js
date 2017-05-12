@@ -33,7 +33,6 @@ $(document).ready(function() {
     // Send the scenario and initial conditions to ST-Sim.
     settings=[];
     settings["spatial"]=false;
-    feature_id = current_library.name;
 
     $('#run_button').on('click', function() {
 
@@ -54,8 +53,10 @@ $(document).ready(function() {
 
         //$("#results_table").empty()
         $("#output").show();
-        $("#running_st_sim").html("Running ST-Sim...");
+        $("#running_st_sim").html("Running ST-Sim...<div id='results_loading'></div>");
         $("#results_loading").html("<img src='/static/img/spinner.gif'>")
+
+        $(".leaflet-right").css("right", "380px");
 
         var inputs = {
             'sid': current_scenario.sid,
@@ -100,7 +101,6 @@ $(document).ready(function() {
                                         processStateClassSummaryReport(res);
                                     });
 
-                                    $(".leaflet-right").css("right", "370px");
 
                                     // Maximum of 4 model runs
                                     if (run == 4) {
@@ -197,7 +197,9 @@ $(document).ready(function() {
                     createVegTypeStateClassesJSON(veg_initial_conditions);
 
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
-                    setInitialConditionsSidebar(veg_initial_conditions)
+                    setInitialConditionsSidebar(veg_initial_conditions);
+
+                    loadLayers(current_scenario.config.scenario_input_services)
                 })
 
             });
@@ -772,7 +774,7 @@ function processStateClassSummaryReport(res){
 function update_results_table(run) {
     console.log(1)
     // Create the Results Table
-    $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Location </td><td colspan='2'>" + feature_id + "</td></tr>");
+    $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Library</td><td colspan='2'>" + current_library.name + "</td></tr>");
     console.log(2)
 
     $("#view" + run).append("<table id='selected_location_table_" + run + "' class='selected_location_table' ><tr></tr></table> <div id='area_charts_" + run + "' class='area_charts' style='display:none'></div><div id='column_charts_" + run + "' class='column_charts'> </div>")

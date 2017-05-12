@@ -1,5 +1,5 @@
 var map = L.map('map', {
-        zoomControl: false
+        zoomControl: false,
         attributionControl: false
     }
 ).setView([37,-108], 5);
@@ -22,14 +22,23 @@ var groupedOverlays = {
 };
 
 var options = { exclusiveGroups: ["Reporting Units","Base Maps"]};
-L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+
+function loadLayers(scenario_input_services){
+
+    var stateClassLayer = L.tileLayer(scenario_input_services.stateclass);
+    var stratumLayer = L.tileLayer(scenario_input_services.stratum);
+
+    groupedOverlays["Reference Layers"]["State Class"] = stateClassLayer;
+    groupedOverlays["Reference Layers"]["Vegetation Type"] =  stratumLayer;
+
+    L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+
+    stratumLayer.addTo(map)
+
+}
 
 // Zoom control
 L.control.zoom({
     position:'topright'
 }).addTo(map);
-
-// END MAP CONTROLS
-
-// BEGIN LAYERS AND LAYER FUNCTIONS
 

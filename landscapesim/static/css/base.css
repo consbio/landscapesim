@@ -158,12 +158,13 @@ canvas {
 }
 
 #output {
+	display: none;
 	position: relative;
-	width: 350px;
+	width: 370px;
 	float: right;
-	margin-right: 1px;
+	/* margin-right: 1px; */
 	z-index: 9999;
-	right: 50px;
+	right: 8px;
 	top: 70px;
 }
 
@@ -218,30 +219,26 @@ canvas {
 #steps_initial_vegetation_cover{
 }
 
-#running_st_sim{
-    background-color: #1EBA36;
-    height: 30px;
-    color: #FFF;
-    font-weight: bold;
-    letter-spacing: 1px;
-    line-height: 30px;
-    padding: 9px 0px 9px 9px;
-    border-radius: 5px;
-    width: 94%;
-    font-size: 1.1em;
-    margin-bottom: 10px;
+#running_st_sim {
+	background-color: #1EBA36;
+	height: 22px;
+	color: #FFF;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: 22px;
+	border-radius: 5px;
+	font-size: 1.1em;
+	width: calc(100% - 18px);
+	position: relative;
 }
 
 #results {
+	width: 100%;
 	margin-right: 10px;
 	height: 85vh;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	background-color: white;
 	z-index: 9999999;
 	position: absolute;
 	border-radius: 5px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 }
 
 #results_loading {
@@ -250,13 +247,16 @@ canvas {
 	text-align: center;
 	position: relative;
 	float: right;
-	right: 15px;
-	top: 4px;
+	right: 5px;
+	top: -9px;
 }
 
-.area_charts{
-    position:relative;
-    top:-40px;
+.area_charts {
+	position: relative;
+	overflow-y: scroll;
+	height: 65vh;
+	padding-right: 30px;
+	overflow-x: hidden;
 }
 
 .column_charts {
@@ -296,10 +296,7 @@ label, td{
 
 
 .results_table, .selected_location_table {
-    width:100%;
-    width:324px;
-    margin-bottom:20px;
-    padding-right:12px;
+	width: 100%;
 }
 
 .results_table th, .selected_location_table th {
@@ -833,9 +830,13 @@ div.callout {
 	left: 1px;
 }
 
-#tab_container{
-    display:none;
-    margin-right:9px;
+#tab_container {
+	display: none;
+	width: 335px;
+	padding: 10px;
+	overflow-y: hidden;
+	height: 100%;
+	max-height: 100vh;
 }
 
 .views{
