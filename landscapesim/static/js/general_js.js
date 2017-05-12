@@ -100,6 +100,8 @@ $(document).ready(function() {
                                         processStateClassSummaryReport(res);
                                     });
 
+                                    $(".leaflet-right").css("right", "370px");
+
                                     // Maximum of 4 model runs
                                     if (run == 4) {
                                         run = 1;
@@ -165,6 +167,7 @@ $(document).ready(function() {
                 console.log("current_project.definitions ->");
                 console.log(definitions);
                 current_project.definitions = definitions;
+                createColorMap(current_project.definitions.stateclasses)
             });
 
             // Select scenario from list; here we are just taking the top one
@@ -181,8 +184,13 @@ $(document).ready(function() {
                     console.log("current_scenario.config->")
                     console.log(config);
                     current_scenario.config = config;
+
+                    // Aspatial by default:
                     current_scenario.config.output_options.raster_tr=false;
                     current_scenario.config.output_options.raster_tr_t=-1;
+                    current_scenario.config.output_options.raster_sc=false;
+                    current_scenario.config.output_options.raster_sc_t=-1;
+                    current_scenario.config.run_control.is_spatial = false;
 
                     // Create objects from Web API data
                     createVegInitialConditionsDict();
@@ -927,4 +935,13 @@ function update_results_table(run) {
 }
 
 
+function createColorMap(state_class_objects){
 
+    state_class_color_map={}
+
+    $.each(state_class_objects, function(index,object){
+        state_class_color_map[object.name] = "rgba(" + object.color + ")"
+
+    });
+
+}
