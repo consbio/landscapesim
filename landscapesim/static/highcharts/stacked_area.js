@@ -107,9 +107,11 @@ function create_area_chart(veg_type, chart_div_id) {
 }
 
 function create_area_charts(results_data_json, run, iteration) {
+        console.log(results_data_json)
 
         $("#view" + run +"_tab").css("display", "inline")
         $("#area_charts_" +run).empty()
+
 
         if (typeof iteration == "undefined"){
             iteration = 1;
@@ -145,7 +147,7 @@ function create_area_charts(results_data_json, run, iteration) {
 
             chart_div_id="chart_" + run + "_"  + chart_count
 
-            $("#area_charts_" +run).append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count +"'>" + actualVegName(veg_type) +
+            $("#area_charts_" +run).append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count +"'>" + veg_type +
 
             "<span class='show_chart_link' id='show_stacked_area_chart_link_" + chart_count + "_" + run +"'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 
@@ -161,7 +163,8 @@ function create_area_charts(results_data_json, run, iteration) {
             $.each(chart_dict[veg_type], function (state_class_name, values_array) {
                 ac.addSeries({
                     name: state_class_name,
-                    color: state_class_color_map[state_class_name],
+                    //color: state_class_color_map[state_class_name],
+                    color: "red",
                     data: values_array,
                     lineWidth: 0,
                     stacking: 'normal',

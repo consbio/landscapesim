@@ -66,7 +66,7 @@
                     <div id="intro">
                         The 3D Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
                         <p>
-                        It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, disturbance probabilities, and management actions.
+                        It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
                         <p>
                         To get started, select an ST-Sim Library from the list below <p>
                         <div id="model_selection_container">
@@ -160,7 +160,57 @@
 
         <div id="map"></div>
 
-    <script src="{%  static "leaflet/leaflet_map.js" %}" type="text/javascript"></script>
+        <div id="output" style="display:block">
+                <div id="results">
+                    <div id="results_loading"></div>
+                    <div id="running_st_sim" style="display:none">Running ST-Sim...</div>
+
+                     <div id="tab_container">
+                        <!--data-persist="true" keeps the current tab active on page refresh-->
+                        <ul class="tabs" data-persist="false">
+                            <li id="view1_tab" style="display:none"><a id="view1_link" href="#view1">Run 1</a></li>
+                            <li id="view2_tab" style="display:none"><a id="view2_link" href="#view2">Run 2</a></li>
+                            <li id="view3_tab" style="display:none"><a id="view3_link" href="#view3">Run 3</a></li>
+                            <li id="view4_tab" style="display:none"><a id="view4_link" href="#view4">Run 4</a></li>
+                        </ul>
+                        <div class="tabcontents">
+                            <div id="view1" class="views">
+                                <div id="tabular_output_1">
+                                    <table id="results_table_1" class="results_table"></table>
+                                </div>
+                            </div>
+                            <div id="view2" class="views">
+                                <div id="tabular_output_2">
+                                    <table id="results_table_2" class="results_table"></table>
+                                </div>
+                            </div>
+                            <div id="view3" class="views">
+                                <div id="tabular_output_3">
+                                    <table id="results_table_3" class="results_table"></table>
+                                </div>
+                            </div>
+                            <div id="view4" class="views">
+                                <div id="tabular_output_4">
+                                    <table id="results_table_4" class="results_table"></table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Leaflet Map -->
+        <script src="{%  static "leaflet/leaflet_map.js" %}" type="text/javascript"></script>
+
+        <!-- Stacked Area Chart -->
+        <script src="{% static 'highcharts/stacked_area.js' %}"></script>
+
+        <!-- Column Chart -->
+        <script src="{% static 'highcharts/column_chart.js' %}"></script>
 
 </body>
 </html>

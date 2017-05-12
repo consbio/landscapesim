@@ -236,6 +236,7 @@ canvas {
 	overflow-y: scroll;
     overflow-x: hidden;
     background-color:white;
+	z-index:9999999;
 }
 
 #results_loading {
@@ -828,7 +829,7 @@ div.callout {
 }
 
 #tab_container{
-    display:none;
+    /* display:none; */
     margin-right:9px;
 }
 

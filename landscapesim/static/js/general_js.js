@@ -635,7 +635,7 @@ $(document).ready(function () {
             // Go through each collapsible div and calculate the max-height based on
             $.each($(".collapsible_div"), function(){
                 var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 100
+                var max_height = $(window).height() - this_div_position - 100;
                 $(this).addClass('transition_ease');
                 $(this).css('max-height',max_height);
                 $(this).removeClass('transition_ease')
@@ -666,13 +666,20 @@ function toggleIcon(collapse_icon){
 
 
 function processStateClassSummaryReport(res){
-
+    settings={};
+    settings["timesteps"] = 5;
 
     console.log(res);
-    data = res["results"]
+    data = res["results"];
 
     iterations = 1;
     timesteps =  5;
+    timestep = 1;
+
+    run = 1;
+    iteration = 1;
+    feature_id = "Castle Creek";
+
 
     results_data_json={};
 
@@ -680,20 +687,27 @@ function processStateClassSummaryReport(res){
 
         results_data_json[i]={};
         this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
+        console.log(results_data_json)
 
         for (var j=1; j <= timesteps; j++){
+            console.log(results_data_json)
 
             this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
 
             results_data_json[i][j]={};
 
             $.each(this_timestep_object_list, function(index, object){
+                console.log(results_data_json)
 
                 console.log(object.stratum)
-                if (! (object.stratum in results_data_json[i][j]) ) {
-                    results_data_json[i][j][object.stratum] = {}
+                var strata_object = $.grep(current_project.definitions.strata, function(e){ return e.id == object.stratum; });
+                var strata_name = strata_object[0].name;
+                if (! (strata_name in results_data_json[i][j]) ) {
+                    results_data_json[i][j][strata_name] = {}
                 }
-                results_data_json[i][j][object.stratum][object.stateclass] = object.proportion_of_landscape
+                var state_class_object = $.grep(current_project.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
+                var state_class_name = state_class_object[0].name;
+                results_data_json[i][j][strata_name][state_class_name] = object.proportion_of_landscape
 
             });
 
@@ -701,9 +715,165 @@ function processStateClassSummaryReport(res){
 
     }
 
-    create_area_charts(results_data_json, run)
-    create_column_charts(results_data_json, run)
+    update_results_table(run);
 
+    create_area_charts(results_data_json, run, iteration)
+    //create_column_charts(results_data_json, run, iteration)
+
+}
+
+/****************************************  Results Table & Output Charts **********************************************/
+
+//function update_results_table(timestep,run) { // see TODO below
+function update_results_table(run) {
+
+    // Create the Results Table
+    $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Location </td><td colspan='2'>" + feature_id + "</td></tr>");
+
+    $("#view" + run).append("<table id='selected_location_table_" + run + "' class='selected_location_table' ><tr></tr></table> <div id='area_charts_" + run + "' class='area_charts' style='display:none'></div><div id='column_charts_" + run + "' class='column_charts'> </div>")
+
+    // Probabilistic Transitions Row
+    if (typeof probabilistic_transitions_slider_values != "undefined") {
+        var sum_probabilities = 0
+
+        $.each(probabilistic_transitions_slider_values, function (transition_type, probability) {
+            sum_probabilities += Math.abs(probability)
+        });
+
+        if (sum_probabilities != 0) {
+
+            $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr'><td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>Disturbance Probabilities</td><td class='probabilistic_transitions_values_header'> <span class='show_disturbance_probabilities_link'> <span class='show_disturbance_probabilities_link_text'>Show</span> <img class='dropdown_arrows_disturbance' src='/static/img/down_arrow.png'></span></td></tr>");
+            var sign;
+            $.each(probabilistic_transitions_slider_values, function (transition_type, probability) {
+                if (probability != 0) {
+
+                    if (probability > 0) {
+                        sign = "+"
+                    }
+                    else {
+                        sign = ""
+                    }
+                    $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr_values'><td class='probabilistic_transitions_values' id='probabilistic_transitions_values_" + run + "' colspan='3'>" + transition_type + ": " + sign + (probability * 100) + "%</td></tr>");
+
+                }
+            });
+        }
+        else {
+            $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr'><td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>Disturbance Probabilities</td><td class='probabilistic_transitions_values_header'>Defaults</td></tr>");
+        }
+    }
+
+    // Chart Type row
+    $("#results_table_" + run).append("<tr class='chart_type_tr'>" +
+        "<td class='chart_type_th' colspan='1'>Chart Type</td>" +
+        "<td class='selected_td_button' id='column_chart_td_button_" + run + "'>Column</td>" +
+        "<td class='unselected_td_button' id='stacked_area_chart_td_button_" + run + "'>Area</td>" +
+        "</td>");
+
+
+    // Chart button click functions
+    $("#column_chart_td_button_" + run).click(function () {
+        $(this).removeClass("unselected_td_button")
+        $(this).addClass("selected_td_button")
+        $("#stacked_area_chart_td_button_" + run).addClass("unselected_td_button")
+        $("#stacked_area_chart_td_button_" + run).removeClass("selected_td_button")
+        $(this).addClass("selected_td_button")
+        $("#column_charts_" + run).show()
+        $("#iteration_tr_" + run).hide()
+        $("#area_charts_" + run).hide()
+        $("#veg_output_th_" + run).html("Vegetation Cover in " + settings["timesteps"] + " Years")
+    });
+
+    // Chart button click functions
+    $("#stacked_area_chart_td_button_" + run).click(function () {
+        $(this).removeClass("unselected_td_button")
+        $(this).addClass("selected_td_button")
+        $("#column_chart_td_button_" + run).addClass("unselected_td_button")
+        $("#column_chart_td_button_" + run).removeClass("selected_td_button")
+        $("#column_charts_" + run).hide()
+        $("#iteration_tr_" + run).show()
+        $("#area_charts_" + run).show()
+        $("#veg_output_th_" + run).html("Vegetation Cover across " + settings["timesteps"] + " Years")
+    });
+
+
+    // Iteration row
+    $("#results_table_" + run).append("<tr class='iteration_tr' id='iteration_tr_" + run + "'><td class='iteration_th' colspan='2'>Iteration to Display</td><td colspan='1'><input class='iteration_to_plot' id='iteration_to_plot_" + run + "' type='text' size='3' value=1></td></tr>");
+
+    $("#iteration_to_plot_" + run).on('keyup', function () {
+        if (this.value != '') {
+            $("#area_charts_" + run).empty()
+            create_area_charts(results_data_json, run, this.value)
+        }
+    });
+
+    // Create a list of all the veg types and create a sorted list.
+    var veg_type_list = new Array()
+    $.each(results_data_json[iteration][timestep], function (key, value) {
+        veg_type_list.push(key)
+    });
+
+    var sorted_veg_type_list = veg_type_list.sort()
+
+    $("#running_st_sim").html("ST-Sim Model Results")
+
+    $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
+    // Go through each sorted veg_type
+    $.each(sorted_veg_type_list, function (index, value) {
+
+        var veg_type = value
+
+        // Write veg type and % headers
+        $("#results_table").html("<tr class='veg_type_percent_tr'><td class='veg_type_th' colspan='3'>" + value +
+            "<span class='show_state_classes_results_link'> <img class='dropdown_arrows' src='/static/img/down_arrow.png'></span>" +
+            "</td></tr>");
+
+        // Create a list of all the state classes and create a sorted list.
+        var state_list = new Array()
+        $.each(results_data_json[iteration][timestep][value], function (key, value) {
+            state_list.push(key)
+        })
+
+        var sorted_state_list = state_list.sort()
+
+        // Go through each sorted state class within the veg_type in this loop and write out the values
+        $.each(sorted_state_list, function (index, value) {
+            $("results_table").find("tr:gt(0)").remove();
+            $('#results_table').append('<tr class="state_class_tr"><td>' + value + '</td><td>' + (results_data_json[iteration][timestep][veg_type][value] * 100).toFixed(1) + '%</td></tr>');
+        });
+
+    });
+
+    // Show/Hide state class data
+    $('.show_state_classes_results_link').unbind('click');
+    $('.show_state_classes_results_link').click(function () {
+
+        if ($(this).children('img').attr('src') == '/static/img/down_arrow.png') {
+
+            $(this).children('img').attr('src', '/static/img/up_arrow.png')
+        }
+        else {
+            $(this).children('img').attr('src', '/static/img/down_arrow.png')
+        }
+        $(this).closest('tr').nextUntil('tr.veg_type_percent_tr').slideToggle(0);
+    });
+
+    // Show/Hide run specific annual disturbances probabilities
+    $('.show_disturbance_probabilities_link').unbind('click');
+    $('.show_disturbance_probabilities_link').click(function () {
+
+        if ($(this).children('img').attr('src') == '/static/img/down_arrow.png') {
+
+            $(this).children('img').attr('src', '/static/img/up_arrow.png')
+            $(this).children('.show_disturbance_probabilities_link_text').html('Hide')
+
+        }
+        else {
+            $(this).children('img').attr('src', '/static/img/down_arrow.png')
+            $(this).children('.show_disturbance_probabilities_link_text').html('Show')
+        }
+        $(this).closest('tr').nextUntil('tr.chart_type_tr').slideToggle(0);
+    });
 }
 
 
