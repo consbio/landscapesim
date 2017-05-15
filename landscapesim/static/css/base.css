@@ -261,7 +261,10 @@ canvas {
 
 .column_charts {
 	position: relative;
-	top: -40px;
+	overflow-y: scroll;
+	height: 65vh;
+	padding-right: 30px;
+	overflow-x: hidden;
 }
 
 .scenario_radio_label{

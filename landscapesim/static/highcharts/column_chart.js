@@ -52,15 +52,15 @@ function create_column_chart(veg_type, chart_div_id, x_axis_categories) {
 
 function create_column_charts(results_data_json, run) {
 
-    $("#view" + run + "_tab").css("display", "inline")
-    $("#iteration_tr_" + run).hide()
+    $("#view" + run + "_tab").css("display", "inline");
+    $("#iteration_tr_" + run).hide();
 
-    var last_timestep = Number(settings['timesteps']);
+    var last_timestep = current_scenario.config.run_control.max_timestep;
     //Restructure Dictionary
     //Creates a dictionary of all the final timestep values by veg_type/state class.
-    column_chart_dict = {}
+    column_chart_dict = {};
 
-    for (var iteration = 1; iteration <= settings["iterations"]; iteration++) {
+    for (var iteration = 1; iteration < settings["iterations"]; iteration++) {
         // Each iteration
         $.each(results_data_json[iteration][last_timestep], function (veg_type, state_class_dict) {
             if (typeof column_chart_dict[veg_type] == "undefined") {
@@ -76,21 +76,21 @@ function create_column_charts(results_data_json, run) {
     }
 
     //Get the min/median/max from the dictionary above. Store in a new dictionary.
-    column_chart_dict_final = {}
+    column_chart_dict_final = {};
     $.each(column_chart_dict, function (veg_type, state_class_list) {
-        column_chart_dict_final[veg_type] = {}
+        column_chart_dict_final[veg_type] = {};
         $.each(state_class_list, function (state_class, array_of_values) {
-            min_val = Math.min.apply(Math, array_of_values)
-            max_val = Math.max.apply(Math, array_of_values)
-            var sorted_array = array_of_values.sort()
-            length_of_array = sorted_array.length
+            min_val = Math.min.apply(Math, array_of_values);
+            max_val = Math.max.apply(Math, array_of_values);
+            var sorted_array = array_of_values.sort();
+            length_of_array = sorted_array.length;
             low_middle_index = Math.floor((sorted_array.length - 1) / 2);
             high_middle_index = Math.ceil((sorted_array.length - 1) / 2);
             median_val = (sorted_array[low_middle_index] + sorted_array[high_middle_index]) / 2;
-            column_chart_dict_final[veg_type][state_class] = []
-            column_chart_dict_final[veg_type][state_class].push(min_val)
-            column_chart_dict_final[veg_type][state_class].push(median_val)
-            column_chart_dict_final[veg_type][state_class].push(max_val)
+            column_chart_dict_final[veg_type][state_class] = [];
+            column_chart_dict_final[veg_type][state_class].push(min_val);
+            column_chart_dict_final[veg_type][state_class].push(median_val);
+            column_chart_dict_final[veg_type][state_class].push(max_val);
         })
     });
 
@@ -100,7 +100,7 @@ function create_column_charts(results_data_json, run) {
 
         chart_div_id = "column_chart_" + run + "_" + chart_count
 
-        $("#column_charts_" + run).append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count + "'>" + actualVegName(veg_type) +
+        $("#column_charts_" + run).append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count + "'>" + veg_type +
 
             "<span class='show_chart_link' id='show_column_chart_link_" + chart_count + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 

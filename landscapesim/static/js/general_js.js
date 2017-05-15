@@ -765,7 +765,7 @@ function processStateClassSummaryReport(res){
 
     update_results_table(run);
     create_area_charts(results_data_json, run, iteration);
-    //create_column_charts(results_data_json, run, iteration)
+    create_column_charts(results_data_json, run, iteration)
     $("#view" + run + "_link").click();
 }
 
