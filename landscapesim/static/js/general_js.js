@@ -115,6 +115,7 @@ $(document).ready(function() {
                                 $("#run_button").removeClass('disabled');
                                 $("#run_button").removeClass('please_wait');
                                 $('input:submit').attr("disabled", false);
+                                $(".slider_bars").slider( "option", "disabled", false );
                                 $('#button_container').attr("disabled", false);
 
                             } else if (update.status === 'failure') {
@@ -162,6 +163,7 @@ $(document).ready(function() {
 
         // Show the layer
         bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
+        bounding_box_layer.bindPopup(library_info.name + "<br>Library Extent");
 
         // Upate the values in the library_info table
         $("#library_author").html(library_info.author);
@@ -212,6 +214,7 @@ $(document).ready(function() {
                 console.log(scenario);
                 current_scenario = scenario;
 
+
                 // Scenario configuration (at import)
                 $.getJSON(scenario_url + 'config').done(function (config) {
                     console.log("current_scenario.config->")
@@ -225,6 +228,11 @@ $(document).ready(function() {
                     current_scenario.config.output_options.raster_sc_t=-1;
                     current_scenario.config.run_control.is_spatial = false;
 
+                    // Store the original transition values to reference when adjusting probabilistic transition sliders.
+                    $.each(current_scenario.config.transitions, function(index, object){
+                        object.original_probability = object.probability;
+                    });
+
                     // Create objects from Web API data
                     createVegInitialConditionsDict();
                     createVegTypeStateClassesJSON(veg_initial_conditions);
@@ -232,7 +240,7 @@ $(document).ready(function() {
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
                     setInitialConditionsSidebar(veg_initial_conditions);
 
-                    loadLayers(current_scenario.config.scenario_input_services)
+                    loadLayers(current_scenario.config.scenario_input_services);
                 })
 
             });
@@ -641,7 +649,9 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
                     $("#climate_future_disabled").show()
                 },
                 change: function (event, ui) {
-                    probabilistic_transitions_slider_values[transition_type] = ui.value
+                    console.log(event)
+                    console.log(ui)
+                    updateProbabilisticTransitionValues(transition_type, ui.value);
                 },
             });
 
@@ -650,6 +660,23 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
     //initializeStateClassColorMap();
     $(".current_probability_slider_setting").val("Default Probabilities");
+}
+
+
+// When probability sliders are adjusted  update the values in the Web API object
+function  updateProbabilisticTransitionValues(transition_type, slider_value){
+
+    // Get the transition type id associated with this slider
+    var transition_type_id = $.grep(current_project.definitions.transition_groups, function(e){ return e.name == transition_type} )[0].id;
+
+    // Go through each of the transitions and if the transition type matches, update the value
+    $.each(current_scenario.config.transitions, function(index, object){
+        if (object.transition_type ==  transition_type_id){
+            // updated value is the original value + the current slider value.
+            this.probability = this.original_probability + slider_value
+        }
+    })
+
 }
 
 function total_percent_action(value){
@@ -799,7 +826,7 @@ function processStateClassSummaryReport(res){
 
     update_results_table(run);
     create_area_charts(results_data_json, run, iteration);
-    create_column_charts(results_data_json, run, iteration)
+    create_column_charts(results_data_json, run, iteration);
     $("#view" + run + "_link").click();
 }
 
@@ -945,12 +972,12 @@ function update_results_table(run) {
 
         if ($(this).children('img').attr('src') == '/static/img/down_arrow.png') {
 
-            $(this).children('img').attr('src', '/static/img/up_arrow.png')
+            $(this).children('img').attr('src', '/static/img/up_arrow.png');
             $(this).children('.show_disturbance_probabilities_link_text').html('Hide')
 
         }
         else {
-            $(this).children('img').attr('src', '/static/img/down_arrow.png')
+            $(this).children('img').attr('src', '/static/img/down_arrow.png');
             $(this).children('.show_disturbance_probabilities_link_text').html('Show')
         }
         $(this).closest('tr').nextUntil('tr.chart_type_tr').slideToggle(0);

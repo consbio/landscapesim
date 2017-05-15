@@ -17,9 +17,11 @@ var groupedOverlays = {
         'National Geographic': national_geographic,
         'Imagery': imagery,
     },
-    "Reference Layers": {
+    "Library Layers": {
     }
 };
+
+layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
 
 var options = { exclusiveGroups: ["Reporting Units","Base Maps"]};
 
@@ -28,10 +30,8 @@ function loadLayers(scenario_input_services){
     var stateClassLayer = L.tileLayer(scenario_input_services.stateclass);
     var stratumLayer = L.tileLayer(scenario_input_services.stratum);
 
-    groupedOverlays["Reference Layers"]["State Class"] = stateClassLayer;
-    groupedOverlays["Reference Layers"]["Vegetation Type"] =  stratumLayer;
-
-    L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+    layerControl.addOverlay(stateClassLayer, "State Classes", "Library Layers");
+    layerControl.addOverlay(stratumLayer, "Vegetation Types", "Library Layers");
 
     stratumLayer.addTo(map)
 
