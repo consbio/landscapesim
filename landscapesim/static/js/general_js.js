@@ -175,17 +175,6 @@ $(document).ready(function() {
     /********************************************** Change Model Functions ********************************************/
     $("#start_button").on("click", function(){
 
-        map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
-        map.removeLayer(bounding_box_layer);
-
-        var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
-        collapsible_div.slideToggle(400, function(){});
-
-        var collapse_icon = $("#welcome_header").children(".collapse_icon");
-        toggleIcon(collapse_icon)
-
-        $("#inputs").show();
-
         current_library = $.grep(available_libraries, function(e) {return e.id == $(".model_selection").val()})[0];
         available_projects = current_library.projects;
         project_url = available_projects[0];
@@ -244,6 +233,18 @@ $(document).ready(function() {
                 })
 
             });
+
+            map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
+            map.removeLayer(bounding_box_layer);
+
+            var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
+            collapsible_div.slideToggle(400, function(){});
+
+            var collapse_icon = $("#welcome_header").children(".collapse_icon");
+            toggleIcon(collapse_icon);
+
+            $("#inputs").show();
+
         })
 
     });
@@ -381,6 +382,33 @@ $(document).ready(function() {
         precip_previous_value=0;
     }
 
+    $("#settings_timesteps").on("keyup", function(){
+        var user_timesteps =  parseFloat($(this).val());
+
+        if (isNaN(user_timesteps)) {
+            alert("Please enter an integer value");
+            $(this).val(1)
+        }
+        else if (user_timesteps == 0 ) {
+            alert("Please enter a value greater than 0");
+            $(this).val(1)
+        }
+        current_scenario.config.run_control.max_timestep = parseInt($(this).val())
+    });
+
+    $("#settings_iterations").on("keyup", function(){
+        var user_iterations =  parseFloat($(this).val());
+
+        if (isNaN(user_iterations)) {
+            alert("Please enter an integer value");
+            $(this).val(1)
+        }
+        else if (user_iterations == 0 ) {
+            alert("Please enter a value greater than 0");
+            $(this).val(1)
+        }
+        current_scenario.config.run_control.max_iteration = parseInt($(this).val())
+    });
 
 });
 
