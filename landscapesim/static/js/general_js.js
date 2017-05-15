@@ -39,12 +39,10 @@ $(document).ready(function() {
     $('#run_button').on('click', function() {
 
         settings["library"] = current_library.name;
-        settings["timesteps"] = $("#settings_timesteps").val();
-        settings["iterations"] = $("#settings_iterations").val();
         settings["spatial"] = $("#spatial_button").hasClass('selected')
 
-        iterations = settings["iterations"];
-        timesteps = settings["timesteps"]
+        iterations = current_scenario.config.run_control.max_iteration;
+        timesteps = current_scenario.config.run_control.max_timestep;
 
         $(".slider_bars").slider( "option", "disabled", true );
         $('input:submit').attr("disabled", true);

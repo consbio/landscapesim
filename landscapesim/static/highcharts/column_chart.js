@@ -55,14 +55,20 @@ function create_column_charts(results_data_json, run) {
     $("#view" + run + "_tab").css("display", "inline");
     $("#iteration_tr_" + run).hide();
 
-    var last_timestep = current_scenario.config.run_control.max_timestep;
+    console.log(1)
+    console.log(results_data_json)
+
     //Restructure Dictionary
     //Creates a dictionary of all the final timestep values by veg_type/state class.
     column_chart_dict = {};
 
-    for (var iteration = 1; iteration < settings["iterations"]; iteration++) {
+    for (var iteration = 1; iteration <= iterations; iteration++) {
+        console.log(2)
+        console.log(iterations)
         // Each iteration
-        $.each(results_data_json[iteration][last_timestep], function (veg_type, state_class_dict) {
+        $.each(results_data_json[iteration][timesteps], function (veg_type, state_class_dict) {
+            console.log(3)
+            console.log(results_data_json[iteration][timesteps])
             if (typeof column_chart_dict[veg_type] == "undefined") {
                 column_chart_dict[veg_type] = {}
             }
