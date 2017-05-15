@@ -95,6 +95,29 @@ canvas {
 	max-height: calc(100vh - 400px);
 }
 
+#library_info_table{
+	border-collapse:collapse;
+}
+
+#library_info_table td {
+	border: 1px solid #fff;
+	padding: 8px;
+	background-color: #ddd;
+	color: #353434;
+}
+
+#library_info_table td:first-child {
+	text-align:right;
+	background-color: lightblue;
+}
+
+#load_library_button {
+	margin: 20px 0px;
+	float: right;
+	border: 0px;
+	cursor: pointer;
+	text-shadow: 1px 1px 0 rgba(0,0,0,.2);
+}
 
 #inputs{
 	display:none;
@@ -103,11 +126,11 @@ canvas {
 #model_selection_container{
 	width:100%;
 	text-align:center;
-	margin-bottom:10px;
 }
 #model_selection1{
 	margin-right:auto;
 	margin-right:auto;
+	width:100%;
 }
 #model_selection2{
 	width:100%;

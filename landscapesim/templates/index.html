@@ -68,12 +68,26 @@
                         <p>
                         It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
                         <p>
-                        To get started, select an ST-Sim Library from the list below <p>
-                        <div id="model_selection_container">
-                            <select class="model_selection" name="model_selection" id="model_selection1">
-                                <option value="" disabled selected>Select an ST-Sim Library</option>
-                            </select>
+                        To get started, select an ST-Sim library from the table below then push the start button.<p>
+                        <div id="library_info">
+                            <table id="library_info_table">
+                                <tr><td>Library:</td>
+                                    <td>
+                                        <div id="model_selection_container">
+                                            <select class="model_selection" name="model_selection" id="model_selection1">
+                                                <option value="" disabled selected>Select an ST-Sim Library</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr><td>Author:</td><td><div id="library_author"></div></td></tr>
+                                <tr><td>Date:</td><td><div id="library_date"></div></td></tr>
+                                <tr><td>Description:</td><td><div id="library_description"></div></td></tr>
+                            </table>
+
                         </div>
+
+                        <input type="button" class="my-button my-button-ok" id="load_library_button" value="Start" />
                         <!--
                         <p>
                         Then, select an area of interest by clicking on a reporting unit (e.g., a watershed or county)...
@@ -205,6 +219,9 @@
 
         <!-- Column Chart -->
         <script src="{% static 'highcharts/column_chart.js' %}"></script>
+
+        <!-- Library Configuration -->
+        <script src="{% static 'config/library_config.js' %}"></script>
 
 </body>
 </html>

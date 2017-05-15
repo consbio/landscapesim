@@ -19,9 +19,11 @@ $(document).ready(function() {
 
         // Add each library to the library selection dropdown.
         $.each(available_libraries, function(index,library_array){
-            $(".model_selection").append("<option value ='" + index + "'>" + library_array.name)
+            $(".model_selection").append("<option value ='" + library_array.id + "'>" + library_array.name)
         });
-        $("select").prop("selectedIndex",0);
+        $("select").prop("selectedIndex",1);
+
+        showLibraryInfo()
 
     });
 
@@ -53,8 +55,7 @@ $(document).ready(function() {
 
         //$("#results_table").empty()
         $("#output").show();
-        $("#running_st_sim").html("Running ST-Sim...<div id='results_loading'></div>");
-        $("#results_loading").html("<img src='/static/img/spinner.gif'>")
+        $("#running_st_sim").html("Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div>");
 
         $(".leaflet-right").css("right", "380px");
 
@@ -92,9 +93,6 @@ $(document).ready(function() {
                                     stateclass_summary_report_url = res['stateclass_summary_report'];
 
                                     $("#results_loading").empty();
-                                    $("#column_charts_" + run).empty();
-                                    $("#area_charts_" + run).empty();
-
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
@@ -139,8 +137,44 @@ $(document).ready(function() {
             });
     });
 
+    $(".model_selection").on("change", function() {
+       showLibraryInfo();
+    });
+
+    function showLibraryInfo(){
+
+        var library_info = library_config[$(".model_selection").val()];
+        var extent = library_info.extent;
+
+        // Create a layer from the extent
+        var bounding_box = [{
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                [extent[0][1],extent[1][0]],
+                [extent[1][1], extent[1][0]],
+                [extent[1][1], extent[0][0]],
+                [extent[0][1], extent[0][0]]
+                ]]
+            }
+        }];
+
+        // Show the layer
+        bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
+
+        // Upate the values in the library_info table
+        $("#library_author").html(library_info.author);
+        $("#library_date").html(library_info.date);
+        $("#library_description").html(library_info.description);
+
+    };
+
     /********************************************** Change Model Functions ********************************************/
-    $(".model_selection").on("change", function(){
+    $("#load_library_button").on("click", function(){
+
+        map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
+        map.removeLayer(bounding_box_layer);
 
         var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
         collapsible_div.slideToggle(400, function(){});
@@ -150,7 +184,7 @@ $(document).ready(function() {
 
         $("#inputs").show();
 
-        current_library = available_libraries[$(this).val()];
+        current_library = $.grep(available_libraries, function(e) {return e.id == $(".model_selection").val()})[0];
         available_projects = current_library.projects;
         project_url = available_projects[0];
 
