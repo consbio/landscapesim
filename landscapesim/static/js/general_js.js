@@ -163,7 +163,7 @@ $(document).ready(function() {
 
         // Show the layer
         bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
-        bounding_box_layer.bindPopup(library_info.name + "<br>Library Extent");
+        bounding_box_layer.bindPopup(library_info.name + " Extent");
 
         // Upate the values in the library_info table
         $("#library_author").html(library_info.author);
@@ -173,7 +173,7 @@ $(document).ready(function() {
     };
 
     /********************************************** Change Model Functions ********************************************/
-    $("#load_library_button").on("click", function(){
+    $("#start_button").on("click", function(){
 
         map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
         map.removeLayer(bounding_box_layer);
