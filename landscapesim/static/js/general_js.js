@@ -165,7 +165,7 @@ $(document).ready(function() {
         }];
 
         // Show the layer
-        var bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
+        bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
         bounding_box_layer.bindPopup(library_info.name + " Extent");
 
         // Upate the values in the library_info table
