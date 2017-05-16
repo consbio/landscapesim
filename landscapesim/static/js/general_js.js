@@ -681,6 +681,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 /*********************************** Probabilistic Transitions Slider Inputs ******************************************/
 
     probabilistic_transitions_json = {};
+    probabilistic_transitions_slider_values = {};
 
     $.each(current_project.definitions.transition_groups, function(index, object){
         probabilistic_transitions_json[object.name] = 0;
@@ -734,8 +735,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
                     $("#climate_future_disabled").show()
                 },
                 change: function (event, ui) {
-                    console.log(event)
-                    console.log(ui)
+                    probabilistic_transitions_slider_values[transition_type] = ui.value;
                     updateProbabilisticTransitionValues(transition_type, ui.value);
                 },
             });
@@ -960,8 +960,7 @@ function update_results_table(run) {
     });
 
     var sorted_veg_type_list = veg_type_list.sort();
-    var collapse_icon = "{% static 'img/collapse_down_arrow.png' %}";
-    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src=" + collapse_icon + ">");
+    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src='/static/img/collapse_down_arrow.png' >");
 
     $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
     // Go through each sorted veg_type
