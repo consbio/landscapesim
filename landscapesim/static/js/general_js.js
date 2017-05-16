@@ -206,7 +206,7 @@ $(document).ready(function() {
                 console.log("current_project.definitions ->");
                 console.log(definitions);
                 current_project.definitions = definitions;
-                createColorMap(current_project.definitions.stateclasses)
+                createColorMap(current_project.definitions)
             });
 
             // Select scenario from list; here we are just taking the top one
@@ -537,7 +537,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
     // Create the legend
     $("#scene_legend").empty();
-    $.each(state_class_color_map, function(key,value){
+    $.each(veg_type_color_map, function(key,value){
         $("#scene_legend").append("<div id='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
     });
 
@@ -1034,15 +1034,24 @@ function update_results_table(run) {
     });
 }
 
-function createColorMap(state_class_objects){
+function createColorMap(project_definitions){
 
     state_class_color_map={};
+    veg_type_color_map={};
 
-    $.each(state_class_objects, function(index,object){
+    $.each(project_definitions.stateclasses, function(index,object){
         var rgb = (object.color).split(",");
         rgb.shift();
         var rgb_string = rgb.join();
         state_class_color_map[object.name] = "rgb(" + rgb_string + ")";
+
+    });
+
+    $.each(project_definitions.strata, function(index,object){
+        var rgb = (object.color).split(",");
+        rgb.shift();
+        var rgb_string = rgb.join();
+        veg_type_color_map[object.name] = "rgb(" + rgb_string + ")";
 
     });
 
