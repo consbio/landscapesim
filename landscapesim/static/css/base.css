@@ -209,7 +209,7 @@ canvas {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 	border-radius: 5px;
 	margin-bottom: 7px;
-	height: calc(100vh - 132px);
+	max-height: calc(100vh - 132px);
 }
 
 #animation_container {
@@ -298,7 +298,7 @@ canvas {
 .area_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: 65vh;
+	height: 63vh;
 	padding-right: 30px;
 	overflow-x: hidden;
 }

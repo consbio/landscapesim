@@ -176,6 +176,7 @@ $(document).ready(function() {
         $("#library_author").html(library_info.author);
         $("#library_date").html(library_info.date);
         $("#library_description").html(library_info.description);
+        $("#scene_legend").show();
 
     };
 
@@ -531,6 +532,9 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
     // Create the legend
     $("#scene_legend").empty();
+    $.each(state_class_color_map, function(key,value){
+        $("#scene_legend").append("<div id='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
+    });
 
     // Iterate over each of the veg types. Access the state class object for each
     $.each(veg_initial_conditions["veg_sc_pct"], function (veg_type, state_class_object) {

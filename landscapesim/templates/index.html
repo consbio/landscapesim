@@ -21,6 +21,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.3.2/leaflet.draw.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.3.2/leaflet.draw.css" />
 
+    <!-- Leaflet.Range -->
+    <link rel="stylesheet" href="{% static "css/L.Control.Range.css" %}" />
+    <script src="{% static "js/L.Control.Range-min.js" %}"></script>
+
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
@@ -187,6 +191,14 @@
         </div>
 
         <div id="map"></div>
+        <!--
+        <div id="scene_legend">
+            <div class="header full_border_radius">Probabilistic Transitions <img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                <div class="collapsible_div collapsed">
+                    <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
+            </div>
+        </div>
+        -->
 
         <div id="output">
             <div id="running_st_sim" class="header full_border_radius">Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div></div>
