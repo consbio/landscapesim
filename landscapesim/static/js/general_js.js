@@ -145,6 +145,7 @@ $(document).ready(function() {
         showLibraryInfo()
     });
 
+    // Also called on page load.
     function showLibraryInfo() {
         var library_info = library_config[$(".model_selection").val()];
         var extent = library_info.extent;
@@ -164,7 +165,7 @@ $(document).ready(function() {
         }];
 
         // Show the layer
-        bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
+        var bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
         bounding_box_layer.bindPopup(library_info.name + " Extent");
 
         // Upate the values in the library_info table
@@ -259,12 +260,13 @@ $(document).ready(function() {
 
     });
 
-    /************************************* General Initialization Functions *******************************************/
+    /********************************************* General UI Functions ***********************************************/
 
-    $(document).ready(function () {
-        $(".header").click(function () {
+    // Collapse div on header click
+    $(document).on("click", ".header", function () {
 
             var collapsible_div = $(this).siblings(".collapsible_div");
+
             collapsible_div.slideToggle(400, function(){
                 // Go through each collapsible div and calculate the max-height based on
                 $.each($(".collapsible_div"), function(){
@@ -283,11 +285,6 @@ $(document).ready(function() {
             var collapse_icon = $(this).children(".collapse_icon");
             toggleIcon(collapse_icon)
 
-        });
-    });
-
-    $(document).on("click", ".close_state_class", function(){
-        $(this).parents(".sub_slider_text_inputs").hide()
     });
 
     function toggleIcon(collapse_icon){
@@ -300,6 +297,11 @@ $(document).ready(function() {
             $(collapse_icon).addClass("rotate90");
         }
     }
+
+    $(document).on("click", ".close_state_class", function(){
+        $(this).parents(".sub_slider_text_inputs").hide()
+    });
+
 
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
