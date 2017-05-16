@@ -27,7 +27,7 @@ $(document).ready(function() {
 
     });
 
-    /******************************************* Run Model Button Functions *******************************************/
+    /************************************************* Run Model  ****************************************************/
     run=0;
     iteration=1;
     timestep=1;
@@ -100,7 +100,6 @@ $(document).ready(function() {
                                         processStateClassSummaryReport(res);
                                     });
 
-
                                     // Maximum of 4 model runs
                                     if (run == 4) {
                                         run = 1;
@@ -140,12 +139,9 @@ $(document).ready(function() {
             });
     });
 
+    /***************************************** Change Library *********************************************************/
+
     $(".model_selection").on("change", function() {
-       showLibraryInfo();
-    });
-
-    function showLibraryInfo(){
-
         var library_info = library_config[$(".model_selection").val()];
         var extent = library_info.extent;
 
@@ -172,9 +168,9 @@ $(document).ready(function() {
         $("#library_date").html(library_info.date);
         $("#library_description").html(library_info.description);
 
-    };
+    });
 
-    /********************************************** Start Button Functions ********************************************/
+    /********************************************** Load Library (Start) **********************************************/
 
     $("#start_button").on("click", function(){
 
@@ -259,7 +255,7 @@ $(document).ready(function() {
 
     });
 
-    /**************************************General Initialization Functions *******************************************/
+    /************************************* General Initialization Functions *******************************************/
 
     $(document).ready(function () {
         $(".header").click(function () {
@@ -301,8 +297,6 @@ $(document).ready(function() {
         }
     }
 
-
-
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
         var moveLeft = 50;
@@ -335,6 +329,8 @@ $(document).ready(function() {
 
     delegatedPopupContext('.show_state_classes_link', '.sub_slider_text_inputs');
     delegatedPopupContext('.manage_div', '.management_action_inputs');
+
+    /**************************************** State Class Input Changes ***********************************************/
 
     // On state class value entry move slider bar
     $(document).on('keyup', '.veg_state_class_entry', function() {
@@ -434,6 +430,8 @@ $(document).ready(function() {
         precip_previous_value=0;
     }
 
+    /********************************************** Timestep Changes **************************************************/
+
     $("#settings_timesteps").on("keyup", function(){
         var user_timesteps =  parseFloat($(this).val());
 
@@ -447,6 +445,8 @@ $(document).ready(function() {
         }
         current_scenario.config.run_control.max_timestep = parseInt($(this).val())
     });
+
+    /********************************************* Iteration Changes **************************************************/
 
     $("#settings_iterations").on("keyup", function(){
         var user_iterations =  parseFloat($(this).val());
@@ -506,7 +506,6 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
 }
 
 /*************************************** Initial Vegetation Cover Inputs **********************************************/
-
 
 var veg_slider_values = {};
 var slider_values = {};
@@ -821,22 +820,12 @@ function showSceneLoadingDiv() {
     $('#scene_loading_div').show();
 }
 
-/*********************************************** Other Functions ******************************************************/
-
-$(document).on('change', '#settings_library', function() {
-    var newLibraryName = $(this).val();
-    $.getJSON(newLibraryName + '/info/').done(function(definitions) {
-        setLibrary(newLibraryName, definitions);
-        if (definitions.has_predefined_extent) {
-            feature_id = newLibraryName;
-        }
-    })
-});
+/****************************** Process Results  & Create Charts *****************************************************/
 
 // Process Web API Results. Restructure data, and create the charts.
 function processStateClassSummaryReport(res){
 
-    data = res["results"];
+    var data = res["results"];
     results_data_json={};
 
     for (var i=1; i <= iterations; i++ ){
@@ -966,7 +955,7 @@ function update_results_table(run) {
 
     var sorted_veg_type_list = veg_type_list.sort();
 
-    $("#running_st_sim").html("ST-Sim Model Results");
+    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src=&quot;{% static 'img/collapse_down_arrow.png' %}&quot;>");
 
     $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
     // Go through each sorted veg_type
