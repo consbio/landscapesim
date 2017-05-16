@@ -142,6 +142,10 @@ $(document).ready(function() {
     /***************************************** Change Library *********************************************************/
 
     $(".model_selection").on("change", function() {
+        showLibraryInfo()
+    });
+
+    function showLibraryInfo() {
         var library_info = library_config[$(".model_selection").val()];
         var extent = library_info.extent;
 
@@ -168,7 +172,7 @@ $(document).ready(function() {
         $("#library_date").html(library_info.date);
         $("#library_description").html(library_info.description);
 
-    });
+    };
 
     /********************************************** Load Library (Start) **********************************************/
 
@@ -955,7 +959,7 @@ function update_results_table(run) {
 
     var sorted_veg_type_list = veg_type_list.sort();
 
-    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src=&quot;{% static 'img/collapse_down_arrow.png' %}&quot;>");
+    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src={% static 'img/collapse_down_arrow.png' %}>");
 
     $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
     // Go through each sorted veg_type
