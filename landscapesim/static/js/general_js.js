@@ -107,6 +107,10 @@ $(document).ready(function() {
                                     else {
                                         run += 1;
                                     }
+
+                                    // Show the new run tab
+                                    $("#view" + run + "_link").click();
+
                                     $("#tab_container").css("display", "block");
 
                                 });
@@ -888,7 +892,7 @@ function update_results_table(run) {
 
         if (sum_probabilities != 0) {
 
-            $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr'><td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>Disturbance Probabilities</td><td class='probabilistic_transitions_values_header'> <span class='show_disturbance_probabilities_link'> <span class='show_disturbance_probabilities_link_text'>Show</span> <img class='dropdown_arrows_disturbance' src='/static/img/down_arrow.png'></span></td></tr>");
+            $("#results_table_" + run).append("<tr class='probabilistic_transitions_tr'><td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>Probabilistic Transitions</td><td class='probabilistic_transitions_values_header'> <span class='show_disturbance_probabilities_link'> <span class='show_disturbance_probabilities_link_text'>Show</span> <img class='dropdown_arrows_disturbance' src='/static/img/down_arrow.png'></span></td></tr>");
             var sign;
             $.each(probabilistic_transitions_slider_values, function (transition_type, probability) {
                 if (probability != 0) {
@@ -927,7 +931,7 @@ function update_results_table(run) {
         $("#column_charts_" + run).show()
         $("#iteration_tr_" + run).hide()
         $("#area_charts_" + run).hide()
-        $("#veg_output_th_" + run).html("Vegetation Cover in " + settings["timesteps"] + " Years")
+        $("#veg_output_th_" + run).html("Vegetation Cover in " + current_scenario.config.max_timestep + " Years")
     });
 
     // Chart button click functions
@@ -939,7 +943,7 @@ function update_results_table(run) {
         $("#column_charts_" + run).hide()
         $("#iteration_tr_" + run).show()
         $("#area_charts_" + run).show()
-        $("#veg_output_th_" + run).html("Vegetation Cover across " + settings["timesteps"] + " Years")
+        $("#veg_output_th_" + run).html("Vegetation Cover over " + current_scenario.config.max_timestep + " Years")
     });
 
 
