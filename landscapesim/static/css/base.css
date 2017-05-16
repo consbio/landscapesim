@@ -98,7 +98,7 @@ canvas {
 	background-color: rgba(255,255,255,.9);
 	width: 100%;
 	padding: 5px 0px;
-	margin-bottom: 10px;
+	margin-bottom: 15px;
 	border-radius: 0px 0px 5px 5px;
 	/* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65); */
 	overflow-y: auto;
@@ -202,12 +202,15 @@ canvas {
 #output {
 	display: none;
 	position: relative;
-	width: 370px;
+	width: 355px;
 	float: right;
-	/* margin-right: 1px; */
+	margin-right: 20px;
 	z-index: 9999;
-	right: 8px;
 	top: 70px;
+	background-color:white;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+	border-radius: 5px;
+	margin-bottom: 7px;
 }
 
 #animation_container {
@@ -268,11 +271,10 @@ canvas {
 	font-weight: bold;
 	letter-spacing: 1px;
 	line-height: 22px;
-	border-radius: 5px;
 	font-size: 1.1em;
-	width: calc(100% - 18px);
+	width: 335px;
 	position: relative;
-	border:1px solid #1EBA36
+	border: 1px solid #1EBA36;
 }
 
 #results {
@@ -288,10 +290,10 @@ canvas {
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
-	position: relative;
+	position: absolute;
 	float: right;
 	right: 5px;
-	top: -9px;
+	top: 1px;
 }
 
 .area_charts {
@@ -1228,3 +1230,40 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 .leaflet-right {
 	top: 10px;
 }
+
+
+#footer {
+	z-index:999999;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 28px;
+	background-color: #424242;
+	color: white;
+	text-align: right;
+}
+
+#footerText {
+	font-size: 12px;
+	height: 28px;
+	line-height: 28px;
+	margin-right: 5px;
+	margin-left: 5px;
+	float: right;
+}
+
+#footerText a{
+	color: white;
+	text-decoration:none;
+}
+
+#footerText a:hover{
+	text-decoration:underline
+}
+
+#footerImage {
+	position: relative;
+	top: 2px;
+}
+
+

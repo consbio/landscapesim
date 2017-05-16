@@ -38,6 +38,9 @@ $(document).ready(function() {
 
     $('#run_button').on('click', function() {
 
+        $("#start_button").attr("disabled", true);
+        $("#start_button").addClass('disabled');
+
         settings["library"] = current_library.name;
         settings["spatial"] = $("#spatial_button").hasClass('selected')
 
@@ -114,7 +117,8 @@ $(document).ready(function() {
                                 $("#run_button").removeClass('please_wait');
                                 $('input:submit').attr("disabled", false);
                                 $(".slider_bars").slider( "option", "disabled", false );
-                                $('#button_container').attr("disabled", false);
+                                $("#button_container").attr("disabled", false);
+                                $("#running_st_sim").removeClass("full_border_radius");
 
                             } else if (update.status === 'failure') {
                                 alert('An error occurred. Please try again.')
@@ -796,7 +800,7 @@ $(document).ready(function () {
             // Go through each collapsible div and calculate the max-height based on
             $.each($(".collapsible_div"), function(){
                 var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 100;
+                var max_height = $(window).height() - this_div_position - 150;
                 $(this).addClass('transition_ease');
                 $(this).css('max-height',max_height);
                 $(this).removeClass('transition_ease')
