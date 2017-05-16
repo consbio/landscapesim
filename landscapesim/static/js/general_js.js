@@ -243,17 +243,15 @@ $(document).ready(function() {
             map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
             map.removeLayer(bounding_box_layer);
 
-            var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
-            collapsible_div.slideUp(400, function(){});
+            // Collapse the Welcome and Library divs.
 
-            var collapse_icon = $("#welcome_header").children(".collapse_icon");
-            $(collapse_icon).addClass("rotate90");
+            $("#welcome_header").siblings(".collapsible_div").slideUp(400, function(){});
+            $("#library_header").siblings(".collapsible_div").slideUp(400, function(){});
 
-            var collapsible_div = $("#library_header").siblings(".collapsible_div");
-            collapsible_div.slideUp(400, function(){});
+            $("#welcome_header").children(".collapse_icon").addClass("rotate90");
+            $("#library_header").children(".collapse_icon").addClass("rotate90");
 
-            var collapse_icon = $("#library_header").children(".collapse_icon");
-            $(collapse_icon).addClass("rotate90");
+            // Show the other inputs.
 
             $("#inputs").show();
 
