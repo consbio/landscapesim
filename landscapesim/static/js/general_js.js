@@ -174,7 +174,8 @@ $(document).ready(function() {
 
     };
 
-    /********************************************** Change Model Functions ********************************************/
+    /********************************************** Start Button Functions ********************************************/
+
     $("#start_button").on("click", function(){
 
         $("#welcome_header").addClass("full_border_radius");
@@ -246,13 +247,13 @@ $(document).ready(function() {
             collapsible_div.slideUp(400, function(){});
 
             var collapse_icon = $("#welcome_header").children(".collapse_icon");
-            toggleIcon(collapse_icon);
+            $(collapse_icon).addClass("rotate90");
 
             var collapsible_div = $("#library_header").siblings(".collapsible_div");
             collapsible_div.slideUp(400, function(){});
 
             var collapse_icon = $("#library_header").children(".collapse_icon");
-            toggleIcon(collapse_icon);
+            $(collapse_icon).addClass("rotate90");
 
             $("#inputs").show();
 
@@ -261,6 +262,48 @@ $(document).ready(function() {
     });
 
     /**************************************General Initialization Functions *******************************************/
+
+    $(document).ready(function () {
+        $(".header").click(function () {
+
+            var collapsible_div = $(this).siblings(".collapsible_div");
+            collapsible_div.slideToggle(400, function(){
+                // Go through each collapsible div and calculate the max-height based on
+                $.each($(".collapsible_div"), function(){
+                    var this_div_position = $(this).offset().top;
+                    var max_height = $(window).height() - this_div_position - 150;
+                    $(this).addClass('transition_ease');
+                    $(this).css('max-height',max_height);
+                    $(this).removeClass('transition_ease')
+
+                });
+
+            });
+
+            $(this).toggleClass("full_border_radius");
+
+            var collapse_icon = $(this).children(".collapse_icon");
+            toggleIcon(collapse_icon)
+
+        });
+    });
+
+    $(document).on("click", ".close_state_class", function(){
+        $(this).parents(".sub_slider_text_inputs").hide()
+    });
+
+    function toggleIcon(collapse_icon){
+        // Rotate the arrow icon.
+
+        if (collapse_icon.hasClass("rotate90")){
+            $(collapse_icon).removeClass("rotate90");
+        }
+        else {
+            $(collapse_icon).addClass("rotate90");
+        }
+    }
+
+
 
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
@@ -791,47 +834,6 @@ $(document).on('change', '#settings_library', function() {
         }
     })
 });
-
-$(document).ready(function () {
-    $(".header").click(function () {
-
-        var collapsible_div = $(this).siblings(".collapsible_div");
-        collapsible_div.slideToggle(400, function(){
-            // Go through each collapsible div and calculate the max-height based on
-            $.each($(".collapsible_div"), function(){
-                var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 150;
-                $(this).addClass('transition_ease');
-                $(this).css('max-height',max_height);
-                $(this).removeClass('transition_ease')
-
-            });
-
-        });
-
-        $(this).toggleClass("full_border_radius");
-
-        collapse_icon = $(this).children(".collapse_icon");
-        toggleIcon(collapse_icon)
-
-    });
-});
-
-$(document).on("click", ".close_state_class", function(){
-    $(this).parents(".sub_slider_text_inputs").hide()
-});
-
-function toggleIcon(collapse_icon){
-    // Rotate the arrow icon.
-
-    if (collapse_icon.hasClass("rotate90")){
-        $(collapse_icon).removeClass("rotate90");
-    }
-    else {
-        $(collapse_icon).addClass("rotate90");
-    }
-}
-
 
 // Process Web API Results. Restructure data, and create the charts.
 function processStateClassSummaryReport(res){
