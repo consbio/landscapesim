@@ -960,8 +960,8 @@ function update_results_table(run) {
     });
 
     var sorted_veg_type_list = veg_type_list.sort();
-
-    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src={% static 'img/collapse_down_arrow.png' %}>");
+    var collapse_icon = "{% static 'img/collapse_down_arrow.png' %}";
+    $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src=" + collapse_icon + ">");
 
     $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
     // Go through each sorted veg_type
