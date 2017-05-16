@@ -80,12 +80,10 @@ canvas {
 }
 
 .collapse_icon {
-	display:none;
 	float: right;
 	position: relative;
 	height: 20px;
 	right: 5px;
-	opacity: .6;
 }
 
 .rotate90 {
