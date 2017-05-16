@@ -60,12 +60,23 @@ canvas {
 	font-weight: bold;
 	letter-spacing: 1px;
 	line-height: 22px;
-	padding: 9px 0px 9px 9px;
-	border-radius: 5px;
-	width: 318px;
+	padding: 10px;
+	border-radius: 5px 5px 0px 0px;
+	width: calc(100% - 20px);
 	font-size: 1.1em;
-	margin-bottom: 10px;
+	border: 1px solid #0092D1;
+	left: -1px;
+	position: relative;
+}
+
+.widget_div {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+	border-radius: 5px;
+	margin-bottom: 7px;
+}
+
+.full_border_radius{
+	border-radius: 5px;
 }
 
 .collapse_icon {
@@ -85,14 +96,22 @@ canvas {
 
 .collapsible_div {
 	background-color: rgba(255,255,255,.9);
-	width: 327px;
+	width: 100%;
 	padding: 5px 0px;
 	margin-bottom: 10px;
-	border-radius: 5px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+	border-radius: 0px 0px 5px 5px;
+	/* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65); */
 	overflow-y: auto;
 	overflow-x: hidden;
 	max-height: calc(100vh - 400px);
+}
+
+.collapsed {
+	display: none;
+}
+
+#library_info{
+	margin:15px;
 }
 
 #library_info_table{
@@ -253,6 +272,7 @@ canvas {
 	font-size: 1.1em;
 	width: calc(100% - 18px);
 	position: relative;
+	border:1px solid #1EBA36
 }
 
 #results {
@@ -474,15 +494,15 @@ label, td{
 
 #run_button {
 	cursor: pointer;
-	width: 324px;
+	width: calc(100%);
 	font-size: 20px;
-	border-radius: 10px;
+	border-radius: 5px;
 	height: 60px;
 	color: white;
 	font-weight: bold;
 	background-color: #1EBA36;
 	margin-top: 5px;
-	border:0px;
+	border: 0px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 }
 

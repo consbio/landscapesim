@@ -173,6 +173,9 @@ $(document).ready(function() {
     /********************************************** Change Model Functions ********************************************/
     $("#start_button").on("click", function(){
 
+        $("#welcome_header").addClass("full_border_radius");
+        $("#library_header").addClass("full_border_radius");
+
         current_library = $.grep(available_libraries, function(e) {return e.id == $(".model_selection").val()})[0];
         available_projects = current_library.projects;
         project_url = available_projects[0];
@@ -236,9 +239,15 @@ $(document).ready(function() {
             map.removeLayer(bounding_box_layer);
 
             var collapsible_div = $("#welcome_header").siblings(".collapsible_div");
-            collapsible_div.slideToggle(400, function(){});
+            collapsible_div.slideUp(400, function(){});
 
             var collapse_icon = $("#welcome_header").children(".collapse_icon");
+            toggleIcon(collapse_icon);
+
+            var collapsible_div = $("#library_header").siblings(".collapsible_div");
+            collapsible_div.slideUp(400, function(){});
+
+            var collapse_icon = $("#library_header").children(".collapse_icon");
             toggleIcon(collapse_icon);
 
             $("#inputs").show();
@@ -781,6 +790,7 @@ $(document).on('change', '#settings_library', function() {
 
 $(document).ready(function () {
     $(".header").click(function () {
+
         var collapsible_div = $(this).siblings(".collapsible_div");
         collapsible_div.slideToggle(400, function(){
             // Go through each collapsible div and calculate the max-height based on
@@ -792,7 +802,10 @@ $(document).ready(function () {
                 $(this).removeClass('transition_ease')
 
             });
+
         });
+
+        $(this).toggleClass("full_border_radius");
 
         collapse_icon = $(this).children(".collapse_icon");
         toggleIcon(collapse_icon)
