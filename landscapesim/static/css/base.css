@@ -199,18 +199,22 @@ canvas {
 
 #output {
 	display: none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+	background-color:white;
+}
+
+#right {
 	position: relative;
 	width: 355px;
 	float: right;
 	margin-right: 20px;
 	z-index: 9999;
 	top: 70px;
-	background-color:white;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 	border-radius: 5px;
 	margin-bottom: 7px;
 	max-height: calc(100vh - 132px);
 }
+
 
 #animation_container {
 	/*background-color: #0092D1;*/
@@ -1189,18 +1193,22 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
     color: #777;
 }
 
-#scene_legend {
-	float: right;
-	position: absolute;
-	top: 80px;
-	right: 12px;
+#legend_container {
+	display:none;
 	z-index: 99999;
-	background-color: #E9E9E9;
-	border-radius: 4px;
+	right: 20px;
+	background-color: white;
+}
+
+#scene_legend {
+	z-index: 99999;
 	font-size: .8em;
-	display: none;
 	line-height: 16px;
 	padding: 8px;
+	white-space: nowrap;
+	height: 100%;
+	position: relative;
+	margin-left: 20px;
 }
 
 #scene_legend_color {
@@ -1226,10 +1234,10 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	text-align:center;
 }
 
-.leaflet-right {
+.leaflet-left {
+	left: 360px;
 	top: 10px;
 }
-
 
 #footer {
 	z-index:999999;

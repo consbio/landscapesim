@@ -21,7 +21,7 @@ var groupedOverlays = {
     }
 };
 
-layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+layerControl = L.control.groupedLayers("", groupedOverlays, {position:'topleft'}).addTo(map);
 
 var options = { exclusiveGroups: ["Reporting Units","Base Maps"]};
 
@@ -37,8 +37,42 @@ function loadLayers(scenario_input_services){
 
 }
 
+function loadOutputLayers(scenario_output_services){
+
+    // Change it to the number of iterations
+    // Change t to the min timestep
+
+    var t0it1 = {'t': 0, 'it': 1};
+
+    if (typeof scenario_output_services.stateclass != "undefined") {
+
+        var stateClassLayer = L.tileLayer(scenario_output_services.stateclass, t0it1);
+
+
+        var timestep_slider = L.control.range({
+            position: 'topright',
+            min: config.run_control.min_timestep,
+            max: config.run_control.max_timestep - 1,
+            value: config.run_control.min_timestep,
+            step: 1,
+            orient: 'horizontal',
+            iconClass: 'leaflet-range-icon'
+        });
+
+        timestep_slider.on('input change', function (e) {
+
+            stateClassLayer.options.t = Number(e.value);
+            stateClassLayer.redraw();
+
+        });
+
+        map.addControl(timestep_slider);
+    }
+
+}
+
 // Zoom control
 L.control.zoom({
-    position:'topright'
+    position:'topleft'
 }).addTo(map);
 

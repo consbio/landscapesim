@@ -191,44 +191,46 @@
         </div>
 
         <div id="map"></div>
-        <!--
-        <div id="scene_legend">
-            <div class="header full_border_radius">Probabilistic Transitions <img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
-                <div class="collapsible_div collapsed">
-                    <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
-            </div>
-        </div>
-        -->
 
-        <div id="output">
-            <div id="running_st_sim" class="header full_border_radius">Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div></div>
-                 <div id="tab_container" class="collapsible_div">
-                    <!--data-persist="true" keeps the current tab active on page refresh-->
-                    <ul class="tabs" data-persist="false">
-                        <li id="view1_tab" style="display:none"><a id="view1_link" href="#view1">Run 1</a></li>
-                        <li id="view2_tab" style="display:none"><a id="view2_link" href="#view2">Run 2</a></li>
-                        <li id="view3_tab" style="display:none"><a id="view3_link" href="#view3">Run 3</a></li>
-                        <li id="view4_tab" style="display:none"><a id="view4_link" href="#view4">Run 4</a></li>
-                    </ul>
-                    <div class="tabcontents">
-                        <div id="view1" class="views">
-                            <div id="tabular_output_1">
-                                <table id="results_table_1" class="results_table"></table>
+        <div id="right">
+
+            <div id="legend_container" class="widget_div">
+                <div id="legend_header" class="header">Legend<img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                <div class="collapsible_div">
+                    <div id="scene_legend"></div>
+                </div>
+            </div>
+
+            <div id="output">
+                <div id="running_st_sim" class="header full_border_radius">Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div></div>
+                     <div id="tab_container" class="collapsible_div">
+                        <!--data-persist="true" keeps the current tab active on page refresh-->
+                        <ul class="tabs" data-persist="false">
+                            <li id="view1_tab" style="display:none"><a id="view1_link" href="#view1">Run 1</a></li>
+                            <li id="view2_tab" style="display:none"><a id="view2_link" href="#view2">Run 2</a></li>
+                            <li id="view3_tab" style="display:none"><a id="view3_link" href="#view3">Run 3</a></li>
+                            <li id="view4_tab" style="display:none"><a id="view4_link" href="#view4">Run 4</a></li>
+                        </ul>
+                        <div class="tabcontents">
+                            <div id="view1" class="views">
+                                <div id="tabular_output_1">
+                                    <table id="results_table_1" class="results_table"></table>
+                                </div>
                             </div>
-                        </div>
-                        <div id="view2" class="views">
-                            <div id="tabular_output_2">
-                                <table id="results_table_2" class="results_table"></table>
+                            <div id="view2" class="views">
+                                <div id="tabular_output_2">
+                                    <table id="results_table_2" class="results_table"></table>
+                                </div>
                             </div>
-                        </div>
-                        <div id="view3" class="views">
-                            <div id="tabular_output_3">
-                                <table id="results_table_3" class="results_table"></table>
+                            <div id="view3" class="views">
+                                <div id="tabular_output_3">
+                                    <table id="results_table_3" class="results_table"></table>
+                                </div>
                             </div>
-                        </div>
-                        <div id="view4" class="views">
-                            <div id="tabular_output_4">
-                                <table id="results_table_4" class="results_table"></table>
+                            <div id="view4" class="views">
+                                <div id="tabular_output_4">
+                                    <table id="results_table_4" class="results_table"></table>
+                                </div>
                             </div>
                         </div>
                     </div>

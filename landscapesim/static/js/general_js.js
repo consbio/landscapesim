@@ -123,6 +123,10 @@ $(document).ready(function() {
                                 $("#button_container").attr("disabled", false);
                                 $("#running_st_sim").removeClass("full_border_radius");
 
+                                $("#legend_header").siblings(".collapsible_div").slideUp(400, function(){});
+                                $("#legend_header").children(".collapse_icon").addClass("rotate90");
+
+
                             } else if (update.status === 'failure') {
                                 alert('An error occurred. Please try again.')
 
@@ -176,7 +180,6 @@ $(document).ready(function() {
         $("#library_author").html(library_info.author);
         $("#library_date").html(library_info.date);
         $("#library_description").html(library_info.description);
-        $("#scene_legend").show();
 
     };
 
@@ -260,6 +263,8 @@ $(document).ready(function() {
             // Show the other inputs.
 
             $("#inputs").show();
+
+            $("#legend_container").show();
 
         })
 
