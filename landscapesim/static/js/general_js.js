@@ -52,13 +52,10 @@ $(document).ready(function() {
         $(".slider_bars").slider( "option", "disabled", true );
         $('input:submit').attr("disabled", true);
         $("#run_button").addClass('disabled');
-        $("#run_button").val('Please Wait...');
-        $("#run_button").addClass('please_wait');
+        $("#run_button").html("Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div>");
         $("#running_st_sim").show()
 
         //$("#results_table").empty()
-        $("#output").show();
-        $("#running_st_sim").html("Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div>");
 
         $(".leaflet-right").css("right", "380px");
 
@@ -81,6 +78,8 @@ $(document).ready(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
                             console.log(update);
                             if (update.status === 'success') {
+
+                                $("#output").show();
                                 result_url = update.result_scenario;
 
                                 // Determine the reports URL
@@ -117,9 +116,8 @@ $(document).ready(function() {
 
                                 });
 
-                                $("#run_button").val('Run Model');
+                                $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
-                                $("#run_button").removeClass('please_wait');
                                 $('input:submit').attr("disabled", false);
                                 $(".slider_bars").slider( "option", "disabled", false );
                                 $("#button_container").attr("disabled", false);
@@ -132,9 +130,8 @@ $(document).ready(function() {
                             } else if (update.status === 'failure') {
                                 alert('An error occurred. Please try again.')
 
-                                $("#run_button").val('Run Model');
+                                $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
-                                $("#run_button").removeClass('please_wait');
                                 $('input:submit').attr("disabled", false);
                                 $('#button_container').attr("disabled", false);
 
@@ -385,16 +382,23 @@ $(document).ready(function() {
 
     function setSpatialOutputOptions(setting) {
 
-        var timesteps;
+        var raster_frequency;
 
         current_scenario.config.run_control.is_spatial = setting;
+        current_scenario.config.output_options.raster_sc = setting;
 
-        if (setting == true ){
-            timesteps =  current_scenario.config.run_control.max_timestep;
+        if(setting == true){
+
+            raster_frequency = 1
+
         }
         else{
-            timesteps = -1
+            raster_frequency = -1
         }
+
+        current_scenario.config.output_options.raster_sc_t = raster_frequency;
+
+        /* Other setting don't currently work
 
         $.each(current_scenario.config.output_options, function (key, value) {
 
@@ -410,6 +414,7 @@ $(document).ready(function() {
             }
 
         });
+        */
     }
 
 
@@ -741,7 +746,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
                     });
 
                     /* Old Version */
-                    // Modify the values in the veg_slider_values_state_class
+                    // Modify the values in the veg_slideravalues_state_class
                     /*
                     $.each(veg_type_state_classes_json[veg_type], function (index, state_class) {
                         veg_slider_values_state_class[veg_type][state_class] = veg_proportion[veg_id];
