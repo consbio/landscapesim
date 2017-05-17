@@ -21,14 +21,20 @@ var groupedOverlays = {
     }
 };
 
-layerControl = L.control.groupedLayers("", groupedOverlays, {position:'topleft'}).addTo(map);
+var options = {
+    position:"topleft",
+    exclusiveGroups: ["Reporting Units","Base Maps", "Library Layers"]
+};
 
-var options = { exclusiveGroups: ["Reporting Units","Base Maps"]};
+layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+
 
 function loadLayers(scenario_input_services){
 
     var stateClassLayer = L.tileLayer(scenario_input_services.stateclass);
     var stratumLayer = L.tileLayer(scenario_input_services.stratum);
+
+    stateClassLayer.on
 
     layerControl.addOverlay(stateClassLayer, "State Classes", "Library Layers");
     layerControl.addOverlay(stratumLayer, "Vegetation Types", "Library Layers");
@@ -36,6 +42,18 @@ function loadLayers(scenario_input_services){
     stratumLayer.addTo(map)
 
 }
+
+map.on('overlayadd', swapLegend);
+
+function swapLegend(e){
+
+    $("#scene_legend").empty();
+    $("#scene_legend").append("<div class='legend_title'>" + e.name + "</div>");
+    $.each(colorMap[e.name], function(key,value){
+        $("#scene_legend").append("<div class='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
+    });
+}
+
 
 function loadOutputLayers(scenario_output_services){
 

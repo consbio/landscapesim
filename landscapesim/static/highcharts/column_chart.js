@@ -122,7 +122,7 @@ function create_column_charts(results_data_json, run) {
             var rounded_median = parseFloat(value[1].toFixed(1))
             var rounded_min = parseFloat(value[0].toFixed(1))
             var rounded_max = parseFloat(value[2].toFixed(1))
-            median_vals.push({y: rounded_median, color: state_class_color_map[state_class_name]})
+            median_vals.push({y: rounded_median, color: colorMap["Vegetation Types"][state_class_name]})
             min_max_vals.push([rounded_min, rounded_max])
         });
 

@@ -21,9 +21,11 @@ $(document).ready(function() {
         $.each(available_libraries, function(index,library_array){
             $(".model_selection").append("<option value ='" + library_array.id + "'>" + library_array.name)
         });
-        $("select").prop("selectedIndex",1);
 
-        showLibraryInfo()
+        $("select").prop("selectedIndex",0);
+        // Option to select the first library
+        // $("select").prop("selectedIndex",1);
+        // showLibraryInfo()
 
     });
 
@@ -150,7 +152,9 @@ $(document).ready(function() {
     /***************************************** Change Library *********************************************************/
 
     $(".model_selection").on("change", function() {
-        showLibraryInfo()
+        showLibraryInfo();
+        $(".library_info_hidden").show();
+        $("#start_button").show();
     });
 
     // Also called on page load.
@@ -174,7 +178,7 @@ $(document).ready(function() {
 
         // Show the layer
         bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
-        bounding_box_layer.bindPopup(library_info.name + " Extent");
+        bounding_box_layer.bindPopup(library_info.name + " Extent").openPopup();
 
         // Upate the values in the library_info table
         $("#library_author").html(library_info.author);
@@ -249,7 +253,8 @@ $(document).ready(function() {
 
             });
 
-            map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
+            //map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
+            map.fitBounds(bounding_box_layer.getBounds());
             map.removeLayer(bounding_box_layer);
 
             // Collapse the Welcome and Library divs.
@@ -263,6 +268,7 @@ $(document).ready(function() {
             // Show the other inputs.
 
             $("#inputs").show();
+            $("#initial_vegetation_container").show();
 
             $("#legend_container").show();
 
@@ -281,11 +287,10 @@ $(document).ready(function() {
                 // Go through each collapsible div and calculate the max-height based on
                 $.each($(".collapsible_div"), function(){
                     var this_div_position = $(this).offset().top;
-                    var max_height = $(window).height() - this_div_position - 150;
+                    var max_height = $(window).height() - this_div_position - 175;
                     $(this).addClass('transition_ease');
                     $(this).css('max-height',max_height);
                     $(this).removeClass('transition_ease')
-
                 });
 
             });
@@ -537,7 +542,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
     // Create the legend
     $("#scene_legend").empty();
-    $.each(veg_type_color_map, function(key,value){
+    $.each(colorMap["Vegetation Types"], function(key,value){
         $("#scene_legend").append("<div id='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
     });
 
@@ -561,6 +566,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
         $("#vegTypeSliderTable").append("<tr><td>" +
             "<table class='initial_veg_cover_input_table'>" +
             "<tr><td colspan='4'>" +
+            "<div class='scene_legend_color_initial_vegetation_cover' style='background-color:" + colorMap["Vegetation Types"][veg_type] +  "'></div>"+
             "<label for='amount_veg1'><div class='imageOverlayLink'>" + veg_type + " </div></label>" +
             "</td></tr>" +
             "<tr><td>" +
@@ -1036,6 +1042,9 @@ function update_results_table(run) {
 
 function createColorMap(project_definitions){
 
+    colorMap={};
+    colorMap["State Classes"]={};
+    colorMap["Vegetation Types"]={};
     state_class_color_map={};
     veg_type_color_map={};
 
@@ -1043,7 +1052,7 @@ function createColorMap(project_definitions){
         var rgb = (object.color).split(",");
         rgb.shift();
         var rgb_string = rgb.join();
-        state_class_color_map[object.name] = "rgb(" + rgb_string + ")";
+        colorMap["State Classes"][object.name] = "rgb(" + rgb_string + ")";
 
     });
 
@@ -1051,7 +1060,7 @@ function createColorMap(project_definitions){
         var rgb = (object.color).split(",");
         rgb.shift();
         var rgb_string = rgb.join();
-        veg_type_color_map[object.name] = "rgb(" + rgb_string + ")";
+        colorMap["Vegetation Types"][object.name] = "rgb(" + rgb_string + ")";
 
     });
 
