@@ -958,8 +958,8 @@ li.selected a:hover {
 	width: 148px;
 	max-width: 148px;
 	text-align: left;
+	text-align: center;
 }
-
 #general_settings_table td:nth-child(3) {
 	width: 21px;
 	max-width: 21px;

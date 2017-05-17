@@ -56,6 +56,7 @@
     <!-- My CSS -->
     <link rel="stylesheet" href="{% static "css/base.css" %}" />
     <link rel="stylesheet" href="{% static "css/buttons.css" %}" />
+    <link rel="stylesheet" href="{% static "css/toggle.css" %}" />
 
 </head>
 
@@ -174,9 +175,14 @@
                                         <div id="run_mode_div" class="general_settings_div"> Spatial Output: </div>
                                     </td>
                                     <td>
-                                        <ul id="button_list2" class="buttons buttons2" data-persist="false">
-                                            <li id="spatial_button"><a id="spatial_link">Enable</a></li>
-                                        </ul>
+                                        <div id="spatial_control">
+                                            <div id="spatial_off">Off</div>
+                                                    <label class="switch">
+                                                      <input id="spatial_switch" checked type="checkbox">
+                                                        <div class="slider round"></div>
+                                                    </label>
+                                            <div id="spatial_on"> On</div>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>

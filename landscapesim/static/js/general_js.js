@@ -229,12 +229,8 @@ $(document).ready(function() {
                     console.log(config);
                     current_scenario.config = config;
 
-                    // Aspatial by default:
-                    current_scenario.config.output_options.raster_tr=false;
-                    current_scenario.config.output_options.raster_tr_t=-1;
-                    current_scenario.config.output_options.raster_sc=false;
-                    current_scenario.config.output_options.raster_sc_t=-1;
-                    current_scenario.config.run_control.is_spatial = false;
+                    // Spatial by default:
+                    setSpatialOutputOptions(true)
 
                     // Store the original transition values to reference when adjusting probabilistic transition sliders.
                     $.each(current_scenario.config.transitions, function(index, object){
@@ -380,6 +376,42 @@ $(document).ready(function() {
 
     delegatedPopupContext('.show_state_classes_link', '.sub_slider_text_inputs');
     delegatedPopupContext('.manage_div', '.management_action_inputs');
+
+    /*********************************************** Spatial Setting **************************************************/
+
+    $(document).on("change", "#spatial_switch", function(){
+        setSpatialOutputOptions($(this)[0].checked)
+    });
+
+    function setSpatialOutputOptions(setting) {
+
+        var timesteps;
+
+        current_scenario.config.run_control.is_spatial = setting;
+
+        if (setting == true ){
+            timesteps =  current_scenario.config.run_control.max_timestep;
+        }
+        else{
+            timesteps = -1
+        }
+
+        $.each(current_scenario.config.output_options, function (key, value) {
+
+            if (key.indexOf("raster") > -1) {
+
+                if ((key).split("_").pop() == "t") {
+                    current_scenario.config.output_options[key] = timesteps;
+                }
+                else {
+                    current_scenario.config.output_options[key] = setting;
+                }
+
+            }
+
+        });
+    }
+
 
     /**************************************** State Class Input Changes ***********************************************/
 
@@ -1095,3 +1127,5 @@ function createColorMap(project_definitions){
     });
 
 }
+
+
