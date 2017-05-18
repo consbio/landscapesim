@@ -1326,7 +1326,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 }
 
 div.leaflet-bottom:nth-child(4){
-	right:45px;
+	right:45px !important;
 	bottom:100px;
 }
 
