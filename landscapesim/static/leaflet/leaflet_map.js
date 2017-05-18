@@ -43,9 +43,11 @@ function loadLayers(scenario_input_services){
 
 }
 
-map.on('overlayadd', swapLegend);
+map.on('overlayadd', overlayAdd);
 
-function swapLegend(e){
+function overlayAdd(e){
+    var layer = e.layer;
+    layer.bringToFront();
 
     $("#scene_legend").empty();
     $("#scene_legend").append("<div class='legend_title'>" + e.name + "</div>");
