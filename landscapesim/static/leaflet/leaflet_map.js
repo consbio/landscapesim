@@ -61,37 +61,48 @@ function loadOutputLayers(results_scenario_configuration){
     // Change it to the number of iterations
     // Change t to the min timestep
 
+
     map.removeLayer(inputStateClassLayer);
     map.removeLayer(inputStratumLayer);
 
-    var t0it1 = {'t': 0, 'it': 1};
+    if( $("#spatial_switch")[0].checked) {
 
-    if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
+        var t0it1 = {'t': 0, 'it': 1};
 
-        var outputStateClassLayer = L.tileLayer(results_scenario_configuration.scenario_output_services.stateclass, t0it1).addTo(map).bringToFront();
-        layerControl.addOverlay(outputStateClassLayer, "State Classes", "Output Layers");
+        if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
-        var timestep_slider = L.control.range({
-            position: 'bottomright',
-            min: results_scenario_configuration.run_control.min_timestep,
-            max: results_scenario_configuration.run_control.max_timestep - 1,
-            value: results_scenario_configuration.run_control.min_timestep,
-            step: 1,
-            orient: 'horizontal',
-            iconClass: 'leaflet-range-icon'
-        });
+            var outputStateClassLayer = L.tileLayer(results_scenario_configuration.scenario_output_services.stateclass, t0it1).addTo(map).bringToFront();
+            layerControl.addOverlay(outputStateClassLayer, "State Classes", "Output Layers");
 
-        timestep_slider.on('input change', function (e) {
+            var timestep_slider = L.control.range({
+                position: 'bottomright',
+                min: results_scenario_configuration.run_control.min_timestep,
+                max: results_scenario_configuration.run_control.max_timestep - 1,
+                value: results_scenario_configuration.run_control.min_timestep,
+                step: 1,
+                orient: 'horizontal',
+                iconClass: 'leaflet-range-icon'
+            });
 
-            outputStateClassLayer.options.t = Number(e.value);
-            outputStateClassLayer.redraw();
-            outputStateClassLayer.bringToFront();
+            timestep_slider.on('input change', function (e) {
 
-        });
+                outputStateClassLayer.options.t = Number(e.value);
+                outputStateClassLayer.redraw();
+                outputStateClassLayer.bringToFront();
 
-        map.addControl(timestep_slider);
+            });
+
+            map.addControl(timestep_slider);
+        }
     }
+    else{
+        var centroid = bounding_box_layer.getBounds().getCenter();
+        var popup = L.popup()
+            .setLatLng(centroid)
+            .setContent("Spatial output is only available for spatial runs. Enable spatial output under Run Control")
+            .openOn(mymap);
 
+    }
 }
 
 // Zoom control

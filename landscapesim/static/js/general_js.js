@@ -27,6 +27,8 @@ $(document).ready(function() {
         // $("select").prop("selectedIndex",1);
         // showLibraryInfo()
 
+        $("#spatial_switch")[0].checked = true
+
     });
 
     /************************************************* Run Model  ****************************************************/
@@ -92,7 +94,7 @@ $(document).ready(function() {
                                 // Get the result scenario object for output services
                                 $.getJSON(results_scenario_configuration_url).done(function (res) {
 
-                                    var results_scenario_configuration =  res
+                                    results_scenario_configuration =  res
                                     loadOutputLayers(results_scenario_configuration)
 
                                 });
@@ -151,7 +153,6 @@ $(document).ready(function() {
                         })
                     }, 5000)
                 })();
-
 
             });
     });
@@ -567,7 +568,8 @@ $(document).ready(function() {
             alert("Please enter a value greater than 0");
             $(this).val(1)
         }
-        current_scenario.config.run_control.max_timestep = parseInt($(this).val())
+
+        current_scenario.config.run_control.max_timestep = parseInt($(this).val()) - 1
     });
 
     /********************************************* Iteration Changes **************************************************/
