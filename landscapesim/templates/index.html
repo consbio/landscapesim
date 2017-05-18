@@ -87,7 +87,7 @@
                     <div id="library_info">
                         <table id="library_info_table">
                             <tr><td class="library_info_hidden">Library:</td>
-                                <td>
+                                <td id=model_selection_td class="initial_td_styling">
                                     <div id="model_selection_container">
                                         <select class="model_selection" name="model_selection" id="model_selection1">
                                             <option disabled selected>Select a Library</option>
@@ -118,6 +118,7 @@
                     <div id="input_initial_veg">
                         <div class="header full_border_radius" id="steps_initial_vegetation_cover">Initial Vegetation Cover <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
                         <div id="initial_vegetation_container" class="collapsible_div collapsed full_border_radius">
+                            <div id="veg_slider_notice">Note: Initial vegetation cover values can only be modified when doing a non-spatial run (under Run Control, set the spatial output switch to "Off")</div>
                             <div id="vegtype_slider_container">
                                 <table id="vegTypeSliderTable" class="sliderTable"></table>
                             </div>

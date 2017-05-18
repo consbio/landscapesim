@@ -54,7 +54,6 @@ function swapLegend(e){
     });
 }
 
-
 function loadOutputLayers(results_scenario_configuration){
 
     // Change it to the number of iterations

@@ -129,6 +129,10 @@ canvas {
 	border-collapse:collapse;
 }
 
+.initial_td_styling{
+	background-color: white !important;
+}
+
 #library_info_table td {
 	border: 1px solid #fff;
 	padding: 8px;
@@ -277,6 +281,14 @@ canvas {
 	width: 700px;
 }
 
+#veg_slider_notice{
+	background-color: white;
+	padding: 3px 20px;
+	font-size: .8em;
+	color: #6c6c6c;
+	text-align: justify;
+}
+
 #vegtype_slider_container {
 	direction: ltr;
 	z-index: 999999;
@@ -320,7 +332,7 @@ canvas {
 .area_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: 54vh;
+	height: 51.4vh;
 	padding-right: 30px;
 	overflow-x: hidden;
 }
@@ -1333,4 +1345,10 @@ div.leaflet-bottom:nth-child(4){
 .leaflet-range-control input[type="range"][orient="horizontal"] {
 	margin-top: 5px;
 	width: 248px;
+}
+
+.ui-state-disabled, .ui-widget-content .ui-state-disabled, .ui-widget-header .ui-state-disabled {
+	opacity: 1;
+	filter: Alpha(Opacity=100);
+	background-image: none;
 }

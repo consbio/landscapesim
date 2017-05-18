@@ -159,6 +159,7 @@ $(document).ready(function() {
     /***************************************** Change Library *********************************************************/
 
     $(".model_selection").on("change", function() {
+        $("#model_selection_td").removeClass("initial_td_styling");
         showLibraryInfo();
         $(".library_info_hidden").show();
         $("#start_button").show();
@@ -252,6 +253,11 @@ $(document).ready(function() {
                     setInitialConditionsSidebar(veg_initial_conditions);
 
                     loadLayers(current_scenario.config.scenario_input_services);
+
+                    $(".veg_slider_bars").slider("disable");
+                    $(".veg_slider_bars").addClass("disabled");
+                    $(".veg_state_class_entry").addClass("disabled");
+                    $(".veg_state_class_entry").prop("disabled", true);
                 })
 
             });
@@ -276,6 +282,7 @@ $(document).ready(function() {
             $("#legend_container").show();
 
             library_selected = true
+
 
         })
 
@@ -407,6 +414,10 @@ $(document).ready(function() {
         }
 
         current_scenario.config.output_options.raster_sc_t = raster_frequency;
+
+        /* Taylor's suggestion for temporarily fixing the 20 timestep error */
+        current_scenario.config.output_options.raster_tr = false;
+        current_scenario.config.output_options.raster_tr_t = -1;
 
         /* Other setting don't currently work
 
@@ -647,7 +658,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             "<label for='amount_veg1'><div class='imageOverlayLink'>" + veg_type + " </div></label>" +
             "</td></tr>" +
             "<tr><td>" +
-            "<div class='slider_bars' id='veg" + veg_id + "_slider'></div>" +
+            "<div class='slider_bars veg_slider_bars' id='veg" + veg_id + "_slider'></div>" +
             "</td><td>" +
             "<input type='text' id='veg" + veg_id + "_label' class='current_slider_setting' readonly>" +
             "</td>" +
