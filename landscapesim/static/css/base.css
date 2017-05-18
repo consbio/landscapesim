@@ -217,6 +217,8 @@ canvas {
 	display: none;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 	background-color:white;
+	float:right;
+	width:100%;
 }
 
 #right {
@@ -1219,12 +1221,17 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 #legend_container {
 	display: none;
 	z-index: 99999;
-	right: 20px;
 	background-color: white;
-	min-width: 130px;
+	min-width: 100px;
 	float: right;
+	position: relative;
 }
 
+#legend_header {
+	padding: 0px 0px 0px 10px;
+	width: calc(100% - 10px);
+	font-size: .8em;
+}
 .legend_title{
 	border-radius: 0px;
 	background-color: #FFF;
@@ -1244,7 +1251,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	white-space: nowrap;
 	height: 100%;
 	position: relative;
-	margin-left: 20px;
+	margin:0px 20px;
 }
 
 .scene_legend_color {
@@ -1318,4 +1325,12 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	top: 2px;
 }
 
+div.leaflet-bottom:nth-child(4){
+	right:45px;
+	bottom:100px;
+}
 
+.leaflet-range-control input[type="range"][orient="horizontal"] {
+	margin-top: 5px;
+	width: 248px;
+}

@@ -161,7 +161,7 @@ function create_area_charts(results_data_json, run, iteration) {
             $.each(chart_dict[veg_type], function (state_class_name, values_array) {
                 ac.addSeries({
                     name: state_class_name,
-                    color: colorMap["Vegetation Types"][state_class_name],
+                    color: colorMap["State Classes"][state_class_name],
                     data: values_array,
                     lineWidth: 0,
                     stacking: 'normal',

@@ -86,7 +86,16 @@ $(document).ready(function() {
                                 var url_array = result_url.split('/');
                                 var base_url = url_array[2];
                                 var results_model_id = url_array[url_array.length -2];
-                                reports_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
+                                var reports_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
+                                var results_scenario_configuration_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/config/";
+
+                                // Get the result scenario object for output services
+                                $.getJSON(results_scenario_configuration_url).done(function (res) {
+
+                                    var results_scenario_configuration =  res
+                                    loadOutputLayers(results_scenario_configuration)
+
+                                });
 
                                 // Get the list of reports
                                 $.getJSON(reports_url).done(function (res) {
@@ -123,8 +132,9 @@ $(document).ready(function() {
                                 $("#button_container").attr("disabled", false);
                                 $("#running_st_sim").removeClass("full_border_radius");
 
-                                $("#legend_header").siblings(".collapsible_div").slideUp(400, function(){});
+                                $("#legend_header").nextAll(".collapsible_div:first").slideUp(400, function(){});
                                 $("#legend_header").children(".collapse_icon").addClass("rotate90");
+                                $("#legend_container").css("width", "100%")
 
 
                             } else if (update.status === 'failure') {

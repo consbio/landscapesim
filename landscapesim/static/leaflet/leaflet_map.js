@@ -17,13 +17,15 @@ var groupedOverlays = {
         'National Geographic': national_geographic,
         'Imagery': imagery,
     },
-    "Library Layers": {
-    }
+    "Output Layers": {
+    },
+    "Input Layers": {
+    },
 };
 
 var options = {
     position:"topleft",
-    exclusiveGroups: ["Reporting Units","Base Maps", "Library Layers"]
+    /*exclusiveGroups: ["Reporting Units","Base Maps", "Input Layers"]*/
 };
 
 layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
@@ -31,15 +33,13 @@ layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
 
 function loadLayers(scenario_input_services){
 
-    var stateClassLayer = L.tileLayer(scenario_input_services.stateclass);
-    var stratumLayer = L.tileLayer(scenario_input_services.stratum);
+    inputStateClassLayer = L.tileLayer(scenario_input_services.stateclass);
+    inputStratumLayer = L.tileLayer(scenario_input_services.stratum);
 
-    stateClassLayer.on
+    layerControl.addOverlay(inputStateClassLayer, "State Classes", "Input Layers");
+    layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Input Layers");
 
-    layerControl.addOverlay(stateClassLayer, "State Classes", "Library Layers");
-    layerControl.addOverlay(stratumLayer, "Vegetation Types", "Library Layers");
-
-    stratumLayer.addTo(map)
+    inputStratumLayer.addTo(map)
 
 }
 
@@ -55,23 +55,26 @@ function swapLegend(e){
 }
 
 
-function loadOutputLayers(scenario_output_services){
+function loadOutputLayers(results_scenario_configuration){
 
     // Change it to the number of iterations
     // Change t to the min timestep
 
+    map.removeLayer(inputStateClassLayer);
+    map.removeLayer(inputStratumLayer);
+
     var t0it1 = {'t': 0, 'it': 1};
 
-    if (typeof scenario_output_services.stateclass != "undefined") {
+    if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
-        var stateClassLayer = L.tileLayer(scenario_output_services.stateclass, t0it1);
-
+        var outputStateClassLayer = L.tileLayer(results_scenario_configuration.scenario_output_services.stateclass, t0it1).addTo(map).bringToFront();
+        layerControl.addOverlay(outputStateClassLayer, "State Classes", "Output Layers");
 
         var timestep_slider = L.control.range({
-            position: 'topright',
-            min: config.run_control.min_timestep,
-            max: config.run_control.max_timestep - 1,
-            value: config.run_control.min_timestep,
+            position: 'bottomright',
+            min: results_scenario_configuration.run_control.min_timestep,
+            max: results_scenario_configuration.run_control.max_timestep - 1,
+            value: results_scenario_configuration.run_control.min_timestep,
             step: 1,
             orient: 'horizontal',
             iconClass: 'leaflet-range-icon'
@@ -79,8 +82,9 @@ function loadOutputLayers(scenario_output_services){
 
         timestep_slider.on('input change', function (e) {
 
-            stateClassLayer.options.t = Number(e.value);
-            stateClassLayer.redraw();
+            outputStateClassLayer.options.t = Number(e.value);
+            outputStateClassLayer.redraw();
+            outputStateClassLayer.bringToFront();
 
         });
 
