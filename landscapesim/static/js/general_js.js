@@ -395,6 +395,21 @@ $(document).ready(function() {
 
     $(document).on("change", "#spatial_switch", function(){
         setSpatialOutputOptions($(this)[0].checked)
+        if ($(this)[0].checked){
+
+            $(".veg_slider_bars").slider("disable");
+            $(".veg_slider_bars").addClass("disabled");
+            $(".veg_state_class_entry").addClass("disabled");
+            $(".veg_state_class_entry").prop("disabled", true);
+        }
+        else{
+
+            $(".veg_slider_bars").slider("enable");
+            $(".veg_slider_bars").removeClass("disabled");
+            $(".veg_state_class_entry").removeClass("disabled");
+            $(".veg_state_class_entry").prop("disabled", false);
+        }
+
     });
 
     function setSpatialOutputOptions(setting) {
