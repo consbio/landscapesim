@@ -259,6 +259,8 @@ $(document).ready(function() {
                     $(".veg_slider_bars").addClass("disabled");
                     $(".veg_state_class_entry").addClass("disabled");
                     $(".veg_state_class_entry").prop("disabled", true);
+
+                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep + 1)
                 })
 
             });
@@ -963,7 +965,7 @@ function processStateClassSummaryReport(res){
         results_data_json[i]={};
         this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
 
-        for (var j=1; j <= timesteps; j++){
+        for (var j=1; j <= timesteps + 1; j++){
 
             this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
 

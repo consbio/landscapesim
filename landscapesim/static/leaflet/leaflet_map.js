@@ -77,7 +77,7 @@ function loadOutputLayers(results_scenario_configuration){
             var timestep_slider = L.control.range({
                 position: 'bottomright',
                 min: results_scenario_configuration.run_control.min_timestep,
-                max: results_scenario_configuration.run_control.max_timestep - 1,
+                max: results_scenario_configuration.run_control.max_timestep + 1,
                 value: results_scenario_configuration.run_control.min_timestep,
                 step: 1,
                 orient: 'horizontal',
