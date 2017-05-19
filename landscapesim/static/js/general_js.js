@@ -1070,7 +1070,7 @@ function update_results_table(run) {
         $("#column_charts_" + run).show()
         $("#iteration_tr_" + run).hide()
         $("#area_charts_" + run).hide()
-        $("#veg_output_th_" + run).html("Vegetation Cover in " + current_scenario.config.max_timestep + " Years")
+        $("#veg_output_th_" + run).html("Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " Years")
     });
 
     // Chart button click functions
@@ -1082,7 +1082,7 @@ function update_results_table(run) {
         $("#column_charts_" + run).hide()
         $("#iteration_tr_" + run).show()
         $("#area_charts_" + run).show()
-        $("#veg_output_th_" + run).html("Vegetation Cover over " + current_scenario.config.max_timestep + " Years")
+        $("#veg_output_th_" + run).html("Vegetation Cover over " + current_scenario.config.run_control.max_timestep + " Years")
     });
 
 
