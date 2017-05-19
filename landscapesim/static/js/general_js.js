@@ -606,7 +606,6 @@ function createVegInitialConditionsDict(){
 
    if (typeof current_project.definitions != "undefined") {
 
-       current_project.definitions
        veg_initial_conditions = {};
        veg_initial_conditions["veg_sc_pct"] = {};
 

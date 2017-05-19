@@ -77,7 +77,7 @@ function loadOutputLayers(results_scenario_configuration){
                 position: 'bottomright',
                 min: results_scenario_configuration.run_control.min_timestep,
                 max: results_scenario_configuration.run_control.max_timestep,
-                value: results_scenario_configuration.run_control.min_timestep,
+                value: results_scenario_configuration.run_control.max_timestep,
                 step: 1,
                 orient: 'horizontal',
                 iconClass: 'leaflet-range-icon'
@@ -98,8 +98,8 @@ function loadOutputLayers(results_scenario_configuration){
         var centroid = bounding_box_layer.getBounds().getCenter();
         var popup = L.popup()
             .setLatLng(centroid)
-            .setContent("Spatial output is only available for spatial runs. Enable spatial output under Run Control")
-            .openOn(mymap);
+            .setContent('Spatial output is only available for spatial runs.<p>To conduct a spatial run, turn the spatial output setting to "on" under Run Control.')
+            .openOn(map);
 
     }
 }
