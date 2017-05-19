@@ -109,7 +109,8 @@ $(document).ready(function() {
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
-                                        processStateClassSummaryReport(res);
+                                        results_scenario_report =  res
+                                        processStateClassSummaryReport(results_scenario_report);
                                     });
 
                                     // Maximum of 4 model runs
@@ -260,7 +261,7 @@ $(document).ready(function() {
                     $(".veg_state_class_entry").addClass("disabled");
                     $(".veg_state_class_entry").prop("disabled", true);
 
-                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep + 1)
+                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep)
                 })
 
             });
@@ -571,7 +572,7 @@ $(document).ready(function() {
             $(this).val(1)
         }
 
-        current_scenario.config.run_control.max_timestep = parseInt($(this).val()) - 1
+        current_scenario.config.run_control.max_timestep = parseInt($(this).val())
     });
 
     /********************************************* Iteration Changes **************************************************/
@@ -601,23 +602,38 @@ $(document).ready(function() {
 
 function createVegInitialConditionsDict(){
 
-    veg_initial_conditions = {};
-    veg_initial_conditions["veg_sc_pct"] = {};
+   // current_proejct.definitions can be slow to initialize. Keep trying until it's defined.
 
-    $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, object){
-        var strata_object = $.grep(current_project.definitions.strata, function(e){ return e.id == object.stratum; });
-        var strata_name = strata_object[0].name;
-        if (! (strata_name in veg_initial_conditions["veg_sc_pct"])){
-            veg_initial_conditions["veg_sc_pct"][strata_name] = {};
-        }
+   if (typeof current_project.definitions != "undefined") {
 
-        var state_class_object = $.grep(current_project.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
-        var state_class_name = state_class_object[0].name;
-        if (object.relative_amount != 0 ) {
-            veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
-        }
-    });
+       current_project.definitions
+       veg_initial_conditions = {};
+       veg_initial_conditions["veg_sc_pct"] = {};
+
+       $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
+           var strata_object = $.grep(current_project.definitions.strata, function (e) {
+               return e.id == object.stratum;
+           });
+           var strata_name = strata_object[0].name;
+           if (!(strata_name in veg_initial_conditions["veg_sc_pct"])) {
+               veg_initial_conditions["veg_sc_pct"][strata_name] = {};
+           }
+
+           var state_class_object = $.grep(current_project.definitions.stateclasses, function (e) {
+               return e.id == object.stateclass;
+           });
+           var state_class_name = state_class_object[0].name;
+           if (object.relative_amount != 0) {
+               veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
+           }
+       });
+
+   } else {
+
+       setTimeout(createVegInitialConditionsDict,250);
+   }
 }
+
 
 function createVegTypeStateClassesJSON(veg_initial_conditions){
     veg_type_state_classes_json = {};
@@ -631,6 +647,7 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
         });
 
     });
+
 }
 
 /*************************************** Initial Vegetation Cover Inputs **********************************************/
@@ -952,7 +969,7 @@ function showSceneLoadingDiv() {
     $('#scene_loading_div').show();
 }
 
-/****************************** Process Results  & Create Charts *****************************************************/
+/***************************** Restructure Web API Results  & Create Charts *******************************************/
 
 // Process Web API Results. Restructure data, and create the charts.
 function processStateClassSummaryReport(res){

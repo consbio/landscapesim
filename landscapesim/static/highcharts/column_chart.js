@@ -55,20 +55,13 @@ function create_column_charts(results_data_json, run) {
     $("#view" + run + "_tab").css("display", "inline");
     $("#iteration_tr_" + run).hide();
 
-    console.log(1)
-    console.log(results_data_json)
-
     //Restructure Dictionary
     //Creates a dictionary of all the final timestep values by veg_type/state class.
     column_chart_dict = {};
 
     for (var iteration = 1; iteration <= iterations; iteration++) {
-        console.log(2)
-        console.log(iterations)
         // Each iteration
         $.each(results_data_json[iteration][timesteps], function (veg_type, state_class_dict) {
-            console.log(3)
-            console.log(results_data_json[iteration][timesteps])
             if (typeof column_chart_dict[veg_type] == "undefined") {
                 column_chart_dict[veg_type] = {}
             }
@@ -101,7 +94,7 @@ function create_column_charts(results_data_json, run) {
     });
 
     // Go through each veg type in the min/median/max dictionary and make a chart out of the state class values
-    chart_count = 1
+    chart_count = 1;
     $.each(column_chart_dict_final, function (veg_type, state_classes) {
 
         chart_div_id = "column_chart_" + run + "_" + chart_count

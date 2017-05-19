@@ -1344,7 +1344,7 @@ div.leaflet-bottom:nth-child(4){
 
 .leaflet-range-control input[type="range"][orient="horizontal"] {
 	margin-top: 5px;
-	width: 248px;
+	width: 245px;
 }
 
 .ui-state-disabled, .ui-widget-content .ui-state-disabled, .ui-widget-header .ui-state-disabled {

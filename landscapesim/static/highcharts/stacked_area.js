@@ -78,7 +78,7 @@ function create_area_chart(veg_type, chart_div_id) {
             },
             plotOptions: {
                 areaspline: {
-                    pointStart:1,
+                    pointStart:0,
                     stacking: 'normal',
                     lineColor: '#666666',
                     lineWidth: 0,

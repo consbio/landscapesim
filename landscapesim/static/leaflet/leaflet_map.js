@@ -17,9 +17,9 @@ var groupedOverlays = {
         'National Geographic': national_geographic,
         'Imagery': imagery,
     },
-    "Output Layers": {
+    "Initial Conditions": {
     },
-    "Input Layers": {
+    "Model Results": {
     },
 };
 
@@ -36,8 +36,8 @@ function loadLayers(scenario_input_services){
     inputStateClassLayer = L.tileLayer(scenario_input_services.stateclass);
     inputStratumLayer = L.tileLayer(scenario_input_services.stratum);
 
-    layerControl.addOverlay(inputStateClassLayer, "State Classes", "Input Layers");
-    layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Input Layers");
+    layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
+    layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Initial Conditions");
 
     inputStratumLayer.addTo(map)
 
@@ -61,23 +61,22 @@ function loadOutputLayers(results_scenario_configuration){
     // Change it to the number of iterations
     // Change t to the min timestep
 
-
-    map.removeLayer(inputStateClassLayer);
-    map.removeLayer(inputStratumLayer);
-
     if( $("#spatial_switch")[0].checked) {
+
+        map.removeLayer(inputStateClassLayer);
+        map.removeLayer(inputStratumLayer);
 
         var t0it1 = {'t': 0, 'it': 1};
 
         if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
             var outputStateClassLayer = L.tileLayer(results_scenario_configuration.scenario_output_services.stateclass, t0it1).addTo(map).bringToFront();
-            layerControl.addOverlay(outputStateClassLayer, "State Classes", "Output Layers");
+            layerControl.addOverlay(outputStateClassLayer, "State Classes", "Model Results");
 
             var timestep_slider = L.control.range({
                 position: 'bottomright',
                 min: results_scenario_configuration.run_control.min_timestep,
-                max: results_scenario_configuration.run_control.max_timestep + 1,
+                max: results_scenario_configuration.run_control.max_timestep,
                 value: results_scenario_configuration.run_control.min_timestep,
                 step: 1,
                 orient: 'horizontal',
