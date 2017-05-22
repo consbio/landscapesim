@@ -176,7 +176,8 @@ $(document).on("submit", ".managementActionForm", function(){
         });
     }
 
-    var polyWKT = calculateWKT(layer);
+    //var polyWKT = calculateWKT(layer);
+    var geoJSON = layer.toGeoJSON()
 
     // Add a new object to the action_list and set some of the layer properties.
     var actionObj = {};
@@ -200,7 +201,8 @@ $(document).on("submit", ".managementActionForm", function(){
     layer._sumTimesteps = sumTimesteps;
 
     actionObj["poly_id"] = polyID;
-    actionObj["wkt"] = polyWKT;
+    //actionObj["wkt"] = polyWKT;
+    actionObj["geoJSON"] = geoJSON;
     actionObj["action_id"] = actionID;
     actionObj["timesteps"] = allTimesteps;
 
@@ -268,7 +270,8 @@ map.on('draw:edited', function(event) {
         layer.unbindTooltip();
 
         // update the WKT & store it as a property of the layer and in the action_list
-        var polyWKT = calculateWKT(layer);
+        //var polyWKT = calculateWKT(layer);
+        var geoJSON = layer.toGeoJSON();
         calcArea(layer);
         calcCost(layer);
         updateTooltip(layer);
@@ -276,7 +279,8 @@ map.on('draw:edited', function(event) {
         $.each(action_list, function (index, object) {
             if (typeof object != "undefined") {
                 if (object["poly_id"] == parseInt(layer._leaflet_id)) {
-                    this.wkt = polyWKT
+                    //this.wkt = polyWKT
+                    this.geoJSON = geoJSON
                 }
             }
         });
