@@ -54,9 +54,6 @@
     <!-- Shapefile JS -->
     <script src="{%  static "deps/shapefile-js-gh-pages/dist/shp.min.js" %}"> </script>
 
-    <link rel="stylesheet"  href="{% static 'css/cost.css' %}">
-    <!-- End Management Action Scripts -->
-
     <!-- My Javascript -->
     <script src="{%  static "js/general_js.js" %}" type="text/javascript"></script>
     <script src="{% static "js/three.min.js" %}"></script>
@@ -277,9 +274,15 @@
         <!-- Library Configuration -->
         <script src="{% static 'config/library_config.js' %}"></script>
 
+        <!-- Shapefile Uploader -->
+        <script src="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.js' %}"></script>
+        <link rel="stylesheet"  href="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.css' %}">
+
         <!-- Management Action Scripts -->
         <script src="{% static 'js/cost.js' %}"></script>
-
+        <script src="{% static 'js/manage.js' %}"></script>
+        <link rel="stylesheet"  href="{% static 'css/cost.css' %}">
+        <link rel="stylesheet"  href="{% static 'css/manage.css' %}">
 
 
 </body>
