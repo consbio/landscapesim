@@ -76,7 +76,7 @@ function openCostTable(){
                                 "<tr><td>" + transition_group_name +
                                 "</td><td>" + transition_attributes_name +
                                 "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units + "/acre" +
-                                "</td><td>" + "<img record_to_delete=cost_" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
+                                "</td><td>" + "<img record_to_delete=" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
                                 "</td></tr>"
                             );
                         }

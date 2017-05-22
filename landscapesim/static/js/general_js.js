@@ -43,21 +43,22 @@ $(document).ready(function() {
     $('#run_button').on('click', function() {
 
         $.each(action_list, function(index,object){
-            $.each(object.timesteps, function(index,value){
-                if (value == 1) {
-                    current_scenario.config.transition_spatial_multipliers.push(
-                        {
-                            "transition_group": object.action_id,
-                            "timestep": index +1,
-                            "iteration": null,
-                            "transition_multiplier_type": null,
-                            "transition_multiplier_file_name": null,
-                            "geojson": object.geoJSON,
-                        }
-                    )
-                }
-            });
-
+            if (typeof object != "undefined") {
+                $.each(object.timesteps, function (index, value) {
+                    if (value == 1) {
+                        current_scenario.config.transition_spatial_multipliers.push(
+                            {
+                                "transition_group": object.action_id,
+                                "timestep": index + 1,
+                                "iteration": null,
+                                "transition_multiplier_type": null,
+                                "transition_multiplier_file_name": null,
+                                "geojson": object.geoJSON,
+                            }
+                        )
+                    }
+                });
+            }
         }) ;
 
         $("#start_button").attr("disabled", true);

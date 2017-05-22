@@ -51,7 +51,7 @@
         <entry file="file://$PROJECT_DIR$/landscapesim/static/js/cost.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="68" column="0" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+              <caret line="65" column="18" selection-start-line="65" selection-start-column="18" selection-end-line="65" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -61,7 +61,7 @@
         <entry file="file://$PROJECT_DIR$/landscapesim/static/js/manage.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="326" column="26" selection-start-line="326" selection-start-column="26" selection-end-line="326" selection-end-column="26" />
+              <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -101,7 +101,7 @@
         <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="4" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
+              <caret line="63" column="42" selection-start-line="63" selection-start-column="42" selection-end-line="63" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -110,8 +110,8 @@
       <file leaf-file-name="general_js.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/landscapesim/static/js/general_js.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5317861">
-              <caret line="384" column="45" selection-start-line="384" selection-start-column="45" selection-end-line="384" selection-end-column="45" />
+            <state vertical-scroll-proportion="0.102926336">
+              <caret line="33" column="118" selection-start-line="33" selection-start-column="118" selection-end-line="33" selection-end-column="118" />
               <folding />
             </state>
           </provider>
@@ -143,17 +143,17 @@
         <option value="$PROJECT_DIR$/../../../../../../Staff/KatherineH/KMZ_Leaflet/index.html" />
         <option value="$PROJECT_DIR$/landscapesim/static/highcharts/stacked_area.js" />
         <option value="$PROJECT_DIR$/landscapesim/static/highcharts/column_chart.js" />
-        <option value="$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js" />
         <option value="$PROJECT_DIR$/../../Components_for_Integration/cost_table/cost.css" />
         <option value="$PROJECT_DIR$/landscapesim/static/config/library_config.js" />
         <option value="$PROJECT_DIR$/landscapesim/templates/index.html" />
         <option value="$PROJECT_DIR$/landscapesim/static/js/manage.js" />
         <option value="$PROJECT_DIR$/landscapesim/static/css/manage.css" />
         <option value="$PROJECT_DIR$/landscapesim/static/deps/L.Control.Shapefile/L.Control.Shapefile.js" />
-        <option value="$PROJECT_DIR$/landscapesim/static/js/cost.js" />
         <option value="$PROJECT_DIR$/landscapesim/static/css/base.css" />
         <option value="$PROJECT_DIR$/landscapesim/static/css/cost.css" />
         <option value="$PROJECT_DIR$/landscapesim/static/deps/L.Control.Button/L.Control.Button.js" />
+        <option value="$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js" />
+        <option value="$PROJECT_DIR$/landscapesim/static/js/cost.js" />
         <option value="$PROJECT_DIR$/landscapesim/static/js/general_js.js" />
       </list>
     </option>
@@ -873,22 +873,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/landscapesim/static/js/cost.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="68" column="0" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="4" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/landscapesim/static/deps/L.Control.Button/L.Control.Button.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -897,18 +881,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="63" column="42" selection-start-line="63" selection-start-column="42" selection-end-line="63" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/landscapesim/static/js/cost.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="65" column="18" selection-start-line="65" selection-start-column="18" selection-end-line="65" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/landscapesim/static/js/manage.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="326" column="26" selection-start-line="326" selection-start-column="26" selection-end-line="326" selection-end-column="26" />
+          <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/landscapesim/static/js/general_js.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5317861">
-          <caret line="384" column="45" selection-start-line="384" selection-start-column="45" selection-end-line="384" selection-end-column="45" />
+        <state vertical-scroll-proportion="0.102926336">
+          <caret line="33" column="118" selection-start-line="33" selection-start-column="118" selection-end-line="33" selection-end-column="118" />
           <folding />
         </state>
       </provider>
