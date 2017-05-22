@@ -1,0 +1,62 @@
+#cost_button {
+	padding: 5px !important;
+}
+
+#cost_table {
+	width: 90%;
+	border: 1px solid black;
+	border-collapse: collapse;
+	margin-right: auto;
+	margin-left: auto;
+	margin-bottom: 40px;
+}
+
+#cost_table td {
+	border: 2px solid white;
+	border-collapse: collapse;
+	padding: 2px 15px;
+	text-align: center;
+	background-color: #F0F0F0;
+	color: #424242;
+}
+
+#cost_table td:nth-child(3) {
+    line-height: 50px;
+    white-space:nowrap;
+}
+
+#cost_table td:last-child input {
+    width: 60px;
+}
+
+input, textarea, select {
+}
+
+.cost_value_input{
+	width:60px !important;
+	color: #4d4d4d;
+}
+
+#add_entry_button {
+	height: 18px;
+	float: right;
+	bottom: 30px;
+	position: relative;
+	cursor: pointer;
+	right: 46px;
+}
+
+.delete_entry_button {
+    height: 18px;
+    cursor: pointer;
+}
+
+.alertify .alert > *, .alertify .dialog > * {
+	width: 500px;
+	max-width: 95%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 12px;
+	background: #fff;
+	box-shadow: 0 2px 4px -1px rgba(0,0,0,.14),0 4px 5px 0 rgba(0,0,0,.098),0 1px 10px 0 rgba(0,0,0,.084);
+}
