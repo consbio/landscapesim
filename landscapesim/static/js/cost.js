@@ -1,4 +1,4 @@
-$(document).on("click", "#cost_button", function () {
+function openCostTable(){
     var count_transition_groups = current_project.definitions.transition_groups.length;
 
     var cost_table_html = "<div id='cost_table_div'><table id='cost_table'></table></div>";
@@ -129,7 +129,7 @@ $(document).on("click", "#cost_button", function () {
 
     });
 
-});
+};
 
 // Array of records to delete. When the user pushes the "X" button, the id for that record gets added to the array.
 // And the row is removed from the table.

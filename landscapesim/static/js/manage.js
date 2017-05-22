@@ -9,6 +9,8 @@ var topographic=L.esri.basemapLayer("Topographic").addTo(map);
 
 drawnItems = L.featureGroup().addTo(map);
 
+L.control.button({ position: 'topleft' }).addTo(map);
+
 L.control.shapefile({ position: 'topleft' }).addTo(map);
 
 // Leaflet.draw

@@ -51,7 +51,7 @@ $(document).ready(function() {
                             "timestep": index +1,
                             "iteration": null,
                             "transition_multiplier_type": null,
-                            "transition_multiplier_file_name": "",
+                            "transition_multiplier_file_name": null,
                             "geojson": object.geoJSON,
                         }
                     )

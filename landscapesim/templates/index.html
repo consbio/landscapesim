@@ -120,8 +120,6 @@
 
             <!-- Other input Widgets -->
             <div id="inputs">
-             <input type="button" id="cost_button" class="alertify-button alertify-button-ok" value="Open Management Costs Table">
-
                 <div class="widget_div">
                     <div id="input_initial_veg">
                         <div class="header full_border_radius" id="steps_initial_vegetation_cover">Initial Vegetation Cover <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
@@ -278,11 +276,17 @@
         <script src="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.js' %}"></script>
         <link rel="stylesheet"  href="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.css' %}">
 
+        <!-- My leaflet button control -->
+        <script src="{%  static 'deps/L.Control.Button/L.Control.Button.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'deps/L.Control.Button/L.Control.Button.css' %}"/>
+
         <!-- Management Action Scripts -->
         <script src="{% static 'js/cost.js' %}"></script>
         <script src="{% static 'js/manage.js' %}"></script>
         <link rel="stylesheet"  href="{% static 'css/cost.css' %}">
         <link rel="stylesheet"  href="{% static 'css/manage.css' %}">
+
+
 
 
 </body>
