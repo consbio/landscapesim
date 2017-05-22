@@ -1362,3 +1362,26 @@ div.leaflet-bottom:nth-child(4){
 .leaflet-popup-tip-container {
 	left: 0px;
 }
+
+
+.leaflet-control-command-button-container{
+	display:none;
+}
+
+.leaflet-control-command-form{
+	display:none;
+}
+
+.leaflet-control-command{
+	display:none
+}
+
+.leaflet-draw{
+	display:none;
+}
+
+.alertify {
+	top: 70px;
+	width: 590px;
+}
+

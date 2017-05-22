@@ -11,6 +11,16 @@
 	margin-bottom: 40px;
 }
 
+#cost_table th {
+	background-color: #0092D1;
+	color: white;
+	text-align: center;
+	border: 1px solid white;
+	font-size: 1.1em;
+	letter-spacing: 1px;
+	padding: 4px;
+}
+
 #cost_table td {
 	border: 2px solid white;
 	border-collapse: collapse;
@@ -43,7 +53,7 @@ input, textarea, select {
 	bottom: 30px;
 	position: relative;
 	cursor: pointer;
-	right: 46px;
+	right: 53px;
 }
 
 .delete_entry_button {

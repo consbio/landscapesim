@@ -303,6 +303,12 @@ $(document).ready(function() {
 
             $("#legend_container").show();
 
+            // Management Action Controls
+            $(".leaflet-control-command-button-container").show();
+            $(".leaflet-control-command-form").show();
+            $(".leaflet-control-command").show();
+            $(".leaflet-draw").show();
+
             library_selected = true
 
 
@@ -443,11 +449,23 @@ $(document).ready(function() {
 
         if(setting == true){
 
-            raster_frequency = 1
+            raster_frequency = 1;
+
+            // Management Action Controls
+            $(".leaflet-control-command-button-container").show();
+            $(".leaflet-control-command-form").show();
+            $(".leaflet-control-command").show();
+            $(".leaflet-draw").show();
 
         }
         else{
-            raster_frequency = -1
+            raster_frequency = -1;
+
+            // Management Action Controls
+            $(".leaflet-control-command-button-container").hide();
+            $(".leaflet-control-command-form").hide();
+            $(".leaflet-control-command").hide();
+            $(".leaflet-draw").hide();
         }
 
         current_scenario.config.output_options.raster_sc_t = raster_frequency;

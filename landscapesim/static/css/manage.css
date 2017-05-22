@@ -28,6 +28,12 @@
 	overflow-x: auto;
 }
 
+.timelineTable {
+	width: 100%;
+	border: 1px dashed lightblue;
+	margin: 5px 0px;
+}
+
 .timelineTable td{
 	text-align: center;
 }

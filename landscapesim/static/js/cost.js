@@ -55,6 +55,8 @@ function openCostTable(){
 
     });
 
+    $("#cost_table").append("<tr><th>Management Action</th><th>Type</th><th>Value</th><th>Delete</th></tr>");
+
     // Write current values out to the cost table
     $.each(current_scenario.config.transition_attribute_values, function(index,transition_attribute_values_dict){
 
@@ -73,7 +75,7 @@ function openCostTable(){
                             $("#cost_table").append(
                                 "<tr><td>" + transition_group_name +
                                 "</td><td>" + transition_attributes_name +
-                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units +
+                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units + "/acre" +
                                 "</td><td>" + "<img record_to_delete=cost_" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
                                 "</td></tr>"
                             );

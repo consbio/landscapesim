@@ -19,7 +19,7 @@ L.Control.Button = L.Control.extend({
             });
 
         // Title
-        controlUI.title = 'Set management actions';
+        controlUI.title = 'Set the available management actions';
 
         return controlDiv;
     }

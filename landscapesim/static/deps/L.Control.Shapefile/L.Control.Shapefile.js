@@ -29,7 +29,7 @@ L.Control.Shapefile = L.Control.extend({
                 thisControl.fileToArrayBuffer(this.files[0])
             });
 
-        controlUI.title = 'Upload a Shapefile';
+        controlUI.title = 'Upload a Shapefile delineating a management area';
 
         return controlDiv;
     },

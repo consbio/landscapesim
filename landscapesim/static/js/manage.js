@@ -2,8 +2,6 @@ var action_list = [];
 var totalCost = 0;
 $("#totalCost").text(totalCost);
 
-var timesteps = 10;
-
 // Basemaps
 var topographic=L.esri.basemapLayer("Topographic").addTo(map);
 
@@ -95,13 +93,13 @@ function initializePolygon(layer){
 
                 "<div id='timestepDiv' class='timelineTableDiv'><table class='timelineTable'><tr>";
 
-                for(var i = 1; i <= timesteps; i++){
+                for(var i = 1; i <= current_scenario.config.run_control.max_timestep ; i++){
                     popupMessage += "<td>" + i.toString() + "</td>"
                 }
 
                 popupMessage += "</tr><tr>";
 
-                for(var i = 1; i <= timesteps; i++){
+                for(var i = 1; i <= current_scenario.config.run_control.max_timestep; i++){
                     popupMessage += "<td><input name='timestep' type='checkbox'></td>"
                 }
 
