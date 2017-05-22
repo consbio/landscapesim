@@ -1352,3 +1352,8 @@ div.leaflet-bottom:nth-child(4){
 	filter: Alpha(Opacity=100);
 	background-image: none;
 }
+
+.ui-slider.ui-state-disabled .ui-slider-handle, .ui-slider.ui-state-disabled .ui-slider-range {
+	filter: inherit;
+	cursor: not-allowed;
+}
