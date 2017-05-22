@@ -49,11 +49,15 @@ function initializePolygon(layer){
     layer._cost = 0;
 
     // Set the color of the polygon
+    /*
     var colorR = Math.floor((Math.random() * (255-0+1)+0));
     var colorG = Math.floor((Math.random() * (255-0+1)+0));
     var colorB = Math.floor((Math.random() * (255-0+1)+0));
     var randColor = "rgb(" + colorR + "," + colorG + "," + colorB + ")";
     layer.options.color = randColor;
+    */
+
+    layer.options.color = "#00FFFF";
 
     // Add the shape to map
     drawnItems.addLayer(layer);
