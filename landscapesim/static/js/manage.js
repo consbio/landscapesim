@@ -329,7 +329,6 @@ function calcCost(layer){
 }
 
 function updateTooltip(layer) {
-    test = layer
 
     var actionText = "<b>" + layer._actionText + "</b>";
 

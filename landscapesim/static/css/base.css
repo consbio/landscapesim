@@ -1357,3 +1357,8 @@ div.leaflet-bottom:nth-child(4){
 	filter: inherit;
 	cursor: not-allowed;
 }
+
+/* Fix for Popup Point being off center */
+.leaflet-popup-tip-container {
+	left: 0px;
+}
