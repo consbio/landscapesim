@@ -382,6 +382,7 @@ $(document).ready(function() {
 
 
     $(document).on("click", ".close_state_class", function(){
+        map.removeLayer(inputStateClassLayer);
         $(this).parents(".sub_slider_text_inputs").hide()
     });
 
@@ -409,9 +410,12 @@ $(document).ready(function() {
         $(document).on('click', selector, function () {
             if ($(this).siblings(element).is(":visible")) {
                 $(this).siblings(element).hide()
+                map.removeLayer(inputStateClassLayer)
             }
             else {
                 $(this).siblings(element).show()
+                inputStateClassLayer.addTo(map)
+
             }
         });
     }
@@ -737,7 +741,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             "<div class='show_state_classes_link state_class_div'> <span class='state_class_span'>State Classes</span></div>" +
             "<div class='sub_slider_text_inputs' style='display:none'>" +
             "<div class='callout right '>" +
-            "<table id='" + veg_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='2'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
+            "<table id='" + veg_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='3'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
             "</div></div>" +
             "</td>" +
              /*
@@ -766,7 +770,8 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             var state_class_match = $.grep(current_project.definitions.stateclasses, function(e){ return e.name == state_class; });
             var state_class_id = state_class_match[0].id;
 
-            $("#" + veg_id).append("<tr><td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
+            $("#" + veg_id).append("<tr><td><div class='scene_legend_color_initial_vegetation_cover' style='border-radius: 3px; background-color:" + colorMap["State Classes"][state_class] +  "'></div></td>"+
+                "<td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
         });
 
         /*
