@@ -48,12 +48,12 @@ $(document).ready(function() {
                     if (value == 1) {
                         current_scenario.config.transition_spatial_multipliers.push(
                             {
-                                "transition_group": object.action_id,
-                                "timestep": index + 1,
-                                "iteration": null,
-                                "transition_multiplier_type": null,
-                                "transition_multiplier_file_name": null,
-                                "geojson": object.geoJSON,
+                                transition_group: object.action_id,
+                                timestep: index + 1,
+                                iteration: null,
+                                transition_multiplier_type: null,
+                                transition_multiplier_file_name: null,
+                                geojson: object.geoJSON,
                             }
                         )
                     }
