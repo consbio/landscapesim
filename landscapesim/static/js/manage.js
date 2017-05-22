@@ -67,9 +67,15 @@ function initializePolygon(layer){
              "<form polyID='" + polyID + "' class='managementActionForm'>" +
                 "<select id='" + polyID + "' class='managementActionSelect'/>";
 
-                // Set the dropdown options using transition groups from the API
-                $.each(current_project.definitions.transition_groups, function (index, object) {
-                    popupMessage += "<option value=" + object['id'] + ">" + object['name'] + "</option>";
+                // Set the dropdown options using list of those that have dollar amounts set for them in the table.
+                $.each(current_scenario.config.transition_attribute_values, function (index, object) {
+
+                       var this_transition_group_id = object["transition_group"];
+
+                       // Need the transition group name. Get the matching transition group object that has the id and the name in it.
+                       var transition_group_match = $.grep(current_project.definitions.transition_groups, function(e){return e.id == this_transition_group_id })[0];
+
+                        popupMessage += "<option value=" + transition_group_match['id'] + ">" + transition_group_match['name'] + "</option>";
                 });
 
                 popupMessage += "</select>" +
@@ -110,7 +116,6 @@ function initializePolygon(layer){
 
 }
 //END DRAW FUNCTION
-
 //BEGIN POPUP FUNCTION
 map.on('popupopen', function(e) {
 
