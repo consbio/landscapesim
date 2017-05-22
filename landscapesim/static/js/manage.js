@@ -64,8 +64,8 @@ function initializePolygon(layer){
     // Set the popup message content (dropdown menu, timesteps, etc).
     var popupMessage =
          "<div class='popupHeader'> Choose a Management Action</div>" +
-             "<form polyID='" + polyID + "' class='managementActionForm'>" +
-                "<select id='" + polyID + "' class='managementActionSelect'/>";
+             "<form polyID='" + polyID + "' class='managementActionForm' onsubmit='return false'>" +
+                "<select id='action_" + polyID + "' class='managementActionSelect'/>";
 
                 // Set the dropdown options using list of those that have dollar amounts set for them in the table.
                 $.each(current_scenario.config.transition_attribute_values, function (index, object) {
@@ -133,7 +133,7 @@ map.on('popupopen', function(e) {
     // Set the current action.
     if (currentActionList.length > 0) {
         var currentAction = currentActionList[0].action_id;
-        $("#" + polyID).val(currentAction);
+        $("#action_" + polyID).val(currentAction);
     }
 
     // Get the current timesteps.
@@ -311,7 +311,7 @@ function calcCost(layer){
     // area is in meters2
     var acres =  layer._area * 0.0002471044;
 
-    costArray = $.grep(current_scenario.config.transition_attributes_values, function(e) {
+    costArray = $.grep(current_scenario.config.transition_attribute_values, function(e) {
         if (typeof e != "undefined" && typeof layer._actionID != "undefined" && e.transition_group == layer._actionID.toString()){
             return e
         }
@@ -329,6 +329,7 @@ function calcCost(layer){
 }
 
 function updateTooltip(layer) {
+    test = layer
 
     var actionText = "<b>" + layer._actionText + "</b>";
 
