@@ -62,22 +62,23 @@ $(document).on("click", "#cost_button", function () {
 
             if (transition_attribute_values_dict.transition_group == transition_group_dict.id){
                 var transition_group_name = transition_group_dict.name;
-                var transition_attribute_value = transition_attribute_values_dict.value;
 
-                $.each(current_project.definitions.transition_attributes, function(index,transition_attributes_dict){
-                    if (transition_attributes_dict.id == transition_attribute_values_dict.transition_attribute_type){
-                        var transition_attributes_name =  transition_attributes_dict.name;
-                        var transition_attributes_id = transition_attribute_values_dict.id;
-                        var transition_attributes_units = transition_attributes_dict.units;
-                        $("#cost_table").append(
-                            "<tr><td>" + transition_group_name +
-                            "</td><td>" + transition_attributes_name +
-                            "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units +
-                            "</td><td>" + "<img record_to_delete=cost_" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
-                            "</td></tr>"
-                        );
-                    }
-                });
+                    var transition_attribute_value = transition_attribute_values_dict.value;
+
+                    $.each(current_project.definitions.transition_attributes, function (index, transition_attributes_dict) {
+                        if (transition_attributes_dict.id == transition_attribute_values_dict.transition_attribute_type) {
+                            var transition_attributes_name = transition_attributes_dict.name;
+                            var transition_attributes_id = transition_attribute_values_dict.id;
+                            var transition_attributes_units = transition_attributes_dict.units;
+                            $("#cost_table").append(
+                                "<tr><td>" + transition_group_name +
+                                "</td><td>" + transition_attributes_name +
+                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units +
+                                "</td><td>" + "<img record_to_delete=cost_" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
+                                "</td></tr>"
+                            );
+                        }
+                    });
             }
         });
     });
@@ -106,8 +107,10 @@ $(document).on("click", "#cost_button", function () {
         });
 
         $.each(current_project.definitions.transition_groups, function(index, transition_group_dict) {
-            if(jQuery.inArray(transition_group_dict.id, current_transition_group_entries) == -1) {
-                $(last_row).find('td:nth-child(1) select').append("<option value='" + transition_group_dict.id + "'>" + transition_group_dict.name + "</option>");
+            if(jQuery.inArray(transition_group_dict.id, current_transition_group_entries) == -1){
+                if(jQuery.inArray(transition_group_dict.name, library_config[1].management_actions_filter) != -1)  {
+                    $(last_row).find('td:nth-child(1) select').append("<option value='" + transition_group_dict.id + "'>" + transition_group_dict.name + "</option>");
+                }
             }
         });
 
