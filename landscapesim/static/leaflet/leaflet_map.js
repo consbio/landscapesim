@@ -66,7 +66,8 @@ function loadOutputLayers(results_scenario_configuration){
         map.removeLayer(inputStateClassLayer);
         map.removeLayer(inputStratumLayer);
 
-        var t0it1 = {'t': 0, 'it': 1};
+        // Show last timestep by default.
+        var t0it1 = {'t': current_scenario.config.run_control.max_timestep, 'it': 1};
 
         if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
