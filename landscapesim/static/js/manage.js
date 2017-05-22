@@ -7,10 +7,6 @@ var timesteps = 10;
 // Basemaps
 var topographic=L.esri.basemapLayer("Topographic").addTo(map);
 
-L.control.zoom({
-     position: 'topright'
-}).addTo(map);
-
 drawnItems = L.featureGroup().addTo(map);
 
 L.control.shapefile({ position: 'topleft' }).addTo(map);
