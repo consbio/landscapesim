@@ -56,25 +56,34 @@ function overlayAdd(e){
     });
 }
 
-function loadOutputLayers(results_scenario_configuration){
+outputStateClassServices={};
+outputStateClassLayers={};
+outputTimestepSliders={};
+outputRunSettings={};
 
-    // Change it to the number of iterations
-    // Change t to the min timestep
+function loadOutputLayers(results_scenario_configuration){
 
     if( $("#spatial_switch")[0].checked) {
 
         map.removeLayer(inputStateClassLayer);
         map.removeLayer(inputStratumLayer);
 
-        // Show last timestep by default.
-        var t0it1 = {'t': current_scenario.config.run_control.max_timestep, 'it': 1};
-
         if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
-            var outputStateClassLayer = L.tileLayer(results_scenario_configuration.scenario_output_services.stateclass, t0it1).addTo(map).bringToFront();
-            layerControl.addOverlay(outputStateClassLayer, "State Classes", "Model Results");
+            // Store the service for the model run
+            outputStateClassServices[run] = results_scenario_configuration.scenario_output_services.stateclass;
 
-            var timestep_slider = L.control.range({
+            // Store the run setting for this run (max timestep needed).
+            var runControl = {'t': current_scenario.config.run_control.max_timestep, 'it': 1};
+
+            // Create a layer from the run service. Show last timestep and first iteration by default.
+            outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl);
+
+            // Add layer control
+            layerControl.addOverlay(outputStateClassLayers[run], "State Classes, Run " + run, "Model Results");
+
+            // Create an output time step slider.
+            outputTimestepSliders[run] = L.control.range({
                 position: 'bottomright',
                 min: results_scenario_configuration.run_control.min_timestep,
                 max: results_scenario_configuration.run_control.max_timestep,
@@ -84,15 +93,7 @@ function loadOutputLayers(results_scenario_configuration){
                 iconClass: 'leaflet-range-icon'
             });
 
-            timestep_slider.on('input change', function (e) {
 
-                outputStateClassLayer.options.t = Number(e.value);
-                outputStateClassLayer.redraw();
-                outputStateClassLayer.bringToFront();
-
-            });
-
-            map.addControl(timestep_slider);
         }
     }
     else{
@@ -103,6 +104,60 @@ function loadOutputLayers(results_scenario_configuration){
             .openOn(map);
 
     }
+
+    // Click action will trigger the function below
+    document.getElementById("view" + run + "_link").click();
+}
+
+// Called after a model run (which triggers a tab click), or when a tab is clicked.
+function changeOutputStateClass(run) {
+
+    console.log(1)
+
+    // Remove other state class layers.
+    $.each(outputStateClassLayers, function(index, stateClassLayer){
+        if (map.hasLayer(stateClassLayer)){
+            map.removeLayer(stateClassLayer)
+        }
+    })
+
+    console.log(2)
+
+
+    console.log(3)
+    // Remove other sliders.
+    $.each(outputTimestepSliders, function(index, object){
+        map.removeControl(object)
+    });
+
+    console.log(4)
+    outputTimestepSliders[run].addTo(map);
+
+    console.log(5)
+
+    // Add the slider for the current run // Hookup the timeslider functions here.
+    outputTimestepSliders[run].on('input change', function (e) {
+
+        // Store a global time step variable to use in displaying the layer and setting the slider value when a model run tab is clicked.
+        globalTimestep = Number(e.value);
+
+        outputStateClassLayers[run].options.t = Number(e.value);
+        outputStateClassLayers[run].redraw();
+        outputStateClassLayers[run].bringToFront();
+
+    });
+
+    if (typeof globaltimestep != "undefined") {
+        outputStateClassLayers[run].options.t = globalTimestep;
+        outputTimestepSliders[run].setValue(globalTimestep)
+    }
+
+    map.addControl(outputTimestepSliders[run]);
+
+    console.log(6)
+
+    outputStateClassLayers[run].addTo(map);
+
 }
 
 // Zoom control

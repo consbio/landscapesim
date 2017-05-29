@@ -110,13 +110,13 @@ $(document).ready(function() {
                                 var reports_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
                                 var results_scenario_configuration_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/config/";
 
-                                // Get the result scenario object for output services
-                                $.getJSON(results_scenario_configuration_url).done(function (res) {
-
-                                    results_scenario_configuration =  res
-                                    loadOutputLayers(results_scenario_configuration)
-
-                                });
+                                // Maximum of 4 model runs
+                                if (run == 4) {
+                                    run = 1;
+                                }
+                                else {
+                                    run += 1;
+                                }
 
                                 // Get the list of reports
                                 $.getJSON(reports_url).done(function (res) {
@@ -129,23 +129,22 @@ $(document).ready(function() {
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
                                         results_scenario_report =  res
+
                                         processStateClassSummaryReport(results_scenario_report);
+
+                                        $("#tab_container").css("display", "block");
                                     });
 
-                                    // Maximum of 4 model runs
-                                    if (run == 4) {
-                                        run = 1;
-                                    }
-                                    else {
-                                        run += 1;
-                                    }
+                                });
 
-                                    // Show the new run tab
-                                    $("#view" + run + "_link").click();
+                                // Get the result scenario object for output services
+                                $.getJSON(results_scenario_configuration_url).done(function (res) {
 
-                                    $("#tab_container").css("display", "block");
+                                    results_scenario_configuration =  res;
+                                    loadOutputLayers(results_scenario_configuration, run)
 
                                 });
+
 
                                 $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
@@ -259,7 +258,7 @@ $(document).ready(function() {
                     current_scenario.config = config;
 
                     // Spatial by default:
-                    setSpatialOutputOptions(true)
+                    setSpatialOutputOptions(true);
 
                     // Store the original transition values to reference when adjusting probabilistic transition sliders.
                     $.each(current_scenario.config.transitions, function(index, object){
@@ -423,6 +422,17 @@ $(document).ready(function() {
 
     delegatedPopupContext('.show_state_classes_link', '.sub_slider_text_inputs');
     delegatedPopupContext('.manage_div', '.management_action_inputs');
+
+
+    $(".tab_container").on("click", function(){
+
+        this_tab_run = $(this).attr('run')
+
+        changeOutputStateClass(this_tab_run);
+
+    });
+
+
 
     /*********************************************** Spatial Setting **************************************************/
 
@@ -1050,7 +1060,6 @@ function processStateClassSummaryReport(res){
     update_results_table(run);
     create_area_charts(results_data_json, run, iteration);
     create_column_charts(results_data_json, run, iteration);
-    $("#view" + run + "_link").click();
 }
 
 /****************************************  Results Table & Output Charts **********************************************/
