@@ -140,7 +140,7 @@ function changeOutputStateClass(run) {
 
     });
 
-    if (typeof globaltimestep != "undefined") {
+    if (typeof globalTimestep != "undefined") {
         outputStateClassLayers[run].options.t = globalTimestep;
         outputTimestepSliders[run].setValue(globalTimestep)
     }
