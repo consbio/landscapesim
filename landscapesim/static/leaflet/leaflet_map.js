@@ -112,6 +112,8 @@ function loadOutputLayers(results_scenario_configuration){
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
 function changeOutputStateClass(run) {
 
+    activeRun = run;
+
     console.log(1)
 
     // Remove other state class layers.

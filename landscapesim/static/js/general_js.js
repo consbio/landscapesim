@@ -639,7 +639,7 @@ $(document).ready(function() {
             alert("Please enter a value greater than 0");
             $(this).val(1)
         }
-        current_scenario.config.run_control.max_iteration = parseInt($(this).val())
+        current_scenario.config.run_control.max_iteration = parseInt($(this).val());
     });
 
 });
@@ -1142,8 +1142,12 @@ function update_results_table(run) {
 
     $("#iteration_to_plot_" + run).on('keyup', function () {
         if (this.value != '') {
-            $("#area_charts_" + run).empty()
-            create_area_charts(results_data_json, run, this.value)
+            $("#area_charts_" + run).empty();
+            create_area_charts(results_data_json, run, this.value);
+
+            // Redraw the map and show the new iteration
+            outputStateClassLayers[run].options.it=parseInt(this.value);
+            outputStateClassLayers[run].redraw();
         }
     });
 
