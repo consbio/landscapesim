@@ -114,28 +114,19 @@ function changeOutputStateClass(run) {
 
     activeRun = run;
 
-    console.log(1)
-
     // Remove other state class layers.
     $.each(outputStateClassLayers, function(index, stateClassLayer){
         if (map.hasLayer(stateClassLayer)){
             map.removeLayer(stateClassLayer)
         }
-    })
+    });
 
-    console.log(2)
-
-
-    console.log(3)
     // Remove other sliders.
     $.each(outputTimestepSliders, function(index, object){
         map.removeControl(object)
     });
 
-    console.log(4)
     outputTimestepSliders[run].addTo(map);
-
-    console.log(5)
 
     // Add the slider for the current run // Hookup the timeslider functions here.
     outputTimestepSliders[run].on('input change', function (e) {
@@ -155,8 +146,6 @@ function changeOutputStateClass(run) {
     }
 
     map.addControl(outputTimestepSliders[run]);
-
-    console.log(6)
 
     outputStateClassLayers[run].addTo(map);
 

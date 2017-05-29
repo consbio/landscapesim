@@ -32,21 +32,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="general_js.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="general_js.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/landscapesim/static/js/general_js.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.35591134">
-              <caret line="1151" column="6" selection-start-line="1151" selection-start-column="6" selection-end-line="1151" selection-end-column="6" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="1179" column="49" selection-start-line="1179" selection-start-column="49" selection-end-line="1179" selection-end-column="49" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="leaflet_map.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="leaflet_map.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="114" column="19" selection-start-line="114" selection-start-column="19" selection-end-line="114" selection-end-column="19" />
+            <state vertical-scroll-proportion="0.43472907">
+              <caret line="137" column="44" selection-start-line="137" selection-start-column="44" selection-end-line="137" selection-end-column="44" />
               <folding />
             </state>
           </provider>
@@ -124,8 +124,8 @@
         <option value="$PROJECT_DIR$/landscapesim/static/js/cost.js" />
         <option value="$PROJECT_DIR$/landscapesim/templates/index.html" />
         <option value="E:/Projects/DRECP_CA/Tasks/Web_Applications/Climate_Console/GIS/Scripts/Split_1km_Reporting_Units.py" />
-        <option value="$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js" />
         <option value="$PROJECT_DIR$/landscapesim/static/js/general_js.js" />
+        <option value="$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js" />
       </list>
     </option>
   </component>
@@ -858,18 +858,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
+    <entry file="file://$PROJECT_DIR$/landscapesim/static/js/general_js.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="114" column="19" selection-start-line="114" selection-start-column="19" selection-end-line="114" selection-end-column="19" />
+          <caret line="1179" column="49" selection-start-line="1179" selection-start-column="49" selection-end-line="1179" selection-end-column="49" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/landscapesim/static/js/general_js.js">
+    <entry file="file://$PROJECT_DIR$/landscapesim/static/leaflet/leaflet_map.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35591134">
-          <caret line="1151" column="6" selection-start-line="1151" selection-start-column="6" selection-end-line="1151" selection-end-column="6" />
+        <state vertical-scroll-proportion="0.43472907">
+          <caret line="137" column="44" selection-start-line="137" selection-start-column="44" selection-end-line="137" selection-end-column="44" />
           <folding />
         </state>
       </provider>
