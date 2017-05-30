@@ -108,10 +108,15 @@ function openCostTable(){
             current_transition_group_entries.push(current_transition_group_dict.transition_group)
         });
 
+        var management_actions_filter_keys=[];
+        $.each(library_config[current_library.id].management_actions_filter, function(key,value){
+            management_actions_filter_keys.push(key)
+        });
+
         $.each(current_project.definitions.transition_groups, function(index, transition_group_dict) {
             if(jQuery.inArray(transition_group_dict.id, current_transition_group_entries) == -1){
-                if(jQuery.inArray(transition_group_dict.name, library_config[1].management_actions_filter) != -1)  {
-                    $(last_row).find('td:nth-child(1) select').append("<option value='" + transition_group_dict.id + "'>" + transition_group_dict.name + "</option>");
+                if(jQuery.inArray(transition_group_dict.name, management_actions_filter_keys) != -1)  {
+                    $(last_row).find('td:nth-child(1) select').append("<option value='" + transition_group_dict.id + "'>" + library_config[current_library.id].management_actions_filter[transition_group_dict.name] + "</option>");
                 }
             }
         });

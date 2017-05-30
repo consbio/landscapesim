@@ -54,6 +54,7 @@ function initializePolygon(layer){
     */
 
     layer.options.color = "#00FFFF";
+    layer.options.fillOpacity = 0;
 
     // Add the shape to map
     drawnItems.addLayer(layer);
@@ -75,7 +76,7 @@ function initializePolygon(layer){
                        // Need the transition group name. Get the matching transition group object that has the id and the name in it.
                        var transition_group_match = $.grep(current_project.definitions.transition_groups, function(e){return e.id == this_transition_group_id })[0];
 
-                        popupMessage += "<option value=" + transition_group_match['id'] + ">" + transition_group_match['name'] + "</option>";
+                        popupMessage += "<option value=" + transition_group_match['id'] + ">" + library_config[current_library.id]['management_actions_filter'][transition_group_match['name']] + "</option>";
                 });
 
                 popupMessage += "</select>" +
@@ -211,7 +212,7 @@ $(document).on("submit", ".managementActionForm", function(){
     $.each(current_project.definitions.transition_groups, function (index, object) {
         if (typeof object != "undefined") {
             if (object["id"] == layer._actionID) {
-                layer._actionText = object["name"]
+                layer._actionText = library_config[current_library.id]["management_actions_filter"][object["name"]]
             }
         }
     });
