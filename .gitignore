@@ -3,7 +3,8 @@ landscapesim_project/settings/custom.py
 __pycache__/
 config.json
 Archive/
-Materials/
+materials/
+stsim-libs/
 *.bat
 *.swp
 .idea
@@ -11,4 +12,4 @@ Materials/
 .idea/misc.xml
 .idea/misc.xml
 .idea/workspace.xml
-.idea
+.idea/
