@@ -1,2 +1,0 @@
-# Syncrosim Generated Transition Group (Alternative Succession) Color Map (QGIS-compatible) Export File,,,,,
-INTERPOLATION:EXACT

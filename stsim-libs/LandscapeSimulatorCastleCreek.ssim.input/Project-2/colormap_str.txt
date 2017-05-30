@@ -1,9 +1,0 @@
-# Syncrosim Generated Primary Stratum Color Map (QGIS-compatible),,,,,
-INTERPOLATION:EXACT
-2,0,128,0,255,Basin Big Sagebrush Upland
-3,94,71,34,255,Curleaf Mountain Mahogany
-4,239,208,116,255,Low Sagebrush
-5,45,232,58,255,Montane Sagebrush Upland
-6,128,255,0,255,Montane Sagebrush Upland With Trees
-7,234,21,21,255,Western Juniper Woodland & Savannah
-8,235,230,37,255,Wyoming and Basin Big Sagebrush Upland
