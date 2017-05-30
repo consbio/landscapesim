@@ -88,12 +88,15 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         scenario = Scenario.objects.get(project=proj, sid=int(sid))
         is_spatial = scenario.run_control.is_spatial
         if is_spatial:
+            if os.path.exists(scenario.multiplier_directory()):
+                for file in os.listdir(scenario.multiplier_directory()):
+                    os.remove(os.path.join(scenario.multiplier_directory(), file))
 
             # For each transition spatial multipler, create spatial multiplier files where needed
             for tsm in config['transition_spatial_multipliers']:
                 tg = TransitionGroup.objects.get(id=tsm['transition_group']).name
-                iterations = int(tsm['iteration']) if tsm['iteration'] is not None and len(tsm['iteration']) else 'all'
-                timesteps = int(tsm['timestep']) if tsm['timestep'] is not None and len(tsm['timestep']) else 'all'
+                iterations = int(tsm['iteration']) if tsm['iteration'] is not None else 'all'
+                timesteps = int(tsm['timestep']) if tsm['timestep'] is not None else 'all'
                 tsm_file_name = "{tg}_{it}_{ts}.tif".format(tg=tg, it=iterations, ts=timesteps)
                 tsm['transition_multiplier_file_name'] = tsm_file_name
                 try:
