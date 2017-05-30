@@ -49,11 +49,19 @@ function overlayAdd(e){
     var layer = e.layer;
     layer.bringToFront();
 
-    $("#scene_legend").empty();
-    $("#scene_legend").append("<div class='legend_title'>" + e.name + "</div>");
-    $.each(colorMap[e.name], function(key,value){
-        $("#scene_legend").append("<div class='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
-    });
+    // After a run, the layer name is "State Classes, Run x". Change the name to "State Classes" to match the key in the colorMap dictionary object.
+    if (e.name.indexOf("State Classes") > -1){
+        e.name = "State Classes"
+    }
+
+    if (typeof colorMap[e.name]  != "undefined"){
+
+        $("#scene_legend").empty();
+        $("#scene_legend").append("<div class='legend_title'>" + e.name + "</div>");
+        $.each(colorMap[e.name], function (key, value) {
+            $("#scene_legend").append("<div class='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
+        });
+    }
 }
 
 outputStateClassServices={};
