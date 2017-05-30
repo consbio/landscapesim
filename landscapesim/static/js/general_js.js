@@ -409,12 +409,13 @@ $(document).ready(function() {
     function delegatedPopupContext(selector, element) {
         $(document).on('click', selector, function () {
             if ($(this).siblings(element).is(":visible")) {
-                $(this).siblings(element).hide()
-                map.removeLayer(inputStateClassLayer)
+                $(this).siblings(element).hide();
+                map.removeLayer(inputStateClassLayer);
             }
             else {
-                $(this).siblings(element).show()
-                inputStateClassLayer.addTo(map)
+                $(".sub_slider_text_inputs").hide();
+                $(this).siblings(element).show();
+                inputStateClassLayer.addTo(map);
 
             }
         });
