@@ -132,7 +132,6 @@ $(document).ready(function() {
 
                                         processStateClassSummaryReport(results_scenario_report);
 
-                                        $("#tab_container").css("display", "block");
                                     });
 
                                 });
@@ -143,6 +142,7 @@ $(document).ready(function() {
                                     results_scenario_configuration =  res;
                                     loadOutputLayers(results_scenario_configuration, run)
 
+                                    $("#tab_container").css("display", "block");
                                 });
 
 
