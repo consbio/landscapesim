@@ -266,7 +266,7 @@ $(document).ready(function() {
                     });
 
                     // Create objects from Web API data
-                    createVegInitialConditionsDict();
+                    veg_initial_conditions = createVegInitialConditionsDict();
                     createVegTypeStateClassesJSON(veg_initial_conditions);
 
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
@@ -341,7 +341,7 @@ $(document).ready(function() {
 
                 // Figure out the header position and determine the max height;
                 var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 190;
+                var max_height = $(window).height() - this_div_position - 240;
                 this_collapsible_div.css('max-height', max_height);
             });
 
@@ -658,7 +658,7 @@ function createVegInitialConditionsDict(){
 
    if (typeof current_project.definitions != "undefined") {
 
-       veg_initial_conditions = {};
+       var veg_initial_conditions = {};
        veg_initial_conditions["veg_sc_pct"] = {};
 
        $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
@@ -678,6 +678,8 @@ function createVegInitialConditionsDict(){
                veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
            }
        });
+
+       return veg_initial_conditions
 
    } else {
 
