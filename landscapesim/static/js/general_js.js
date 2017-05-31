@@ -1098,7 +1098,7 @@ function update_results_table(run) {
 
     $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Library</td><td colspan='2'>" + current_library.name + "</td></tr>");
 
-    $("#view" + run).append("<table id='selected_location_table_" + run + "' class='selected_location_table' ><tr></tr></table> <div id='area_charts_" + run + "' class='area_charts' style='display:none'></div><div id='column_charts_" + run + "' class='column_charts'> </div>")
+    $("#view" + run).append("<table id='selected_location_table_" + run + "' class='selected_location_table' ><tr></tr></table> <div id='area_charts_" + run + "' class='area_charts' ></div><div id='column_charts_" + run + "' class='column_charts' style='display:none'> </div>")
 
     // Probabilistic Transitions Row
     if (typeof probabilistic_transitions_slider_values != "undefined") {
@@ -1134,8 +1134,8 @@ function update_results_table(run) {
     // Chart Type row
     $("#results_table_" + run).append("<tr class='chart_type_tr'>" +
         "<td class='chart_type_th' colspan='1'>Chart Type</td>" +
-        "<td class='selected_td_button' id='column_chart_td_button_" + run + "'>Column</td>" +
-        "<td class='unselected_td_button' id='stacked_area_chart_td_button_" + run + "'>Area</td>" +
+        "<td class='unselected_td_button' id='column_chart_td_button_" + run + "'>Column</td>" +
+        "<td class='selected_td_button' id='stacked_area_chart_td_button_" + run + "'>Area</td>" +
         "</td>");
 
 
