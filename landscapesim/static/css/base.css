@@ -52,7 +52,7 @@ canvas {
 	/* overflow-x: hidden; */
 }
 
-.header {
+.header, .right_header {
 	cursor: pointer;
 	background-color: #0092D1;
 	height: 22px;
@@ -1339,7 +1339,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 div.leaflet-bottom:nth-child(4){
 	right:45px !important;
-	bottom:100px;
+	bottom:35px;
 }
 
 .leaflet-range-control input[type="range"][orient="horizontal"] {
