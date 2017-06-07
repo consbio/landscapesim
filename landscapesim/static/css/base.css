@@ -332,7 +332,7 @@ canvas {
 .area_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: 51.4vh;
+	height: calc(100vh - 435px);
 	padding-right: 30px;
 	overflow-x: hidden;
 }
@@ -340,7 +340,7 @@ canvas {
 .column_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: 54vh;
+	height: calc(100vh - 435px);
 	padding-right: 30px;
 	overflow-x: hidden;
 }

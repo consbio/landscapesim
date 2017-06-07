@@ -349,7 +349,7 @@ $(document).ready(function() {
     });
 
         // Collapse div on header click
-    $(document).on("click", ".right_header", function () {
+    $(document).on("click", "#model_results_header", function () {
 
             // Get this collapsible div
             var this_collapsible_div = $(this).siblings(".collapsible_div");
@@ -366,8 +366,8 @@ $(document).ready(function() {
 
                 // Figure out the header position and determine the max height;
                 var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 90;
-                this_collapsible_div.css('max-height', max_height);
+                var height = $(window).height() - this_div_position - 120;
+                this_collapsible_div.css('height', height);
             });
 
 
