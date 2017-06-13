@@ -341,7 +341,7 @@ $(document).ready(function() {
 
                 // Figure out the header position and determine the max height;
                 var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 190;
+                var max_height = $(window).height() - this_div_position - 220;
                 this_collapsible_div.css('max-height', max_height);
             });
 
