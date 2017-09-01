@@ -2,6 +2,7 @@ manage.py
 landscapesim_project/settings/custom.py
 __pycache__/
 config.json
+landscapesim/migrations/0*.py
 Archive/
 materials/
 stsim-libs/
