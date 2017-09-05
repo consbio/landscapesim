@@ -32,7 +32,7 @@ def color_to_rgba(colorstr):
     return {'r': r, 'g': g, 'b': b, 'a': a}
 
 
-def default_int(value):
+def default_int(value):                         # Todo - consider creating new 'type's for each of these
     return int(value) if len(value) else -1
 
 

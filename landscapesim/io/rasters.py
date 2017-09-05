@@ -127,7 +127,7 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
 
     # No patterns, so create a simple input raster
     if not has_time:
-        convert_to_netcdf(os.path.join(scenario.input_directory(), filename_or_pattern), nc_full_path, variable_name)
+        convert_to_netcdf(os.path.join(scenario.input_directory, filename_or_pattern), nc_full_path, variable_name)
 
     # Time series output pattern, convert to timeseries netcdf
     else:
@@ -138,7 +138,7 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         iterations = []
         timesteps = []
         ssim_ids = []
-        for f in glob.glob(os.path.join(scenario.output_directory(), filename_or_pattern)):
+        for f in glob.glob(os.path.join(scenario.output_directory, filename_or_pattern)):
 
             it, _, *ctype_id = f[:-4].split(os.sep)[-1].split('-')
 
@@ -179,7 +179,7 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
             for it in iterations:
                 for id in ssim_ids:
                     filename_patterns.append(os.path.join(
-                        scenario.output_directory(), '{}-Ts*-{}-{}.tif'.format(it, ctype, id)
+                        scenario.output_directory, '{}-Ts*-{}-{}.tif'.format(it, ctype, id)
                     ))
 
             for pattern in filename_patterns:
@@ -191,26 +191,26 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
                     iteration=iteration_num
                 )
                 variable_names.append(iteration_var_name)
-                iteration_nc_file = os.path.join(scenario.output_directory(),
+                iteration_nc_file = os.path.join(scenario.output_directory,
                                                  iteration_var_name + '.nc')
                 convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
 
-            merge_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*-*.nc')
+            merge_nc_pattern = os.path.join(scenario.output_directory, variable_name + '-*-*.nc')
 
         # no ids
         # service variables are <variable_name>-<iteration>
         else:
-            filename_patterns = [os.path.join(scenario.output_directory(), '{}-Ts*-{}.tif'.format(it, ctype))
+            filename_patterns = [os.path.join(scenario.output_directory, '{}-Ts*-{}.tif'.format(it, ctype))
                                  for it in iterations]
 
-            merge_nc_pattern = os.path.join(scenario.output_directory(), variable_name + '-*.nc')
+            merge_nc_pattern = os.path.join(scenario.output_directory, variable_name + '-*.nc')
 
             for pattern in filename_patterns:
                 iteration_num = int(pattern.split(os.sep)[-1].split('-')[0][2:])
                 iteration_var_name = '{variable_name}-{iteration}'.format(variable_name=variable_name,
                                                                           iteration=iteration_num)
                 variable_names.append(iteration_var_name)
-                iteration_nc_file = os.path.join(scenario.output_directory(),
+                iteration_nc_file = os.path.join(scenario.output_directory,
                                                  iteration_var_name + '.nc')
                 convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
 

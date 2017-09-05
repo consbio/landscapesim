@@ -43,14 +43,12 @@ class Scenario(models.Model):
     # Note - A scenario can itself have scenarios as dependencies, but a top level scenario won't be a dependency
     is_dependency_of = models.ForeignKey("self", null=True, blank=True)
 
+    @property
     def input_directory(self):
         return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
                             'STSim_InitialConditionsSpatial')
 
-    def multiplier_directory(self):
-        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
-                            'STSim_TransitionSpatialMultiplier')
-
+    @property
     def output_directory(self):
         if self.is_result:
             path = os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
@@ -60,6 +58,12 @@ class Scenario(models.Model):
                 raise OSError("Scenario {} has no spatial directory. No spatial outputs were created.")
         else:
             raise ValueError("Scenario {} is not a result scenario. Output directory does not exist.".format(self.sid))
+
+    @property
+    def multiplier_directory(self):
+        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
+                            'STSim_TransitionSpatialMultiplier')
+
 
 """
     Project Definitions

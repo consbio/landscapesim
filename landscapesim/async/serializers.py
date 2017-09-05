@@ -85,11 +85,10 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         lib = Library.objects.get(name__exact=library_name)
         proj = Project.objects.get(library=lib, pid=pid)
         scenario = Scenario.objects.get(project=proj, sid=int(sid))
-        is_spatial = scenario.run_control.is_spatial
-        if is_spatial:
-            if os.path.exists(scenario.multiplier_directory()):
-                for file in os.listdir(scenario.multiplier_directory()):
-                    os.remove(os.path.join(scenario.multiplier_directory(), file))
+        if scenario.run_control.is_spatial:
+            if os.path.exists(scenario.multiplier_directory):
+                for file in os.listdir(scenario.multiplier_directory):
+                    os.remove(os.path.join(scenario.multiplier_directory, file))
 
             # For each transition spatial multipler, create spatial multiplier files where needed
             for tsm in config['transition_spatial_multipliers']:
@@ -102,10 +101,10 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
                     geojson = tsm.pop('geojson')    # always remove the geojson entry
                     try:
                         rasterize_geojson(geojson,
-                                          os.path.join(scenario.input_directory(),
+                                          os.path.join(scenario.input_directory,
                                                        scenario.initial_conditions_spatial_settings.
                                                        stratum_file_name),
-                                          os.path.join(scenario.multiplier_directory(),
+                                          os.path.join(scenario.multiplier_directory,
                                                        tsm_file_name))
                     except:
                         raise IOError("Error rasterizing geojson.")
