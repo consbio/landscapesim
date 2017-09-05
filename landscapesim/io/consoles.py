@@ -8,9 +8,8 @@
 
 """
 
-import subprocess
 import os
-import csv
+import subprocess
 
 # The standard installation location for SyncroSim (subject to change, also not valid for linux...)
 DEFAULT_EXE = "C:\\Program Files\\SyncroSim\\1\\SyncroSim.Console.Exe"

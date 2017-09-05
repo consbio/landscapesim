@@ -3,10 +3,12 @@
     These models take a snapshot of the library when imported so we don't have to
     extract them out each time.
 """
-from django.db import models
-import uuid
 import os
+import uuid
+
 from celery.result import AsyncResult
+from django.db import models
+
 
 # TODO - add a lookup field for the project when it is necessary.
 #        could be something like "has_lookup" and a fk to the lookup table

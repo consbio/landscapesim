@@ -3,38 +3,37 @@
 """
 import json
 import os
+
 from rest_framework import serializers
+
+from landscapesim.async.tasks import run_model
 from landscapesim.io.geojson import rasterize_geojson
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
-from landscapesim.async.tasks import run_model
-from landscapesim.serializers.imports import RunControlImport, OutputOptionImport, InitialConditionsNonSpatialImport, \
-    InitialConditionsSpatialImport, DeterministicTransitionImport, TransitionImport, \
-    InitialConditionsNonSpatialDistributionImport, TransitionTargetImport, TransitionMultiplierValueImport, \
-    TransitionSizeDistributionImport, TransitionSizePrioritizationImport, TransitionSpatialMultiplierImport, \
-    StateAttributeValueImport, TransitionAttributeValueImport, TransitionAttributeTargetImport
+from landscapesim.serializers import imports
+
 
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
 # Configuration flags for initialization
-CONFIG_INPUTS = (('run_control', RunControlImport),
-                 ('output_options', OutputOptionImport),
-                 ('initial_conditions_nonspatial_settings', InitialConditionsNonSpatialImport),
-                 #('initial_conditions_spatial_settings', InitialConditionsSpatialImport)
+CONFIG_INPUTS = (('run_control', imports.RunControlImport),
+                 ('output_options', imports.OutputOptionImport),
+                 ('initial_conditions_nonspatial_settings', imports.InitialConditionsNonSpatialImport),
+                 #('initial_conditions_spatial_settings', imports.InitialConditionsSpatialImport)
                  )
 
 # Configuration of input data (probabilities, mappings, etc.)
-VALUE_INPUTS = (('deterministic_transitions', DeterministicTransitionImport),
-                ('transitions', TransitionImport),
-                ('initial_conditions_nonspatial_distributions', InitialConditionsNonSpatialDistributionImport),
-                ('transition_targets', TransitionTargetImport),
-                ('transition_multiplier_values', TransitionMultiplierValueImport),
-                ('transition_size_distributions', TransitionSizeDistributionImport),
-                ('transition_size_prioritizations', TransitionSizePrioritizationImport),
-                ('transition_spatial_multipliers', TransitionSpatialMultiplierImport),
-                ('state_attribute_values', StateAttributeValueImport),
-                ('transition_attribute_values', TransitionAttributeValueImport),
-                ('transition_attribute_targets', TransitionAttributeTargetImport))
+VALUE_INPUTS = (('deterministic_transitions', imports.DeterministicTransitionImport),
+                ('transitions', imports.TransitionImport),
+                ('initial_conditions_nonspatial_distributions', imports.InitialConditionsNonSpatialDistributionImport),
+                ('transition_targets', imports.TransitionTargetImport),
+                ('transition_multiplier_values', imports.TransitionMultiplierValueImport),
+                ('transition_size_distributions', imports.TransitionSizeDistributionImport),
+                ('transition_size_prioritizations', imports.TransitionSizePrioritizationImport),
+                ('transition_spatial_multipliers', imports.TransitionSpatialMultiplierImport),
+                ('state_attribute_values', imports.StateAttributeValueImport),
+                ('transition_attribute_values', imports.TransitionAttributeValueImport),
+                ('transition_attribute_targets', imports.TransitionAttributeTargetImport))
 
 
 class AsyncJobSerializerMixin(object):
@@ -142,13 +141,14 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
                     value['config'] = config
                     return value
                 else:
-                    raise serializers.ValidationError('Missing one of {}. Got {}'.format(CONFIG_INPUTS, list(config.keys())))
+                    raise serializers.ValidationError(
+                        'Missing one of {}. Got {}'.format(CONFIG_INPUTS, list(config.keys()))
+                    )
             except ValueError:
                 raise serializers.ValidationError('Invalid configuration')
         return {}
 
     def create(self, validated_data):
-
         library_name = validated_data['inputs']['library_name']
         pid = validated_data['inputs']['pid']
         sid = validated_data['inputs']['sid']

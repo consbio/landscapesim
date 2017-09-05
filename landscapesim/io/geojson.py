@@ -1,6 +1,7 @@
 import os
-import rasterio
+
 import numpy
+import rasterio
 from rasterio import features
 from rasterio.warp import transform_geom
 

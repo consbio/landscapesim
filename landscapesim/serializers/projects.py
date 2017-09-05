@@ -3,9 +3,8 @@
 """
 
 from rest_framework import serializers
-from landscapesim.models import Library, Project, Scenario, Terminology, DistributionType, \
-    Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup, TransitionTypeGroup, \
-    TransitionMultiplierType, AttributeGroup, StateAttributeType, TransitionAttributeType
+
+from landscapesim import models
 
 
 class LibrarySerializer(serializers.ModelSerializer):
@@ -16,7 +15,7 @@ class LibrarySerializer(serializers.ModelSerializer):
         )
 
     class Meta:
-        model = Library
+        model = models.Library
         fields = ('id', 'name', 'projects',)
 
 
@@ -28,7 +27,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         )
 
     class Meta:
-        model = Project
+        model = models.Project
         fields = '__all__'
 
 
@@ -40,79 +39,79 @@ class ScenarioSerializer(serializers.ModelSerializer):
         )
 
     class Meta:
-        model = Scenario
+        model = models.Scenario
         fields = '__all__'
 
 
 class TerminologySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Terminology
+        model = models.Terminology
         fields = '__all__'
 
 
 class DistributionTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DistributionType
+        model = models.DistributionType
         fields = '__all__'
 
 
 class StratumSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Stratum
+        model = models.Stratum
         fields = '__all__'
 
 
 class SecondaryStratumSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SecondaryStratum
+        model = models.SecondaryStratum
         fields = '__all__'
 
 
 class StateClassSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateClass
+        model = models.StateClass
         fields = '__all__'
 
 
 class TransitionTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionType
+        model = models.TransitionType
         fields = '__all__'
 
 
 class TransitionGroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionGroup
+        model = models.TransitionGroup
         fields = '__all__'
 
 
 class TransitionTypeGroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionTypeGroup
+        model = models.TransitionTypeGroup
         fields = '__all__'
 
 
 class TransitionMultiplierTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionMultiplierType
+        model = models.TransitionMultiplierType
         fields = '__all__'
 
 
 class AttributeGroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AttributeGroup
+        model = models.AttributeGroup
         fields = '__all__'
 
 
 class StateAttributeTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateAttributeType
+        model = models.StateAttributeType
         fields = '__all__'
 
 
 class TransitionAttributeTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionAttributeType
+        model = models.TransitionAttributeType
         fields = '__all__'
 
 
@@ -136,4 +135,3 @@ class ProjectDefinitionsSerializer(serializers.Serializer):
         fields = ('terminology', 'stateclasses', 'strata', 'transition_types', 'transition_groups',
                   'transition_type_groups', 'transition_attributes', 'state_attributes',
                   'attribute_groups',)
-

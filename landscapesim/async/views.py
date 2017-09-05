@@ -1,7 +1,7 @@
 from rest_framework.viewsets import GenericViewSet, mixins
 
-from landscapesim.models import RunScenarioModel
 from landscapesim.async.serializers import RunModelSerializer
+from landscapesim.models import RunScenarioModel
 
 
 class RunModelViewset(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):

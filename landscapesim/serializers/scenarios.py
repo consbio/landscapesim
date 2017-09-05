@@ -2,108 +2,106 @@
     Model serializers for models that operate on a scenario basis, within a given project.
 """
 
-from rest_framework import serializers
 from django.core.urlresolvers import reverse
-from landscapesim.models import Scenario, \
-    DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
-    InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
-    TransitionSizeDistribution, TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, \
-    TransitionAttributeValue, TransitionAttributeTarget, ScenarioInputServices, ScenarioOutputServices
+from rest_framework import serializers
+
+from landscapesim import models
+
 
 class DistributionValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DistributionValue
+        model = models.DistributionValue
         exclude = ('scenario',)
 
 
 class RunControlSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RunControl
+        model = models.RunControl
         exclude = ('scenario',)
 
 
 class OutputOptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OutputOption
+        model = models.OutputOption
         exclude = ('scenario',)
 
 
 class DeterministicTransitionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DeterministicTransition
+        model = models.DeterministicTransition
         exclude = ('scenario',)
 
 
 class TransitionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transition
+        model = models.Transition
         exclude = ('scenario',)
 
 
 class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InitialConditionsNonSpatial
+        model = models.InitialConditionsNonSpatial
         exclude = ('scenario',)
 
 
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InitialConditionsNonSpatialDistribution
+        model = models.InitialConditionsNonSpatialDistribution
         exclude = ('scenario',)
 
 
 class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InitialConditionsSpatial
+        model = models.InitialConditionsSpatial
         exclude = ('scenario', 'age_file_name', 'stratum_file_name',
                    'stateclass_file_name', 'secondary_stratum_file_name')
 
 
 class TransitionTargetSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionTarget
+        model = models.TransitionTarget
         exclude = ('scenario',)
 
 
 class TransitionMultiplierValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionMultiplierValue
+        model = models.TransitionMultiplierValue
         exclude = ('scenario',)
 
 
 class TransitionSizeDistributionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionSizeDistribution
+        model = models.TransitionSizeDistribution
         exclude = ('scenario',)
 
 
 class TransitionSizePrioritizationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionSizePrioritization
+        model = models.TransitionSizePrioritization
         exclude = ('scenario',)
 
 
 class TransitionSpatialMultiplierSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionSpatialMultiplier
+        model = models.TransitionSpatialMultiplier
         exclude = ('scenario',)
 
 
 class StateAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateAttributeValue
+        model = models.StateAttributeValue
         exclude = ('scenario',)
 
 
 class TransitionAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionAttributeValue
+        model = models.TransitionAttributeValue
         exclude = ('scenario',)
 
 
 class TransitionAttributeTargetSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionAttributeTarget
+        model = models.TransitionAttributeTarget
         exclude = ('scenario',)
 
 
@@ -115,7 +113,7 @@ class ScenarioInputServicesSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField(allow_null=True)
 
     class Meta:
-        model = ScenarioInputServices
+        model = models.ScenarioInputServices
         fields = ('stratum', 'secondary_stratum', 'stateclass', 'age')
 
     def _get_url(self, service):
@@ -159,7 +157,7 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
     avg_annual_transition_group_probability = serializers.SerializerMethodField(allow_null=True)
 
     class Meta:
-        model = ScenarioOutputServices
+        model = models.ScenarioOutputServices
         fields = ('stateclass', 'transition_group', 'age', 'tst',
                   'stratum', 'state_attribute', 'transition_attribute',
                   'avg_annual_transition_group_probability')

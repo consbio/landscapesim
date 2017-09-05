@@ -1,4 +1,5 @@
 from django.conf.urls import url
+
 from landscapesim.tiles.views import GetImageView, GetTimeSeriesImageView
 
 SERVICE_REGEX = r'(?P<service_name>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})'

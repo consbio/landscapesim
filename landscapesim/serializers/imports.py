@@ -1,9 +1,11 @@
 import inspect
 from collections import OrderedDict
+
 from django.db import models
 from rest_framework.serializers import ValidationError
-from landscapesim.io.utils import default_int_to_empty_or_int, bool_to_empty_or_yes
+
 from landscapesim.io import config
+from landscapesim.io.utils import default_int_to_empty_or_int, bool_to_empty_or_yes
 from landscapesim.serializers import scenarios as serializers
 
 

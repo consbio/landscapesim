@@ -1,14 +1,17 @@
-from celery.task import task
-import json
 import csv
-from django.db import transaction
-from landscapesim.models import Library, Scenario, RunScenarioModel
-from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.utils import get_random_csv, process_scenario_inputs
-from landscapesim.io.reports import process_reports
-from landscapesim.io.rasters import process_output_rasters
-from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
+import json
+
+from celery.task import task
 from django.conf import settings
+from django.db import transaction
+
+from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
+from landscapesim.io.consoles import STSimConsole
+from landscapesim.io.rasters import process_output_rasters
+from landscapesim.io.reports import process_reports
+from landscapesim.io.utils import get_random_csv, process_scenario_inputs
+from landscapesim.models import Library, Scenario, RunScenarioModel
+
 exe = settings.STSIM_EXE_PATH
 
 

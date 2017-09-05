@@ -3,17 +3,18 @@
 """
 import os
 from shutil import copyfile
-from landscapesim.models import Library, Project, Scenario
-from landscapesim.io.utils import process_scenario_inputs, process_project_definitions
-from landscapesim.io.reports import process_reports
-from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.rasters import process_output_rasters
-from django.core.management.base import BaseCommand
+
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from landscapesim.io.consoles import STSimConsole
+from landscapesim.io.rasters import process_output_rasters
+from landscapesim.io.reports import process_reports
+from landscapesim.io.utils import process_scenario_inputs, process_project_definitions
+from landscapesim.models import Library, Project, Scenario
 
-# TODO - add option to import only non-result scenarios (importing all results can be 'very' lengthy)
+
 class Command(BaseCommand):
 
     help = 'Registers a .ssim library based on the file path.'

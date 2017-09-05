@@ -1,19 +1,21 @@
+import datetime
+import glob
 import os
 import random
 import subprocess
-import glob
+import uuid
+
 import pyproj
 import xarray
-import datetime
-import uuid
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
-from clover.render.renderers.unique import UniqueValuesRenderer
 from clover.render.renderers.stretched import StretchedRenderer
+from clover.render.renderers.unique import UniqueValuesRenderer
 from clover.utilities.color import Color
 from django.conf import settings
 from django.db import Error
 from ncdjango.models import Service, Variable
+
 from landscapesim.io.query import ssim_query
 from landscapesim.models import ScenarioInputServices, ScenarioOutputServices, TransitionGroup, \
     StateAttributeType, TransitionAttributeType

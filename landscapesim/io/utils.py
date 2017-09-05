@@ -1,6 +1,8 @@
-import uuid
 import csv
 import os
+import uuid
+
+from landscapesim.io.rasters import process_input_rasters, process_output_rasters
 from landscapesim.models import DistributionType, Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
     TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, \
     DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
@@ -9,12 +11,10 @@ from landscapesim.models import DistributionType, Terminology, Stratum, Secondar
     TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
     TransitionAttributeTarget
 
-from landscapesim.io.rasters import process_input_rasters, process_output_rasters
-
 M2_TO_ACRES = 0.000247105
 
 
-# meters squard to acres
+# meters squared to acres
 def cells_to_acres(numcells, res):
     return pow(res, 2) * M2_TO_ACRES * numcells
 

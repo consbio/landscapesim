@@ -3,17 +3,13 @@
 """
 
 from rest_framework import serializers
-from landscapesim.models import Scenario, \
-    StateClassSummaryReport, StateClassSummaryReportRow, \
-    TransitionSummaryReport, TransitionSummaryReportRow, \
-    TransitionByStateClassSummaryReport, TransitionByStateClassSummaryReportRow, \
-    StateAttributeSummaryReport, StateAttributeSummaryReportRow, \
-    TransitionAttributeSummaryReport, TransitionAttributeSummaryReportRow
+
+from landscapesim import models
 
 
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateClassSummaryReportRow
+        model = models.StateClassSummaryReportRow
         fields = '__all__'
 
 
@@ -21,13 +17,13 @@ class StateClassSummaryReportSerializer(serializers.ModelSerializer):
     results = StateClassSummaryReportRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = StateClassSummaryReport
+        model = models.StateClassSummaryReport
         fields = ('id', 'scenario', 'results',)
 
 
 class TransitionSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionSummaryReportRow
+        model = models.TransitionSummaryReportRow
         fields = '__all__'
 
 
@@ -35,13 +31,13 @@ class TransitionSummaryReportSerializer(serializers.ModelSerializer):
     results = TransitionSummaryReportRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TransitionSummaryReport
+        model = models.TransitionSummaryReport
         fields = ('id', 'scenario', 'results',)
 
 
 class TransitionByStateClassSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionByStateClassSummaryReportRow
+        model = models.TransitionByStateClassSummaryReportRow
         fields = '__all__'
 
 
@@ -49,13 +45,13 @@ class TransitionByStateClassSummaryReportSerializer(serializers.ModelSerializer)
     results = TransitionByStateClassSummaryReportRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TransitionByStateClassSummaryReport
+        model = models.TransitionByStateClassSummaryReport
         fields = ('id', 'scenario', 'results',)
 
 
 class StateAttributeSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateAttributeSummaryReportRow
+        model = models.StateAttributeSummaryReportRow
         fields = '__all__'
 
 
@@ -63,13 +59,13 @@ class StateAttributeSummaryReportSerializer(serializers.ModelSerializer):
     results = StateAttributeSummaryReportRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = StateAttributeSummaryReport
+        model = models.StateAttributeSummaryReport
         fields = ('id', 'scenario', 'results',)
 
 
 class TransitionAttributeSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransitionAttributeSummaryReportRow
+        model = models.TransitionAttributeSummaryReportRow
         fields = '__all__'
 
 
@@ -77,7 +73,7 @@ class TransitionAttributeSummaryReportSerializer(serializers.ModelSerializer):
     results = TransitionAttributeSummaryReportRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TransitionAttributeSummaryReport
+        model = models.TransitionAttributeSummaryReport
         fields = ('id', 'scenario', 'results',)
 
 
@@ -117,6 +113,6 @@ class QueryScenarioReportSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Scenario
+        model = models.Scenario
         fields = ('stateclass_summary_report', 'transition_summary_report', 'transition_by_sc_summary_report',
                   'state_attribute_summary_report', 'transition_attribute_summary_report',)

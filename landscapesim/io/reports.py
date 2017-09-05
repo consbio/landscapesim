@@ -6,6 +6,7 @@
 
 import csv
 import os
+
 from landscapesim.io.utils import default_int
 from landscapesim.models import Stratum, SecondaryStratum, StateClass, TransitionType, TransitionGroup, \
     StateAttributeType, TransitionAttributeType, TransitionSummaryReport, TransitionSummaryReportRow, \
