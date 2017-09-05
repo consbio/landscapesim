@@ -42,6 +42,9 @@ $(document).ready(function() {
 
     $('#run_button').on('click', function() {
 
+        // Clear the current transition_spatial_multipliers
+        current_scenario.config.transition_spatial_multipliers = [];
+
         $.each(action_list, function(index,object){
             if (typeof object != "undefined") {
                 $.each(object.timesteps, function (index, value) {

@@ -1,5 +1,6 @@
 import csv
 import json
+import time
 
 from celery.task import task
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.db import transaction
 
 from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from landscapesim.io.consoles import STSimConsole
+from landscapesim.io.query import ssim_query
 from landscapesim.io.rasters import process_output_rasters
 from landscapesim.io.reports import process_reports
 from landscapesim.io.utils import get_random_csv, process_scenario_inputs
@@ -24,7 +26,7 @@ def import_configuration(console, config, sid, tmp_file):
     :param tmp_file: An absolute path to a csv file
     """
 
-    print('Importing configuration for scenario {}'.format(sid))
+    print('Importing configuration for Scenario {}'.format(sid))
     for pair in CONFIG_IMPORTS + VALUE_IMPORTS:
         key = pair[0]
         sheet_name = pair[1]
@@ -44,6 +46,13 @@ def import_configuration(console, config, sid, tmp_file):
     print('Successfully imported run configuration for scenario {}'.format(sid))
 
 
+def execute_ssim_queries(config, library, sid):
+    # Currently no support for importing an empty table, but we need this here.
+    if len(config.get('transition_spatial_multipliers')) == 0:
+        ssim_query("DELETE FROM STSim_TransitionSpatialMultiplier WHERE ScenarioID={}".format(sid), library)
+
+
+
 @task(bind=True)
 def run_model(self, library_name, pid, sid):
     """
@@ -60,13 +69,19 @@ def run_model(self, library_name, pid, sid):
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
 
     inputs = json.loads(job.inputs)
+    t = time.time()
     import_configuration(console, inputs['config'], sid, get_random_csv(lib.tmp_file))
-
+    execute_ssim_queries(inputs['config'], lib, sid)
+    print("Import time: {}".format(time.time()- t))
+    t = time.time()
     try:
         print('Running scenario {}...'.format(sid))
         result_sid = int(console.run_model(sid))
     except:
         raise IOError("Error running model")
+
+    print("Model run time: {}".format(time.time() - t))
+    t = time.time()
     scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
     print('Scenario run complete, processing results for scenario {}'.format(result_sid))
@@ -82,5 +97,10 @@ def run_model(self, library_name, pid, sid):
         job.save()
 
         process_scenario_inputs(console, scenario)
+        print("Scenario import time: {}".format(time.time() - t))
+        t = time.time()
         process_reports(console, scenario, get_random_csv(lib.tmp_file))
+        print("Scenario report time: {}".format(time.time() - t))
+        t = time.time()
         process_output_rasters(scenario)
+        print("Scenario output time: {}".format(time.time() - t))
