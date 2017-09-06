@@ -138,15 +138,18 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         iterations = []
         timesteps = []
         ssim_ids = []
-        for f in glob.glob(os.path.join(scenario.output_directory, filename_or_pattern)):
 
-            it, _, *ctype_id = f[:-4].split(os.sep)[-1].split('-')
+        glob_pattern = glob.glob(os.path.join(scenario.output_directory, filename_or_pattern))
+        glob_pattern.sort()
+        for f in glob_pattern:
+
+            it, ts, *ctype_id = f[:-4].split(os.sep)[-1].split('-')
 
             if it not in iterations:
                 iterations.append(it)   # E.g. ['It0001','It0002', ...]
 
-            if _ not in timesteps:     # T.g. ['Ts0000','Ts0001', ...]
-                timesteps.append(_)
+            if ts not in timesteps:     # T.g. ['Ts0000','Ts0001', ...]
+                timesteps.append(ts)
 
             if len(ctype_id) > 1:
                 ssim_id = int(ctype_id[1])
@@ -327,7 +330,9 @@ def merge_netcdf(pattern, out):
     Merges a list of netcdf files with different variables and same dimensions into a single netcdf file.
     :param pattern: glob.glob pattern (not necessarily a regex)
     """
-    xarray.merge([xarray.open_dataset(x) for x in glob.glob(pattern)]).to_netcdf(out)
+    glob_pattern = glob.glob(pattern)
+    glob_pattern.sort()
+    xarray.merge([xarray.open_dataset(x) for x in glob_pattern]).to_netcdf(out)
 
 
 @has_nc_root
