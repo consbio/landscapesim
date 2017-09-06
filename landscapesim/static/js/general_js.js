@@ -110,8 +110,8 @@ $(document).ready(function() {
                                 var url_array = result_url.split('/');
                                 var base_url = url_array[2];
                                 var results_model_id = url_array[url_array.length -2];
-                                var reports_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
-                                var results_scenario_configuration_url = "http://" + base_url + "/api/scenarios/" + results_model_id + "/config/";
+                                var reports_url = "https://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
+                                var results_scenario_configuration_url = "https://" + base_url + "/api/scenarios/" + results_model_id + "/config/";
 
                                 // Maximum of 4 model runs
                                 if (run == 4) {
