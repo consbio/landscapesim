@@ -322,7 +322,7 @@ def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name):
     try:
         subprocess.run(["clover", "to_netcdf", geotiff_file_or_pattern, netcdf_out, variable_name])
     except:
-        raise subprocess.CalledProcessError("Failed calling clover. Did you setup clover correctly?")
+        raise subprocess.SubprocessError("Failed calling clover. Did you setup clover correctly?")
 
 
 def merge_netcdf(pattern, out):
@@ -332,7 +332,7 @@ def merge_netcdf(pattern, out):
     """
     glob_pattern = glob.glob(pattern)
     glob_pattern.sort()
-    xarray.merge([xarray.open_dataset(x) for x in glob_pattern]).to_netcdf(out)
+    xarray.merge(xarray.open_dataset(x) for x in glob_pattern).to_netcdf(out)
 
 
 @has_nc_root

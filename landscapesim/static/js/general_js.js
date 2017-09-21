@@ -101,17 +101,15 @@ $(document).ready(function() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
                             console.log(update);
-                            if (update.status === 'success') {
+                            if (update.status === 'success' || update.model_status === 'complete') {
 
                                 $("#output").show();
                                 result_url = update.result_scenario;
 
                                 // Determine the reports URL
-                                var url_array = result_url.split('/');
-                                var base_url = url_array[2];
-                                var results_model_id = url_array[url_array.length -2];
-                                var reports_url = "https://" + base_url + "/api/scenarios/" + results_model_id + "/reports/";
-                                var results_scenario_configuration_url = "https://" + base_url + "/api/scenarios/" + results_model_id + "/config/";
+                                var results_model_id = String(update.result_scenario);
+                                var reports_url = window.location.href + "api/scenarios/" + results_model_id + "/reports/";
+                                var results_scenario_configuration_url = window.location.href + "api/scenarios/" + results_model_id + "/config/";
 
                                 // Maximum of 4 model runs
                                 if (run == 4) {
@@ -173,7 +171,7 @@ $(document).ready(function() {
                                 poll();
                             }
                         })
-                    }, 5000)
+                    }, 1500)
                 })();
 
             });
@@ -1191,7 +1189,7 @@ function update_results_table(run) {
     var sorted_veg_type_list = veg_type_list.sort();
     $("#running_st_sim").html("ST-Sim Model Results <img class='collapse_icon' src='/static/img/collapse_down_arrow.png' >");
 
-    $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + settings["timesteps"] + " Years</td></tr>");
+    $("#results_table_" + run).append("<tr class='veg_output_tr'><td class='veg_output_th' id='veg_output_th_" + run + "' colspan='3'>Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " Years</td></tr>");
     // Go through each sorted veg_type
     $.each(sorted_veg_type_list, function (index, value) {
 

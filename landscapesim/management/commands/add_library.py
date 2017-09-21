@@ -11,7 +11,7 @@ from django.db import transaction
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.rasters import process_output_rasters
 from landscapesim.io.reports import process_reports
-from landscapesim.io.utils import process_scenario_inputs, process_project_definitions
+from landscapesim.io.utils import process_run_control, process_scenario_inputs, process_project_definitions
 from landscapesim.models import Library, Project, Scenario
 
 
@@ -88,6 +88,7 @@ class Command(BaseCommand):
                 for s in scenarios:
 
                     # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
+                    process_run_control(console, s)
                     process_scenario_inputs(console, s)
 
                     if os.path.exists(tmp_file):

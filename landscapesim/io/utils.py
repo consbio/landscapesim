@@ -3,13 +3,14 @@ import os
 import uuid
 
 from landscapesim.io.rasters import process_input_rasters, process_output_rasters
-from landscapesim.models import DistributionType, Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
-    TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, \
-    DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
-    InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
-    AttributeGroup, StateAttributeType, TransitionAttributeType, TransitionSizeDistribution, \
-    TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
-    TransitionAttributeTarget
+#from landscapesim.models import DistributionType, Terminology, Stratum, SecondaryStratum, StateClass, TransitionType, \
+from landscapesim import models as m
+    #TransitionGroup, TransitionTypeGroup, TransitionMultiplierType, \
+    #DistributionValue, RunControl, OutputOption, DeterministicTransition, Transition, InitialConditionsNonSpatial, \
+    #InitialConditionsNonSpatialDistribution, InitialConditionsSpatial, TransitionTarget, TransitionMultiplierValue, \
+    #AttributeGroup, StateAttributeType, TransitionAttributeType, TransitionSizeDistribution, \
+    #TransitionSizePrioritization, TransitionSpatialMultiplier, StateAttributeValue, TransitionAttributeValue, \
+    #TransitionAttributeTarget
 
 M2_TO_ACRES = 0.000247105
 
@@ -66,7 +67,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         terms = [r for r in reader][0]
-        Terminology.objects.create(
+        m.Terminology.objects.create(
             project=project,
             amount_label=terms['AmountLabel'],
             amount_units=terms['AmountUnits'],
@@ -82,7 +83,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            DistributionType.objects.create(
+            m.DistributionType.objects.create(
                 project=project,
                 name=row['Name'],
                 description=row['Description'],
@@ -95,7 +96,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            Stratum.objects.create(
+            m.Stratum.objects.create(
                 stratum_id=default_int(row['ID']),
                 project=project,
                 name=row['Name'],
@@ -109,7 +110,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            SecondaryStratum.objects.create(
+            m.SecondaryStratum.objects.create(
                 project=project,
                 secondary_stratum_id=default_int(row['ID']),
                 name=row['Name'],
@@ -122,7 +123,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            StateClass.objects.create(
+            m.StateClass.objects.create(
                 stateclass_id=default_int(row['ID']),
                 project=project,
                 name=row['Name'],
@@ -138,7 +139,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionType.objects.create(
+            m.TransitionType.objects.create(
                 project=project,
                 transition_type_id=default_int(row['ID']),
                 name=row['Name'],
@@ -152,7 +153,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionGroup.objects.create(
+            m.TransitionGroup.objects.create(
                 project=project,
                 name=row['Name'],
                 description=row['Description']
@@ -164,9 +165,9 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            grp = TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first()
-            ttype = TransitionType.objects.filter(name__exact=row['TransitionTypeID'], project=project).first()
-            TransitionTypeGroup.objects.create(
+            grp = m.TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'], project=project).first()
+            ttype = m.TransitionType.objects.filter(name__exact=row['TransitionTypeID'], project=project).first()
+            m.TransitionTypeGroup.objects.create(
                 project=project,
                 transition_type=ttype,
                 transition_group=grp,
@@ -179,7 +180,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionMultiplierType.objects.create(
+            m.TransitionMultiplierType.objects.create(
                 project=project,
                 name=row['Name']
             )
@@ -190,7 +191,7 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            AttributeGroup.objects.create(
+            m.AttributeGroup.objects.create(
                 project=project,
                 name=row['Name'],
                 description=row['Description']
@@ -202,10 +203,10 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            StateAttributeType.objects.create(
+            m.StateAttributeType.objects.create(
                 project=project,
                 name=row['Name'],
-                attribute_group=AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
+                attribute_group=m.AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
                                                               project=project).first(),
                 units=row['Units'],
                 description=row['Description']
@@ -217,10 +218,10 @@ def process_project_definitions(console, project):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
-            TransitionAttributeType.objects.create(
+            m.TransitionAttributeType.objects.create(
                 project=project,
                 name=row['Name'],
-                attribute_group=AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
+                attribute_group=m.AttributeGroup.objects.filter(name__exact=row['AttributeGroupID'],
                                                               project=project).first(),
                 units=row['Units'],
                 description=row['Description']
@@ -228,51 +229,16 @@ def process_project_definitions(console, project):
     print('Imported transition attribute types for project {}.'.format(project.name))
 
 
-def process_scenario_inputs(console, scenario):
-
+def process_run_control(console, scenario):
     tmp_file = get_random_csv(scenario.project.library.tmp_file)
-    project = scenario.project
     kwgs = {'sid': scenario.sid, 'overwrite': True, 'orig': not scenario.is_result}
-
-    def add_distribution_to(obj, entry):
-        """ Simple helper for adding distributions to models that use them """
-
-        dist_type = entry['DistributionType']
-        if len(dist_type):
-            obj.distribution_type = DistributionType.objects.filter(name__exact=dist_type, project=project).first()
-            if len(entry['DistributionSD']):
-                obj.distribution_sd = float(entry['DistributionSD'])
-            if len(entry['DistributionMin']):
-                obj.distribution_min = float(entry['DistributionMin'])
-            if len(entry['DistributionMax']):
-                obj.distribution_max = float(entry['DistributionMax'])
-
-    console.export_sheet('Stats_DistributionValue', tmp_file, **kwgs)
-    with open(tmp_file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            dmin = float(row['Min']) if len(row['Min']) else ''
-            relative_frequency = float(row['RelativeFrequency']) if len(row['RelativeFrequency']) else ''
-            dv = DistributionValue.objects.create(
-                scenario=scenario,
-                distribution_type=DistributionType.objects.filter(name__exact=row['DistributionTypeID'],
-                                                                  project=project).first(),
-                dmax=float(row['Max'])
-            )
-            if type(dmin) is float:
-                dv.dmin = dmin
-            if type(relative_frequency) is float:
-                dv.relative_frequency = relative_frequency
-
-            dv.save()
-    print('Imported distribution values for scenario {}'.format(scenario.sid))
 
     # import initial run control
     console.export_sheet('STSim_RunControl', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         run_options = [r for r in reader][0]
-        RunControl.objects.create(
+        m.RunControl.objects.create(
             scenario=scenario,
             min_iteration=int(run_options['MinimumIteration']),
             max_iteration=int(run_options['MaximumIteration']),
@@ -287,7 +253,7 @@ def process_scenario_inputs(console, scenario):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         output_options = [r for r in reader]
-        oo = OutputOption.objects.create(scenario=scenario)
+        oo = m.OutputOption.objects.create(scenario=scenario)
         if len(output_options):
             output_options = output_options[0]
             oo.sum_sc = empty_or_yes_to_bool(output_options['SummaryOutputSC'])
@@ -321,27 +287,67 @@ def process_scenario_inputs(console, scenario):
             oo.save()
     print('Imported output options for scenario {}'.format(scenario.sid))
 
+
+def process_scenario_inputs(console, scenario):
+
+    tmp_file = get_random_csv(scenario.project.library.tmp_file)
+    project = scenario.project
+    kwgs = {'sid': scenario.sid, 'overwrite': True, 'orig': not scenario.is_result}
+
+    def add_distribution_to(obj, entry):
+        """ Simple helper for adding distributions to models that use them """
+
+        dist_type = entry['DistributionType']
+        if len(dist_type):
+            obj.distribution_type = m.DistributionType.objects.filter(name__exact=dist_type, project=project).first()
+            if len(entry['DistributionSD']):
+                obj.distribution_sd = float(entry['DistributionSD'])
+            if len(entry['DistributionMin']):
+                obj.distribution_min = float(entry['DistributionMin'])
+            if len(entry['DistributionMax']):
+                obj.distribution_max = float(entry['DistributionMax'])
+
+    console.export_sheet('Stats_DistributionValue', tmp_file, **kwgs)
+    with open(tmp_file, 'r') as sheet:
+        reader = csv.DictReader(sheet)
+        for row in reader:
+            dmin = float(row['Min']) if len(row['Min']) else ''
+            relative_frequency = float(row['RelativeFrequency']) if len(row['RelativeFrequency']) else ''
+            dv = m.DistributionValue.objects.create(
+                scenario=scenario,
+                distribution_type=m.DistributionType.objects.filter(name__exact=row['DistributionTypeID'],
+                                                                  project=project).first(),
+                dmax=float(row['Max'])
+            )
+            if type(dmin) is float:
+                dv.dmin = dmin
+            if type(relative_frequency) is float:
+                dv.relative_frequency = relative_frequency
+
+            dv.save()
+    print('Imported distribution values for scenario {}'.format(scenario.sid))
+
     console.export_sheet('STSim_DeterministicTransition', tmp_file, **kwgs)
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         for row in reader:
             stratum_dest = row['StratumIDDest']
-            t = DeterministicTransition.objects.create(
+            t = m.DeterministicTransition.objects.create(
                 scenario=scenario,
-                stratum_src=Stratum.objects.filter(name__exact=row['StratumIDSource'],
+                stratum_src=m.Stratum.objects.filter(name__exact=row['StratumIDSource'],
                                                    project=project).first(),
-                stratum_dest=Stratum.objects.filter(name__exact=row['StratumIDDest'],
+                stratum_dest=m.Stratum.objects.filter(name__exact=row['StratumIDDest'],
                                                     project=project).first(),
-                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassIDSource'],
+                stateclass_src=m.StateClass.objects.filter(name__exact=row['StateClassIDSource'],
                                                          project=project).first(),
-                stateclass_dest=StateClass.objects.filter(name__exact=row['StateClassIDDest'],
+                stateclass_dest=m.StateClass.objects.filter(name__exact=row['StateClassIDDest'],
                                                           project=project).first(),
                 age_min=default_int(row['AgeMin']),
                 age_max=default_int(row['AgeMax']),
                 location=row['Location']
             )
             if len(stratum_dest):
-                t.stratum_dest = Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
+                t.stratum_dest = m.Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
             t.save()
     print('Imported deterministic transitions for scenario {}'.format(scenario.sid))
 
@@ -351,21 +357,21 @@ def process_scenario_inputs(console, scenario):
         reader = csv.DictReader(sheet)
         for row in reader:
             stratum_dest = row['StratumIDDest']
-            t = Transition.objects.create(  # omit stratum_dest, no change in stratum per timestep
+            t = m.Transition.objects.create(  # omit stratum_dest, no change in stratum per timestep
                 scenario=scenario,
-                stratum_src=Stratum.objects.filter(name__exact=row['StratumIDSource'],
+                stratum_src=m.Stratum.objects.filter(name__exact=row['StratumIDSource'],
                                                    project=project).first(),
-                stateclass_src=StateClass.objects.filter(name__exact=row['StateClassIDSource'],
+                stateclass_src=m.StateClass.objects.filter(name__exact=row['StateClassIDSource'],
                                                          project=project).first(),
-                stateclass_dest=StateClass.objects.filter(name__exact=row['StateClassIDDest'],
+                stateclass_dest=m.StateClass.objects.filter(name__exact=row['StateClassIDDest'],
                                                           project=project).first(),
-                transition_type=TransitionType.objects.filter(name__exact=row['TransitionTypeID'],
+                transition_type=m.TransitionType.objects.filter(name__exact=row['TransitionTypeID'],
                                                               project=project).first(),
                 probability=float(row['Probability']),
                 age_reset=empty_or_yes_to_bool(row['AgeReset'])
             )
             if len(stratum_dest):
-                t.stratum_dest = Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
+                t.stratum_dest = m.Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
                 t.save()
 
     print('Imported transition probabilities for scenario {}'.format(scenario.sid))
@@ -375,7 +381,7 @@ def process_scenario_inputs(console, scenario):
     with open(tmp_file, 'r') as sheet:
         reader = csv.DictReader(sheet)
         conditions = [r for r in reader][0]
-        InitialConditionsNonSpatial.objects.create(
+        m.InitialConditionsNonSpatial.objects.create(
             scenario=scenario,
             total_amount=float(conditions['TotalAmount']),
             num_cells=int(conditions['NumCells']),
@@ -389,18 +395,18 @@ def process_scenario_inputs(console, scenario):
         reader = csv.DictReader(sheet)
         for row in reader:
             secondary_stratum = row['SecondaryStratumID']
-            ic = InitialConditionsNonSpatialDistribution.objects.create(
+            ic = m.InitialConditionsNonSpatialDistribution.objects.create(
                 scenario=scenario,
-                stratum=Stratum.objects.filter(name__exact=row['StratumID'],
+                stratum=m.Stratum.objects.filter(name__exact=row['StratumID'],
                                                    project=project).first(),
-                stateclass=StateClass.objects.filter(name__exact=row['StateClassID'],
+                stateclass=m.StateClass.objects.filter(name__exact=row['StateClassID'],
                                                          project=project).first(),
                 relative_amount=float(row['RelativeAmount']),
                 age_min=default_int(row['AgeMin']),
                 age_max=default_int(row['AgeMax'])
             )
             if len(secondary_stratum):
-                ic.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                ic.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                        project=project).first()
             ic.save()
     print('Imported initial conditions values for scenario {}'.format(scenario.sid))
@@ -412,7 +418,7 @@ def process_scenario_inputs(console, scenario):
         init = [r for r in reader]
         if len(init):
             init = init[0]
-            ics = InitialConditionsSpatial.objects.create(
+            ics = m.InitialConditionsSpatial.objects.create(
                 scenario=scenario,
                 num_rows=default_int(init['NumRows']),
                 num_cols=default_int(init['NumColumns']),
@@ -444,9 +450,9 @@ def process_scenario_inputs(console, scenario):
             secondary_stratum = row['SecondaryStratumID']
             iteration = int(row['Iteration']) if len(row['Iteration']) else ''
             timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-            tt = TransitionTarget.objects.create(
+            tt = m.TransitionTarget.objects.create(
                 scenario=scenario,
-                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
+                transition_group=m.TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
                                                                 project=project).first(),
                 target_area=float(row['Amount'])
             )
@@ -455,9 +461,9 @@ def process_scenario_inputs(console, scenario):
             if type(timestep) is int:
                 tt.timestep = timestep
             if len(stratum):
-                tt.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                tt.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum):
-                tt.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                tt.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                        project=project).first()
             add_distribution_to(tt, row)
             tt.save()
@@ -474,25 +480,25 @@ def process_scenario_inputs(console, scenario):
             iteration = int(row['Iteration']) if len(row['Iteration']) else ''
             timestep = int(row['Timestep']) if len(row['Timestep']) else ''
             transition_multiplier_type = row['TransitionMultiplierTypeID']
-            tm = TransitionMultiplierValue.objects.create(
+            tm = m.TransitionMultiplierValue.objects.create(
                 scenario=scenario,
-                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
+                transition_group=m.TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
                                                                 project=project).first(),
                 multiplier=float(row['Amount'])
             )
             if len(stratum):
-                tm.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                tm.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum):
-                tm.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                tm.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                        project=project).first()
             if len(stateclass):
-                tm.stateclass = StateClass.objects.filter(name__exact=stateclass, project=project).first()
+                tm.stateclass = m.StateClass.objects.filter(name__exact=stateclass, project=project).first()
             if type(iteration) is int:
                 tm.iteration = iteration
             if type(timestep) is int:
                 tm.timestep = timestep
             if len(transition_multiplier_type):
-                tm.transition_multiplier_type = TransitionMultiplierType.objects.filter(
+                tm.transition_multiplier_type = m.TransitionMultiplierType.objects.filter(
                     name__exact=transition_multiplier_type, project=project).first()
             add_distribution_to(tm, row)
             tm.save()
@@ -506,9 +512,9 @@ def process_scenario_inputs(console, scenario):
             iteration = int(row['Iteration']) if len(row['Iteration']) else ''
             timestep = int(row['Timestep']) if len(row['Timestep']) else ''
             stratum = row['StratumID']
-            sd = TransitionSizeDistribution.objects.create(
+            sd = m.TransitionSizeDistribution.objects.create(
                 scenario=scenario,
-                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
+                transition_group=m.TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
                                                                 project=project).first(),
                 maximum_area=float(row['MaximumArea']),
                 relative_amount=float(row['RelativeAmount'])
@@ -518,7 +524,7 @@ def process_scenario_inputs(console, scenario):
             if type(timestep) is int:
                 sd.timestep = timestep
             if len(stratum):
-                sd.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                sd.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
 
             sd.save()
     print('Imported transition size distribution for scenario {}'.format(scenario.sid))
@@ -534,14 +540,14 @@ def process_scenario_inputs(console, scenario):
             timestep = int(priorities['Timestep']) if len(priorities['Timestep']) else ''
             stratum = priorities['StratumID']
             transition_group = priorities['TransitionGroupID']
-            sp = TransitionSizePrioritization.objects.create(
+            sp = m.TransitionSizePrioritization.objects.create(
                 scenario=scenario,
                 priority=priorities['Priority']
             )
             if len(stratum):
-                sp.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                sp.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(transition_group):
-                sp.transition_group = TransitionGroup.objects.filter(name__exact=transition_group,
+                sp.transition_group = m.TransitionGroup.objects.filter(name__exact=transition_group,
                                                                      project=project).first()
             if type(iteration) is int:
                 sp.iteration = iteration
@@ -559,9 +565,9 @@ def process_scenario_inputs(console, scenario):
             iteration = int(row['Iteration']) if len(row['Iteration']) else ''
             timestep = int(row['Timestep']) if len(row['Timestep']) else ''
             transition_multiplier_type = row['TransitionMultiplierTypeID']
-            tsm = TransitionSpatialMultiplier.objects.create(
+            tsm = m.TransitionSpatialMultiplier.objects.create(
                 scenario=scenario,
-                transition_group=TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
+                transition_group=m.TransitionGroup.objects.filter(name__exact=row['TransitionGroupID'],
                                                                 project=project).first(),
                 transition_multiplier_file_name=row['MultiplierFileName']
             )
@@ -573,7 +579,7 @@ def process_scenario_inputs(console, scenario):
                 tsm.timestep = timestep
 
             if len(transition_multiplier_type):
-                tsm.transition_multiplier_type = TransitionMultiplierType.objects.filter(
+                tsm.transition_multiplier_type = m.TransitionMultiplierType.objects.filter(
                     name__exact=transition_multiplier_type,
                     project=project).first()
 
@@ -590,19 +596,19 @@ def process_scenario_inputs(console, scenario):
             stratum = row['StratumID']
             secondary_stratum = row['SecondaryStratumID']
             stateclass = row['StateClassID']
-            sav = StateAttributeValue.objects.create(
+            sav = m.StateAttributeValue.objects.create(
                 scenario=scenario,
-                state_attribute_type=StateAttributeType.objects.filter(
+                state_attribute_type=m.StateAttributeType.objects.filter(
                     name__exact=row['StateAttributeTypeID'], project=project).first(),
                 value=float(row['Value'])
             )
             if len(stratum):
-                sav.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                sav.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum):
-                sav.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                sav.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                         project=project).first()
             if len(stateclass):
-                sav.stateclass = StateClass.objects.filter(name__exact=stateclass, project=project).first()
+                sav.stateclass = m.StateClass.objects.filter(name__exact=stateclass, project=project).first()
             if type(iteration) is int:
                 sav.iteration = iteration
             if type(timestep) is int:
@@ -621,21 +627,21 @@ def process_scenario_inputs(console, scenario):
             stratum = row['StratumID']
             secondary_stratum = row['SecondaryStratumID']
             stateclass = row['StateClassID']
-            tav = TransitionAttributeValue.objects.create(
+            tav = m.TransitionAttributeValue.objects.create(
                 scenario=scenario,
-                transition_group=TransitionGroup.objects.filter(
+                transition_group=m.TransitionGroup.objects.filter(
                     name__exact=row['TransitionGroupID'], project=project).first(),
-                transition_attribute_type=TransitionAttributeType.objects.filter(
+                transition_attribute_type=m.TransitionAttributeType.objects.filter(
                     name__exact=row['TransitionAttributeTypeID'], project=project).first(),
                 value=float(row['Value'])
             )
             if len(stratum):
-                tav.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                tav.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum):
-                tav.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                tav.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                         project=project).first()
             if len(stateclass):
-                tav.stateclass = StateClass.objects.filter(name__exact=stateclass, project=project).first()
+                tav.stateclass = m.StateClass.objects.filter(name__exact=stateclass, project=project).first()
             if type(iteration) is int:
                 tav.iteration = iteration
             if type(timestep) is int:
@@ -653,16 +659,16 @@ def process_scenario_inputs(console, scenario):
             timestep = int(row['Timestep']) if len(row['Timestep']) else ''
             stratum = row['StratumID']
             secondary_stratum = row['SecondaryStratumID']
-            tat = TransitionAttributeTarget.objects.create(
+            tat = m.TransitionAttributeTarget.objects.create(
                 scenario=scenario,
-                transition_attribute_type=TransitionAttributeType.objects.filter(
+                transition_attribute_type=m.TransitionAttributeType.objects.filter(
                     name__exact=row['TransitionAttributeTypeID'], project=project).first(),
                 target=float(row['Amount'])
             )
             if len(stratum):
-                tat.stratum = Stratum.objects.filter(name__exact=stratum, project=project).first()
+                tat.stratum = m.Stratum.objects.filter(name__exact=stratum, project=project).first()
             if len(secondary_stratum):
-                tat.secondary_stratum = SecondaryStratum.objects.filter(name__exact=secondary_stratum,
+                tat.secondary_stratum = m.SecondaryStratum.objects.filter(name__exact=secondary_stratum,
                                                                         project=project).first()
             if type(iteration) is int:
                 tat.iteration = iteration

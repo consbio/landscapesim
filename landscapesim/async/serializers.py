@@ -11,29 +11,31 @@ from landscapesim.io.geojson import rasterize_geojson
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
 from landscapesim.serializers import imports
 
-
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
 # Configuration flags for initialization
-CONFIG_INPUTS = (('run_control', imports.RunControlImport),
-                 ('output_options', imports.OutputOptionImport),
-                 ('initial_conditions_nonspatial_settings', imports.InitialConditionsNonSpatialImport),
-                 #('initial_conditions_spatial_settings', imports.InitialConditionsSpatialImport)
-                 )
+CONFIG_INPUTS = (
+    ('run_control', imports.RunControlImport),
+    ('output_options', imports.OutputOptionImport),
+    ('initial_conditions_nonspatial_settings', imports.InitialConditionsNonSpatialImport),
+    #('initial_conditions_spatial_settings', imports.InitialConditionsSpatialImport)
+)
 
 # Configuration of input data (probabilities, mappings, etc.)
-VALUE_INPUTS = (('deterministic_transitions', imports.DeterministicTransitionImport),
-                ('transitions', imports.TransitionImport),
-                ('initial_conditions_nonspatial_distributions', imports.InitialConditionsNonSpatialDistributionImport),
-                ('transition_targets', imports.TransitionTargetImport),
-                ('transition_multiplier_values', imports.TransitionMultiplierValueImport),
-                ('transition_size_distributions', imports.TransitionSizeDistributionImport),
-                ('transition_size_prioritizations', imports.TransitionSizePrioritizationImport),
-                ('transition_spatial_multipliers', imports.TransitionSpatialMultiplierImport),
-                ('state_attribute_values', imports.StateAttributeValueImport),
-                ('transition_attribute_values', imports.TransitionAttributeValueImport),
-                ('transition_attribute_targets', imports.TransitionAttributeTargetImport))
+VALUE_INPUTS = (
+    ('deterministic_transitions', imports.DeterministicTransitionImport),
+    ('transitions', imports.TransitionImport),
+    ('initial_conditions_nonspatial_distributions', imports.InitialConditionsNonSpatialDistributionImport),
+    #('transition_targets', imports.TransitionTargetImport),
+    #('transition_multiplier_values', imports.TransitionMultiplierValueImport),
+    #('transition_size_distributions', imports.TransitionSizeDistributionImport),
+    #('transition_size_prioritizations', imports.TransitionSizePrioritizationImport),
+    ('transition_spatial_multipliers', imports.TransitionSpatialMultiplierImport),
+    #('state_attribute_values', imports.StateAttributeValueImport),
+    ('transition_attribute_values', imports.TransitionAttributeValueImport),
+    #('transition_attribute_targets', imports.TransitionAttributeTargetImport)
+)
 
 
 class AsyncJobSerializerMixin(object):
@@ -66,12 +68,11 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         Main model run validation and transformation of data into importable info into SyncroSim.
     """
 
-    parent_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
-    result_scenario = serializers.HyperlinkedRelatedField(many=False, read_only=True, view_name='scenario-detail')
+    model_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = RunScenarioModel
-        fields = ('uuid', 'created', 'status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
+        fields = ('uuid', 'created', 'status', 'model_status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
     @staticmethod
@@ -158,5 +159,6 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         return RunScenarioModel.objects.create(
             parent_scenario=parent_scenario,
             celery_id=result.id,
-            inputs=json.dumps(validated_data['inputs'])
+            inputs=json.dumps(validated_data['inputs']),
+            model_status='waiting'
         )

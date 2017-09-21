@@ -174,29 +174,27 @@ TRANSITION_ATTRIBUTE_TARGET = (*_time_common,
                                *_distribution_common)
 
 # Configuration of run outputs, time control, distributions, etc.
-CONFIG_IMPORTS = (('run_control', 'STSim_RunControl', RUN_CONTROL),
-                  ('output_options', 'STSim_OutputOptions', OUTPUT_OPTION),
-                  ('initial_conditions_nonspatial_settings', 'STSim_InitialConditionsNonSpatial', INITIAL_CONDITIONS_NON_SPATIAL),
-                  #('initial_conditions_spatial_settings', 'STSim_InitialConditionsSpatial', INITIAL_CONDITIONS_SPATIAL)
-                  )
+CONFIG_IMPORTS = (
+    ('run_control', 'STSim_RunControl', RUN_CONTROL),
+    ('output_options', 'STSim_OutputOptions', OUTPUT_OPTION),
+    ('initial_conditions_nonspatial_settings', 'STSim_InitialConditionsNonSpatial', INITIAL_CONDITIONS_NON_SPATIAL),
+    #('initial_conditions_spatial_settings', 'STSim_InitialConditionsSpatial', INITIAL_CONDITIONS_SPATIAL)
+)
 
 # Configuration of input data (probabilities, mappings, etc.)
-VALUE_IMPORTS = (('deterministic_transitions', 'STSim_DeterministicTransition', DETERMINISTIC_TRANSITION),
-                 ('transitions', 'STSim_Transition', TRANSITION),
-                 ('initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution',
-                  INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION),
-                 ('transition_targets', 'STSim_TransitionTarget', TRANSITION_TARGET),
-                 ('transition_multiplier_values', 'STSim_TransitionMultiplierValue',
-                  TRANSITION_MULTIPLIER_VALUE),
-                 ('transition_size_distributions', 'STSim_TransitionSizeDistribution',
-                  TRANSITION_SIZE_DISTRIBUTION),
-                 ('transition_size_prioritizations', 'STSim_TransitionSizePrioritization',
-                  TRANSITION_SIZE_PRIORITIZATION),
-                 ('transition_spatial_multipliers', 'STSim_TransitionSpatialMultiplier',
-                  TRANSITION_SPATIAL_MULTIPLIER),
-                 ('state_attribute_values', 'STSim_StateAttributeValue',
-                  STATE_ATTRIBUTE_VALUE),
-                 ('transition_attribute_values', 'STSim_TransitionAttributeValue',
-                  TRANSITION_ATTRIBUTE_VALUE),
-                 ('transition_attribute_targets', 'STSim_TransitionAttributeTarget',
-                  TRANSITION_ATTRIBUTE_TARGET))
+VALUE_IMPORTS = (
+    ('deterministic_transitions', 'STSim_DeterministicTransition', DETERMINISTIC_TRANSITION),
+    ('transitions', 'STSim_Transition', TRANSITION),
+    (
+        'initial_conditions_nonspatial_distributions', 'STSim_InitialConditionsNonSpatialDistribution',
+        INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION
+     ),
+    #('transition_targets', 'STSim_TransitionTarget', TRANSITION_TARGET),
+    #('transition_multiplier_values', 'STSim_TransitionMultiplierValue', TRANSITION_MULTIPLIER_VALUE),
+    #('transition_size_distributions', 'STSim_TransitionSizeDistribution', TRANSITION_SIZE_DISTRIBUTION),
+    #('transition_size_prioritizations', 'STSim_TransitionSizePrioritization', TRANSITION_SIZE_PRIORITIZATION),
+    ('transition_spatial_multipliers', 'STSim_TransitionSpatialMultiplier', TRANSITION_SPATIAL_MULTIPLIER),
+    #('state_attribute_values', 'STSim_StateAttributeValue', STATE_ATTRIBUTE_VALUE),
+    ('transition_attribute_values', 'STSim_TransitionAttributeValue', TRANSITION_ATTRIBUTE_VALUE),
+    #('transition_attribute_targets', 'STSim_TransitionAttributeTarget', TRANSITION_ATTRIBUTE_TARGET)
+)

@@ -11,7 +11,7 @@ from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.query import ssim_query
 from landscapesim.io.rasters import process_output_rasters
 from landscapesim.io.reports import process_reports
-from landscapesim.io.utils import get_random_csv, process_scenario_inputs
+from landscapesim.io.utils import get_random_csv, process_run_control, process_scenario_inputs
 from landscapesim.models import Library, Scenario, RunScenarioModel
 
 exe = settings.STSIM_EXE_PATH
@@ -67,6 +67,8 @@ def run_model(self, library_name, pid, sid):
     lib = Library.objects.get(name__iexact=library_name)
     console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
+    job.model_status = 'starting'
+    job.save()
 
     inputs = json.loads(job.inputs)
     t = time.time()
@@ -74,6 +76,9 @@ def run_model(self, library_name, pid, sid):
     execute_ssim_queries(inputs['config'], lib, sid)
     print("Import time: {}".format(time.time()- t))
     t = time.time()
+
+    job.model_status = 'running'
+    job.save()
     try:
         print('Running scenario {}...'.format(sid))
         result_sid = int(console.run_model(sid))
@@ -81,10 +86,10 @@ def run_model(self, library_name, pid, sid):
         raise IOError("Error running model")
 
     print("Model run time: {}".format(time.time() - t))
-    t = time.time()
+
     scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
-    print('Scenario run complete, processing results for scenario {}'.format(result_sid))
+    print('Model run complete - new scenario created: {}'.format(result_sid))
     with transaction.atomic():
         scenario = Scenario.objects.create(
             project=job.parent_scenario.project,
@@ -94,13 +99,24 @@ def run_model(self, library_name, pid, sid):
         )
         job.result_scenario = scenario
         job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
+        job.model_status = 'processing'
         job.save()
 
-        process_scenario_inputs(console, scenario)
-        print("Scenario import time: {}".format(time.time() - t))
+    with transaction.atomic():
+        t = time.time()
+        process_run_control(console, scenario)
+        process_output_rasters(scenario)
+        print("Output rasters created in {} seconds".format(time.time() - t))
         t = time.time()
         process_reports(console, scenario, get_random_csv(lib.tmp_file))
-        print("Scenario report time: {}".format(time.time() - t))
+        print("Reports created in {} seconds".format(time.time() - t))
+
+        # Signal that the model can now be used for viewing.
+        job.model_status = 'complete'
+        job.save()
+
+    # Post-processing for later usage
+    with transaction.atomic():
         t = time.time()
-        process_output_rasters(scenario)
-        print("Scenario output time: {}".format(time.time() - t))
+        process_scenario_inputs(console, scenario)
+        print("Scenario imported in {} seconds".format(time.time() - t))
