@@ -1,4 +1,4 @@
-library_config = {};
+var library_config = {};
 
 library_config[1] = {
         name: "Castle Creek",

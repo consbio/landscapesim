@@ -103,7 +103,7 @@ function openCostTable(){
         // Populate new row dropdowns with available options
 
         // First dropdown (Transition Groups)
-        current_transition_group_entries  = [];
+        var current_transition_group_entries  = [];
         $.each(current_scenario.config.transition_attribute_values, function(index,current_transition_group_dict){
             current_transition_group_entries.push(current_transition_group_dict.transition_group)
         });
@@ -140,7 +140,7 @@ function openCostTable(){
 
 // Array of records to delete. When the user pushes the "X" button, the id for that record gets added to the array.
 // And the row is removed from the table.
-records_to_delete = [];
+var records_to_delete = [];
 $(document).on("click", ".delete_entry_button", function(){
     records_to_delete.push($(this).attr('record_to_delete'));
     $(this).closest("tr").remove()

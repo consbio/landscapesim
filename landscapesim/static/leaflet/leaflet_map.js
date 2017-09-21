@@ -5,22 +5,22 @@ var map = L.map('map', {
 ).setView([37,-108], 5);
 
 // Basemaps
-topographic=L.esri.basemapLayer("Topographic").addTo(map);
-imagery=L.esri.basemapLayer("Imagery");
-usa_topo=L.esri.basemapLayer("USATopo");
-national_geographic=L.esri.basemapLayer("NationalGeographic");
+var topographic = L.esri.basemapLayer("Topographic").addTo(map);
+var imagery = L.esri.basemapLayer("Imagery");
+var usa_topo = L.esri.basemapLayer("USATopo");
+var national_geographic = L.esri.basemapLayer("NationalGeographic");
 
 var groupedOverlays = {
     "Base Maps": {
         'Topographic': topographic,
         'USA Topo': usa_topo,
         'National Geographic': national_geographic,
-        'Imagery': imagery,
+        'Imagery': imagery
     },
     "Initial Conditions": {
     },
     "Model Results": {
-    },
+    }
 };
 
 var options = {
@@ -28,9 +28,10 @@ var options = {
     /*exclusiveGroups: ["Reporting Units","Base Maps", "Input Layers"]*/
 };
 
-layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+var layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
 
-
+var inputStateClassLayer;
+var inputStratumLayer;
 function loadLayers(scenario_input_services){
 
     inputStateClassLayer = L.tileLayer(scenario_input_services.stateclass);
@@ -64,10 +65,10 @@ function overlayAdd(e){
     }
 }
 
-outputStateClassServices={};
-outputStateClassLayers={};
-outputTimestepSliders={};
-outputRunSettings={};
+var outputStateClassServices={};
+var outputStateClassLayers={};
+var outputTimestepSliders={};
+var outputRunSettings={};
 
 function loadOutputLayers(results_scenario_configuration){
 

@@ -10,6 +10,11 @@ var current_scenario = {};
 var run_model_url = '/api/jobs/run-model/';
 var result_url = '';
 
+var run;
+var iteration, iterations, timestep, timesteps;
+var settings;
+var bounding_box_layer;
+
 $(document).ready(function() {
 
     // Top-level endpoint, get list of available libraries
@@ -92,15 +97,13 @@ $(document).ready(function() {
 
         $.post(run_model_url, {'inputs': JSON.stringify(inputs)})
             .done(function (res) {
-                console.log('Job running:');
-                console.log(res);
 
                 var job = res;
 
                 (function poll() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
-                            console.log(update);
+
                             if (update.status === 'success' || update.model_status === 'complete') {
 
                                 $("#output").show();
@@ -229,15 +232,11 @@ $(document).ready(function() {
 
         // Get Stuff from the Web API
         $.getJSON(project_url).done(function (project) {
-            console.log("current_project ->");
-            console.log(project);
             current_project = project;
             available_scenarios = current_project.scenarios;
 
             // Get project definitions
             $.getJSON(project_url + 'definitions').done(function (definitions) {
-                console.log("current_project.definitions ->");
-                console.log(definitions);
                 current_project.definitions = definitions;
                 createColorMap(current_project.definitions)
             });
@@ -247,15 +246,11 @@ $(document).ready(function() {
 
             // Get scenario information
             $.getJSON(scenario_url).done(function (scenario) {
-                console.log("current_scenario ->");
-                console.log(scenario);
                 current_scenario = scenario;
 
 
                 // Scenario configuration (at import)
                 $.getJSON(scenario_url + 'config').done(function (config) {
-                    console.log("current_scenario.config->")
-                    console.log(config);
                     current_scenario.config = config;
 
                     // Spatial by default:
@@ -544,7 +539,6 @@ $(document).ready(function() {
         var veg_type = this.closest('table').title;
 
         //Subtract the current slider value from the total percent
-        //total_input_percent=total_input_percent - veg_slider_values[veg_type]
         total_input_percent = total_input_percent - veg_slider_values[veg_type];
 
         veg_slider_values_state_class[veg_type]={};
@@ -573,21 +567,6 @@ $(document).ready(function() {
             }
              veg_state_class_value_totals += input_value;
         });
-
-         /* Old Version */
-        // On keyup, go through each state class in the given veg type and add the values in each text entry field to the veg_slider_values_state_class dictionary
-        /*
-        $.each(veg_type_state_classes_json[veg_type],function(index, state_class){
-            var veg_state_class_id=index+1
-            var veg_state_class_value=$("#veg_"+veg_type_id+"_"+veg_state_class_id).val()
-            if (veg_state_class_value == ''){
-                veg_state_class_value = 0;
-            }
-            veg_state_class_value_totals+=parseFloat(veg_state_class_value)
-            veg_slider_values_state_class[veg_type][state_class]=veg_state_class_value
-
-        });
-        */
 
         // To avoid initialization error
         if ($("#veg" + veg_type_id + "_slider").slider()) {
@@ -632,8 +611,6 @@ $(document).ready(function() {
         $("#climate_future_temp_slider").slider("value",0);
         $("#climate_future_precip_label").val(climate_future_precip_labels[1]);
         $("#climate_future_temp_label").val(climate_future_temp_labels[0]);
-        temp_previous_value=0;
-        precip_previous_value=0;
     }
 
     /********************************************** Timestep Changes **************************************************/
@@ -713,7 +690,7 @@ function createVegInitialConditionsDict(){
    }
 }
 
-
+var veg_type_state_classes_json;
 function createVegTypeStateClassesJSON(veg_initial_conditions){
     veg_type_state_classes_json = {};
 
@@ -734,6 +711,10 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
 var veg_slider_values = {};
 var slider_values = {};
 var veg_proportion = {};
+var total_input_percent;
+var probabilistic_transitions_json;
+var probabilistic_transitions_slider_values;
+var veg_slider_values_state_class;
 
 function setInitialConditionsSidebar(veg_initial_conditions) {
 
@@ -881,18 +862,8 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
                             veg_type_state_class_object.relative_amount =  veg_proportion[veg_id];
                         }
                     });
-
-                    /* Old Version */
-                    // Modify the values in the veg_slideravalues_state_class
-                    /*
-                    $.each(veg_type_state_classes_json[veg_type], function (index, state_class) {
-                        veg_slider_values_state_class[veg_type][state_class] = veg_proportion[veg_id];
-
-                    })
-                    */
                 },
                 create: function (event, ui) {
-
                     $("#veg" + veg_id + "_label").val($(this).slider('value') + "%");
                 },
             });
@@ -1052,6 +1023,7 @@ function showSceneLoadingDiv() {
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 
 // Process Web API Results. Restructure data, and create the charts.
+var results_data_json;
 function processStateClassSummaryReport(res){
 
     var data = res["results"];
@@ -1060,11 +1032,11 @@ function processStateClassSummaryReport(res){
     for (var i=1; i <= iterations; i++ ){
 
         results_data_json[i]={};
-        this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
+        var this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
 
         for (var j=0; j <= timesteps ; j++){
 
-            this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
+            var this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
 
 
             results_data_json[i][j]={};
@@ -1248,6 +1220,9 @@ function update_results_table(run) {
     });
 }
 
+var colorMap;
+var state_class_color_map;
+var veg_type_color_map;
 function createColorMap(project_definitions){
 
     colorMap={};

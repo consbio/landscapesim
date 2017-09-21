@@ -3,9 +3,9 @@ var totalCost = 0;
 $("#totalCost").text(totalCost);
 
 // Basemaps
-var topographic=L.esri.basemapLayer("Topographic").addTo(map);
+var topographic = L.esri.basemapLayer("Topographic").addTo(map);
 
-drawnItems = L.featureGroup().addTo(map);
+var drawnItems = L.featureGroup().addTo(map);
 
 L.control.button({ position: 'topleft' }).addTo(map);
 
@@ -316,7 +316,7 @@ function calcCost(layer){
     // area is in meters2
     var acres =  layer._area * 0.0002471044;
 
-    costArray = $.grep(current_scenario.config.transition_attribute_values, function(e) {
+    var costArray = $.grep(current_scenario.config.transition_attribute_values, function(e) {
         if (typeof e != "undefined" && typeof layer._actionID != "undefined" && e.transition_group == layer._actionID.toString()){
             return e
         }
