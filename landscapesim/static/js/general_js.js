@@ -269,6 +269,7 @@ $(document).ready(function() {
                     setInitialConditionsSidebar(veg_initial_conditions);
 
                     loadLayers(current_scenario.config.scenario_input_services);
+                    init3DScenario();   // maybe init with the same values?
 
                     $(".veg_slider_bars").slider("disable");
                     $(".veg_slider_bars").addClass("disabled");
@@ -314,16 +315,19 @@ $(document).ready(function() {
 
     /********************************************* General UI Functions ***********************************************/
 
+    // Switch context between map and 3D viewer
     $('#scene-toggle').on('click', function(){
         var switcher = $('#switcher')
         if (switcher.text() === "Map") {
-            $('#map').hide()
-            $('#scene').show()
-            switcher.text("3D")
+            $('#map').hide();
+            $('#scene').show();
+            switcher.text("3D");
+            animate();
         } else {
-            $('#scene').hide()
-            $('#map').show()
-            switcher.text("Map")
+            $('#scene').hide();
+            $('#map').show();
+            switcher.text("Map");
+            cancelAnimate();
         }
     })
 
