@@ -151,6 +151,9 @@ function changeOutputStateClass(run) {
 
     map.addControl(outputTimestepSliders[run]);
 
+    // Reparent the time slider so it is visible in 3D viewer
+    document.getElementById('time-slider').appendChild(outputTimestepSliders[run].getContainer());
+
     outputStateClassLayers[run].addTo(map);
 
     // Set the initial timestep map layer in 3D

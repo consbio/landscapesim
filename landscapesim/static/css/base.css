@@ -1071,16 +1071,10 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	cursor:pointer;
 }
 
-#run_mode_div {
-}
-
-#library_div {
-}
-
-#timesteps_div {
-}
-
-#iterations_div{
+#time-slider {
+	bottom: -40px;
+	left: 35px;
+	position: absolute;
 }
 
 .selectboxit-container .selectboxit-options {
