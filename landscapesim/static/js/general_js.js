@@ -314,37 +314,48 @@ $(document).ready(function() {
 
     /********************************************* General UI Functions ***********************************************/
 
+    $('#scene-toggle').on('click', function(){
+        var switcher = $('#switcher')
+        if (switcher.text() === "Map") {
+            $('#map').hide()
+            $('#scene').show()
+            switcher.text("3D")
+        } else {
+            $('#scene').hide()
+            $('#map').show()
+            switcher.text("Map")
+        }
+    })
+
     // Collapse div on header click
     $(document).on("click", ".header", function () {
 
-            // Get this collapsible div
-            var this_collapsible_div = $(this).siblings(".collapsible_div");
+        // Get this collapsible div
+        var this_collapsible_div = $(this).siblings(".collapsible_div");
 
-            // If a library has been loaded, collapse other divs on header click.
-            if (typeof library_selected != "undefined" && library_selected == true){
-                collapseOtherDivs(this)
-            }
+        // If a library has been loaded, collapse other divs on header click.
+        if (typeof library_selected != "undefined" && library_selected == true){
+            collapseOtherDivs(this)
+        }
 
-            // Toggle the border radius
-            $(this).toggleClass("full_border_radius");
-            var this_collapse_icon =$(this).children(".collapse_icon");
+        // Toggle the border radius
+        $(this).toggleClass("full_border_radius");
+        var this_collapse_icon =$(this).children(".collapse_icon");
 
-            // Toggle the collapse icon
-            toggleIcon(this_collapse_icon);
+        // Toggle the collapse icon
+        toggleIcon(this_collapse_icon);
 
-            // Slide toggle this div.
-            this_collapsible_div.slideToggle(400, function () {
+        // Slide toggle this div.
+        this_collapsible_div.slideToggle(400, function () {
 
-                // Figure out the header position and determine the max height;
-                var this_div_position = $(this).offset().top;
-                var max_height = $(window).height() - this_div_position - 220;
-                this_collapsible_div.css('max-height', max_height);
-            });
-
-
+            // Figure out the header position and determine the max height;
+            var this_div_position = $(this).offset().top;
+            var max_height = $(window).height() - this_div_position - 220;
+            this_collapsible_div.css('max-height', max_height);
+        });
     });
 
-        // Collapse div on header click
+    // Collapse div on header click
     $(document).on("click", "#model_results_header", function () {
 
             // Get this collapsible div

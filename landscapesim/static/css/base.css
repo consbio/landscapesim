@@ -52,6 +52,25 @@ canvas {
 	/* overflow-x: hidden; */
 }
 
+#scene-toggle {
+	position: relative;
+	top: 71px;
+	left: 371px;
+	z-index: 10000;
+}
+
+.context-switcher {
+	cursor: pointer;
+	background-color: rgba(255,255,255,.9); /*#0092D1;*/
+	height: 22px;
+	font-weight: bold;
+	padding: 11px;
+	padding-bottom: 9px !important;
+	font-size: 1.1em;
+	left: -1px;
+	position: absolute
+}
+
 .header, .right_header {
 	cursor: pointer;
 	background-color: #0092D1;
@@ -1300,7 +1319,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 .leaflet-left {
 	left: 360px;
-	top: 10px;
+	top: 60px;
 }
 
 #footer {

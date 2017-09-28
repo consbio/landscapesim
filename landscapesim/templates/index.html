@@ -69,10 +69,8 @@
 
 </head>
 
-<body class="claro">
-
+<body>
     <div id="header"><img id="site_icon" src="{% static 'img/site_icon.png' %}">Landscape Simulator</div>
-
         <div id="left">
 
             <!-- Welcome and Library Widgets -->
@@ -199,11 +197,12 @@
                         </div>
                     </div>
                 </div>
-
                 <div id="run_button" class="my-button my-button-ok" type="submit">Run Model</div>
-
             </div>
+        </div>
 
+        <div id="scene-toggle">
+            <div id="switcher" class="context-switcher full_border_radius">Map</div>
         </div>
 
         <div id="map"></div>
