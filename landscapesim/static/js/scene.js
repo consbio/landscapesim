@@ -125,18 +125,6 @@ var metersPerPixel = function (z) {
 // light uniform
 var dynamicLightPosition = [1.0, 0.0, 1.0];
 
-// Retrieve a THREE.Mesh from the scene based on it's tile coordinates
-function getChildByCoords(z, x, y) {
-    for (var i = 0; i < scene.children.length; i++) {
-        var child = scene.children[i];
-        var data = child.userData;
-        if (z === data.z && x === data.x && y === data.y) {
-            return child;
-        }
-    }
-    return null;
-}
-
 function addOneTile(z, x_offset, y_offset, base_texture, height_texture, normal_texture, layer_texture) {
     var geometry = new THREE.PlaneBufferGeometry(tileSize, tileSize, tileSize - 1, tileSize - 1);
     var material = new THREE.RawShaderMaterial(
@@ -180,13 +168,25 @@ function createOneTile(z, x, y, x_offset, y_offset) {
                         console.log('All terrains loaded');
                         canRenderLayer = true;
                         if (currentLayerUrl) {
-                            update3DLayer();
+                            update3DLayer(currentLayerUrl);
                         }
                     }
                 })
             })
         })
     })
+}
+
+// Retrieve a THREE.Mesh from the scene based on it's tile coordinates
+function getChildByCoords(z, x, y) {
+    for (var i = 0; i < scene.children.length; i++) {
+        var child = scene.children[i];
+        var data = child.userData;
+        if (z === data.z && x === data.x && y === data.y) {
+            return child;
+        }
+    }
+    return null;
 }
 
 function updateOneTile(t) {
@@ -198,7 +198,8 @@ function updateOneTile(t) {
     })
 }
 
-function update3DLayer() {
+function update3DLayer(layerUrl) {
+    currentLayerUrl = layerUrl;
     var _e = library_config[1].extent;
     var _bounds = [[_e[0][1], _e[0][0]], [_e[1][1], _e[1][0]]];
     var _zoom = 12;
@@ -212,11 +213,15 @@ function update3DLayer() {
 var canRenderLayer = false;
 var currentLayerUrl = null; //"/maps/tiles/d64c21c6-31c1-43fb-8c6c-5ddfb3c49818/{z}/{x}/{y}.png";
 
-function init3DScenario() {
+function init3DScenario(initialLayerUrl) {
     //scene.position.set(new THREE.Vector3(0, 0, 0));   // Reset scene position? New 'Scene'?
 
+    if (initialLayerUrl) {
+        currentLayerUrl = initialLayerUrl;
+    }
+
     // Determine tiles from selected library configuration
-    var _e = library_config[1].extent;
+    var _e = library_config[1].extent;                          // TODO - select from configuration via parameter
     var _bounds = [[_e[0][1], _e[0][0]], [_e[1][1], _e[1][0]]];
     var _zoom = 12;
     var tiles = xyz(_bounds, _zoom);
@@ -252,7 +257,7 @@ function init3DScenario() {
 
     // move the whole world to center the map
     scene.translateOnAxis(new THREE.Vector3(1, 0, 0), - worldWidth / 2 + tileSize / 2);
-    scene.translateOnAxis(new THREE.Vector3(0, 0, 1), - worldHeight / 3 * 2 + tileSize / 2);
+    scene.translateOnAxis(new THREE.Vector3(0, 0, 1), - worldHeight / 2 + tileSize / 2);
 
     // move the camera
     camera.position.y = 800;
