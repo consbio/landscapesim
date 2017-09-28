@@ -6,47 +6,43 @@ var heightDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}
 var normalDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/normal/{z}/{x}/{y}.png';
 var blankDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==";
 var tileSize = 256;
-var num_requests = 0;
+var numRequests = 0;
 
-var vertexShader = ["attribute vec3 position;",
+var vertexShader = [
+    "attribute vec3 position;",
     "attribute vec2 uv;",
     "",
     "precision mediump float;",
     "precision mediump int;",
     "uniform mat4 modelViewMatrix; // optional",
     "uniform mat4 projectionMatrix; // optional",
-    "uniform float zoom;",
     "",
     "uniform sampler2D heightMap;",
     "uniform sampler2D normalMap;",
     "uniform vec3 light;",
-    //"uniform float disp;// displacement",
+    "uniform float metersPerPx;",
     "",
     "varying vec2 vUV;",
     "varying vec3 fN;",
     "varying vec3 fE;",
     "varying vec3 fL;",
     "",
-    "float mpp()",
-    "{",
-    "   return 6378137.0 * 2.0 * 3.141592653589793 / (256.0 * exp2(zoom));",
-    "}",
-    "",
     "float decodeHeight(vec4 texture)",
     "{",
-    "   return (texture.r * 256.0 * 256.0 + texture.g * 256.0 + texture.b - 32768.0);",
+    "   return (texture.r * 256.0 * 256.0 + texture.g * 256.0 + texture.b - 32768.0) / metersPerPx;",
     "}",
     "",
     "void main()",
     "{",
     "   vUV = uv;",
-    "   float h = decodeHeight(texture2D(heightMap, uv)) / mpp();",
+    "   float h = decodeHeight(texture2D(heightMap, uv));",
     "   fN = normalize(texture2D(normalMap, uv).xyz * 256.);",
     "   fE = -(modelViewMatrix * vec4(position, 1.0)).xyz;",
     "   fL = normalize(light);",
     "   gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, h, position.z, 1.0);",
     "}"].join('\n');
-var fragmentShader = ["precision mediump float;",
+var fragmentShader = [
+    "precision mediump float;",
     "precision mediump int;",
     "",
     "uniform sampler2D baseMap;",
@@ -85,7 +81,7 @@ var fragmentShader = ["precision mediump float;",
     "    float specDot = pow(max(dot(N, H), 0.0), SHINY);",
     "    vec4 specular = specDot*vec4(vec3(KS),1.0)*baseColor;",
     "",
-    "    // zero the specular highlight if the light is behind the vertex being drawn",
+    //"    // zero the specular highlight if the light is behind the vertex being drawn",
     "    if( dot(L, N) < 0.0 ) {",
     "       specular = vec4(0.0, 0.0, 0.0, 1.0);",
     "    }",
@@ -117,16 +113,19 @@ var getTileUrl = function (template, z, x, y) {
     return template.replace('{z}', z).replace('{x}', x).replace('{y}', y)
 };
 
-// Calculate height to pixels. Here for reference, implemented internally in shader program
-var metersPerPixel = function (z) {
-    return 6378137.0 * 2.0 * Math.PI / (tileSize * Math.pow(2, z));
+// Calculate height to pixels
+var metersPerPixel = function (z, lat) {
+    return Math.cos(lat) * 6378137.0 * 2.0 * Math.PI / (tileSize * Math.pow(2, z));
 };
 
 // light uniform
 var dynamicLightPosition = [1.0, 0.0, 1.0];
 
-function addOneTile(z, x_offset, y_offset, base_texture, height_texture, normal_texture, layer_texture) {
-    var geometry = new THREE.PlaneBufferGeometry(tileSize, tileSize, tileSize - 1, tileSize - 1);
+/* One-time initialization of geometry, significantly reduces memory usage. */
+var planeGeometry = new THREE.PlaneBufferGeometry(tileSize, tileSize, tileSize - 1, tileSize - 1);
+planeGeometry.rotateX(-Math.PI / 2);
+
+function addOneTile(z, latitude, x_offset, y_offset, base_texture, height_texture, normal_texture, layer_texture) {
     var material = new THREE.RawShaderMaterial(
         {
             uniforms: {
@@ -135,23 +134,20 @@ function addOneTile(z, x_offset, y_offset, base_texture, height_texture, normal_
                 'baseMap': {value: base_texture},
                 'layerMap': {value: layer_texture},
                 'hasLayerMap': {value: false},
-                'zoom': {value: z},
+                'metersPerPx': {value: metersPerPixel(z, latitude)},
                 'light': {value: dynamicLightPosition}
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader
         });
-
-    geometry.rotateX(-Math.PI / 2);
-    var tile = new THREE.Mesh(geometry, material);
-
+    var tile = new THREE.Mesh(planeGeometry, material);
     tile.translateOnAxis(new THREE.Vector3(1, 0, 0), x_offset);
     tile.translateOnAxis(new THREE.Vector3(0, 0, 1), y_offset);
     return tile;
 }
 
-// create one tile mesh
-function createOneTile(z, x, y, x_offset, y_offset) {
+/* Create one tile mesh */
+function createOneTile(z, x, y, latitude, x_offset, y_offset) {
     var heightTileUrl = getTileUrl(heightDataUrl, z, x, y);
     var normalTileUrl = getTileUrl(normalDataUrl, z, x, y);
     var baseTileUrl = getTileUrl(topographicBasemapUrl, z, x, y);
@@ -159,12 +155,11 @@ function createOneTile(z, x, y, x_offset, y_offset) {
         loader.load(baseTileUrl, function (baseMap) {
             loader.load(heightTileUrl, function (heightMap) {
                 loader.load(normalTileUrl, function (normalsMap) {
-                    //console.log(layerMap);
-                    var tile = addOneTile(z, x_offset, y_offset, baseMap, heightMap, normalsMap, layerMap);
+                    var tile = addOneTile(z, latitude, x_offset, y_offset, baseMap, heightMap, normalsMap, layerMap);
                     tile.userData = {z: z, x: x, y: y};
                     scene.add(tile);
-                    num_requests--;
-                    if (num_requests === 0) {
+                    numRequests--;
+                    if (numRequests === 0) {
                         console.log('All terrains loaded');
                         canRenderLayer = true;
                         if (currentLayerUrl) {
@@ -198,12 +193,17 @@ function updateOneTile(t) {
     })
 }
 
+function sceneConfig() {
+    var libInfo = library_config[$(".model_selection").val()];
+    var e = libInfo.extent;
+    var bounds = [[e[0][1], e[0][0]], [e[1][1], e[1][0]]];
+    var zoom = libInfo.zoom;
+    return {tiles: xyz(bounds, zoom), zoom: zoom, lat: e[1][0]};
+}
+
 function update3DLayer(layerUrl) {
     currentLayerUrl = layerUrl;
-    var _e = library_config[1].extent;
-    var _bounds = [[_e[0][1], _e[0][0]], [_e[1][1], _e[1][0]]];
-    var _zoom = 12;
-    var tiles = xyz(_bounds, _zoom);
+    var tiles = sceneConfig().tiles;
     for (var i = 0; i < tiles.length; i++) {
         var t = tiles[i];
         updateOneTile(t);
@@ -211,22 +211,22 @@ function update3DLayer(layerUrl) {
 }
 
 var canRenderLayer = false;
-var currentLayerUrl = null; //"/maps/tiles/d64c21c6-31c1-43fb-8c6c-5ddfb3c49818/{z}/{x}/{y}.png";
+var currentLayerUrl = null;
 
 function init3DScenario(initialLayerUrl) {
-    //scene.position.set(new THREE.Vector3(0, 0, 0));   // Reset scene position? New 'Scene'?
+    resetScene();
+    controls.reset();
+    scene.position.set(0, 0, 0); // = new THREE.Vector3(0, 0, 0);     // Reset scene position
 
     if (initialLayerUrl) {
         currentLayerUrl = initialLayerUrl;
     }
 
     // Determine tiles from selected library configuration
-    var _e = library_config[1].extent;                          // TODO - select from configuration via parameter
-    var _bounds = [[_e[0][1], _e[0][0]], [_e[1][1], _e[1][0]]];
-    var _zoom = 12;
-    var tiles = xyz(_bounds, _zoom);
+    var config = sceneConfig();
+    var tiles = config.tiles;
+    var z = config.zoom;
 
-    var z = _zoom;
     var xmin = tiles[0].x;
     var xmax =  tiles[tiles.length - 1].x;
     var ymin = tiles[0].y;
@@ -241,27 +241,46 @@ function init3DScenario(initialLayerUrl) {
     var worldWidth = tileSize * numTilesX;
     var worldHeight = tileSize * numTilesY;
 
-    var local_x_offset = 0;
-    var local_y_offset = 0;
+    var localXOffset = 0;
+    var localYOffset = 0;
 
     // add tiles in succession
     for (var x = 0; x < numTilesX; x++) {
-        local_y_offset = 0;
+        localYOffset = 0;
         for (var y = 0; y < numTilesY; y++) {
-            num_requests++;
-            createOneTile(z, xmin + x, ymin + y, local_x_offset, local_y_offset);
-            local_y_offset += tileSize;
+            numRequests++;
+            createOneTile(z, xmin + x, ymin + y, config.lat, localXOffset, localYOffset);
+            localYOffset += tileSize;
         }
-        local_x_offset += tileSize;
+        localXOffset += tileSize;
     }
 
     // move the whole world to center the map
     scene.translateOnAxis(new THREE.Vector3(1, 0, 0), - worldWidth / 2 + tileSize / 2);
     scene.translateOnAxis(new THREE.Vector3(0, 0, 1), - worldHeight / 2 + tileSize / 2);
 
-    // move the camera
-    camera.position.y = 800;
+    // Reset camera position
+    camera.position.set(0, 800, 0);
+    controls.saveState();
 }
+
+/* Clears the scene and disposes of memory allocated to WebGL */
+var resetScene = function() {
+    for (var i = scene.children.length - 1; i >= 0; i--) {
+        var child = scene.children[i];
+        scene.remove(child);
+
+        // Dispose of the textures
+        child.material.uniforms.layerMap.value.dispose();
+        child.material.uniforms.baseMap.value.dispose();
+        child.material.uniforms.heightMap.value.dispose();
+        child.material.uniforms.normalMap.value.dispose();
+
+        // Dispose of the uniforms
+        child.material.dispose();
+    }
+    canRenderLayer = false;
+};
 
 var resize = function () {
     renderer.setSize( container.offsetWidth, container.offsetHeight );

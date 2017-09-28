@@ -7,6 +7,7 @@ library_config[1] = {
         date: "2015",
         //extent: [[42.371734722510496, -117.02842712402345], [42.89206418807337, -115.92979431152345]],
         extent: [[42.55790050289854, -116.60960551441471], [42.7996938297675, -116.27533823026967]],
+        zoom: 12,
         // Actual Library Name: Alias
         management_actions_filter: {
             "Thin-Mech-Chem": "Thin-Mech-Chem",
