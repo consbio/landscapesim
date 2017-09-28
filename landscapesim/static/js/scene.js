@@ -28,7 +28,9 @@ var vertexShader = ["attribute vec3 position;",
     "varying vec3 fL;",
     "",
     "float mpp()",
-    "{return 6378137.0 * 2.0 * 3.141592653589793 / (256.0 * exp2(zoom));}",
+    "{",
+    "   return 6378137.0 * 2.0 * 3.141592653589793 / (256.0 * exp2(zoom));",
+    "}",
     "",
     "float decodeHeight(vec4 texture)",
     "{",
@@ -62,17 +64,18 @@ var fragmentShader = ["precision mediump float;",
     "",
     "void main()",
     "{",
-    "// constant ambient, diffuse and specular and shiny values",
-    "float KA = 0.5;",
-    "float KD = 1.0;",
-    "float KS = 0.15;",
-    "float SHINY = 20.0;",
+    //"// constant ambient, diffuse and specular and shiny values",
+    "   float KA = 0.5;",
+    "   float KD = 1.0;",
+    "   float KS = 0.15;",
+    "   float SHINY = 20.0;",
     "",
-    "// sample the layer data",
-    "vec4 baseColor = texture2D(baseMap, vUV);",
+    //"// sample the layer data",
+    "   vec4 baseColor = texture2D(baseMap, vUV);",
+    "   vec4 layerColor = texture2D(layerMap, vUV);",
     "",
-    "// compute lighting per vertex",
-    "vec3 N = normalize(fN);",
+    //"// compute lighting per vertex",
+    "    vec3 N = normalize(fN);",
     "    vec3 E = normalize(fE);",
     "    vec3 L = normalize(fL);",
     "    vec3 H = normalize( L + E );",
@@ -89,7 +92,10 @@ var fragmentShader = ["precision mediump float;",
     "",
     "    vec4 finalColor = ambient + diffuse + specular;",
     "    finalColor.a = 1.0;",
-    "gl_FragColor = finalColor;",
+    "    if (hasLayerMap > 0 && layerColor.a > 0.0) {",
+    "        finalColor.xyz = mix(layerColor.xyz, baseColor.xyz, 0.5);",
+    "    }",
+    "    gl_FragColor = finalColor;",
     "}"].join('\n');
 
 // scene graph, camera and builtin WebGL renderer
@@ -161,12 +167,11 @@ function createOneTile(z, x, y, x_offset, y_offset) {
     var heightTileUrl = getTileUrl(heightDataUrl, z, x, y);
     var normalTileUrl = getTileUrl(normalDataUrl, z, x, y);
     var baseTileUrl = getTileUrl(topographicBasemapUrl, z, x, y);
-    //var baseTileUrl = getTileUrl(currentLayerUrl, z, x, y);
     loader.load(blankDataUrl, function (layerMap) {
         loader.load(baseTileUrl, function (baseMap) {
             loader.load(heightTileUrl, function (heightMap) {
                 loader.load(normalTileUrl, function (normalsMap) {
-                    console.log(layerMap);
+                    //console.log(layerMap);
                     var tile = addOneTile(z, x_offset, y_offset, baseMap, heightMap, normalsMap, layerMap);
                     tile.userData = {z: z, x: x, y: y};
                     scene.add(tile);
@@ -175,7 +180,7 @@ function createOneTile(z, x, y, x_offset, y_offset) {
                         console.log('All terrains loaded');
                         canRenderLayer = true;
                         if (currentLayerUrl) {
-                            //update3DLayer();
+                            update3DLayer();
                         }
                     }
                 })
@@ -184,15 +189,13 @@ function createOneTile(z, x, y, x_offset, y_offset) {
     })
 }
 
-function updateOneTile(mesh, tile) {
-    (function(thisMesh, t) {
-        loader.load(getTileUrl(currentLayerUrl, t.z, t.x, t.z), function (layerMap) {
-            thisMesh.material.uniforms.layerMap.value = layerMap;
-            thisMesh.material.uniforms.layerMap.needsUpdate = true;
-            thisMesh.material.needsUpdate = true;
-        })
-    }
-    )(mesh, tile);
+function updateOneTile(t) {
+    loader.load(getTileUrl(currentLayerUrl, t.z, t.x, t.y), function (layerMap) {
+        var mesh = getChildByCoords(t.z, t.x, t.y);
+        mesh.material.uniforms.layerMap.value = layerMap;
+        mesh.material.uniforms.hasLayerMap.value = true;
+        mesh.material.needsUpdate = true;
+    })
 }
 
 function update3DLayer() {
@@ -200,19 +203,14 @@ function update3DLayer() {
     var _bounds = [[_e[0][1], _e[0][0]], [_e[1][1], _e[1][0]]];
     var _zoom = 12;
     var tiles = xyz(_bounds, _zoom);
-
     for (var i = 0; i < tiles.length; i++) {
         var t = tiles[i];
-        var child = getChildByCoords(t.z, t.x, t.y);
-        if (child) {
-            updateOneTile(child, t);
-        }
+        updateOneTile(t);
     }
-
 }
 
 var canRenderLayer = false;
-var currentLayerUrl = "/maps/tiles/d64c21c6-31c1-43fb-8c6c-5ddfb3c49818/{z}/{x}/{y}.png";
+var currentLayerUrl = null; //"/maps/tiles/d64c21c6-31c1-43fb-8c6c-5ddfb3c49818/{z}/{x}/{y}.png";
 
 function init3DScenario() {
     //scene.position.set(new THREE.Vector3(0, 0, 0));   // Reset scene position? New 'Scene'?
