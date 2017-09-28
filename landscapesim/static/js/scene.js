@@ -1,37 +1,43 @@
-
+// Sets up a simple 3D viewer behind the map
 
 var container = document.getElementById('scene');
 
 var topographicBasemapUrl = L.esri.BasemapLayer.TILES.Imagery.urlTemplate.replace('{s}', 'services');
+var heightDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
+var normalDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/normal/{z}/{x}/{y}.png';
 
+// Determine tiles from selected library configuration
+var _e = library_config[1].extent;
+var _bounds = [[_e[0][1], _e[0][0]],[_e[1][1], _e[1][0]]];
+var _zoom = 11;
+var tiles = xyz(_bounds, _zoom);
 
-
-// More intense scene
 // tile constants
 var tile_size = 256;
 
-var config = {
-	'z' : 8,
-	'xmin': 42,
-	'xmax': 48,
-
-	'ymin': 152,
-	'ymax': 156,
-	'eymin': 99,
-	'eymax': 103
-
+var _config = {
+    'z': _zoom,
+    'xmin': tiles[0].x - 1,
+    'xmax': tiles[tiles.length-1].x + 1,
+    'eymin': tiles[0].y - 1,
+    'eymax': tiles[tiles.length-1].y + 1
 };
+
+var getTileUrl = function(template, z, x, y) {
+    return template.replace('{z}', z).replace('{x}', x).replace('{y}', y)
+};
+
+
+var metersPerPixel = function(z) {
+    return 6378137.0 * 2.0 * Math.PI / (tile_size * Math.pow(2, z));
+}
 
 // num tiles, width and height <--> x and y
 // Increase the number of tiles to see more of the area
-var x_tiles = config['xmax'] - config['xmin'] + 1;
-var y_tiles = config['ymax'] - config['ymin'] + 1;
+var x_tiles = _config['xmax'] - _config['xmin'] + 1;
+var y_tiles = _config['eymax'] - _config['eymin'] + 1;
 
-// check that the number of y tiles for elevation is the same for layers
-// **TODO**
-
-
-// world sizes
+// world size
 var w_width = tile_size * x_tiles;
 var w_height = tile_size * y_tiles;
 
@@ -41,9 +47,8 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeig
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
-//document.body.appendChild(renderer.domElement);
 container.appendChild(renderer.domElement);
-//var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
 var controls = new THREE.OrbitControls(camera, container);
 controls.maxDistance = 1000;
 controls.minDistance = 10;
@@ -52,7 +57,7 @@ controls.maxPolarAngle = Math.PI / 2.1;
 var loader = new THREE.TextureLoader();
 
 // light uniform
-var dynamicLightPosition = Array(1.0,0.0,1.0);
+var dynamicLightPosition = [1.0,0.0,1.0];
 
 function addOneTile(x_offset, y_offset, base_texture, height_texture, normal_texture) {
 	var geometry = new THREE.PlaneBufferGeometry(tile_size, tile_size, tile_size-1, tile_size-1);
@@ -62,7 +67,7 @@ function addOneTile(x_offset, y_offset, base_texture, height_texture, normal_tex
 			't_height': {value: height_texture},
 			't_normal': {value: normal_texture},
 			'b_tex': {value: base_texture},
-			'disp': {value: 3.0},
+            'zoom': {value: _zoom},
 			'light': {value: dynamicLightPosition}
 		},
         vertexShader: "\t\t\tattribute vec3 position;\n" +
@@ -72,26 +77,30 @@ function addOneTile(x_offset, y_offset, base_texture, height_texture, normal_tex
         "\t\t\tprecision mediump int;\n" +
         "\t\t\tuniform mat4 modelViewMatrix; // optional\n" +
         "\t\t\tuniform mat4 projectionMatrix; // optional\n" +
+        "\t\t\tuniform float zoom;\n" +
         "\n" +
         "\t\t\tuniform sampler2D t_height;\n" +
         "\t\t\tuniform sampler2D t_normal;\n" +
         "\t\t\tuniform vec3 light;\n" +
-        "\t\t\tuniform float disp;\t// displacement\n" +
+        //"\t\t\tuniform float disp;\t// displacement\n" +
         "\n" +
         "\t\t\tvarying vec2 vUV;\n" +
         "\t\t\tvarying vec3 fN;\n" +
         "\t\t\tvarying vec3 fE;\n" +
         "\t\t\tvarying vec3 fL;\n" +
         "\n" +
+        "float mpp()\n" +
+            "{return 6378137.0 * 2.0 * 3.141592653589793 / (256.0 * exp2(zoom));}\n" +
+        "\n" +
         "\t\t\tfloat decodeHeight(vec4 texture)\n" +
         "\t\t\t{\n" +
-        "\t\t\t\treturn (texture.r * 256.0 * 256.0 + texture.g * 256.0 + texture.b - 32768.0) / 256.0;\n" +
+        "\t\t\t\treturn (texture.r * 256.0 * 256.0 + texture.g * 256.0 + texture.b - 32768.0);\n" +
         "\t\t\t}\n" +
         "\n" +
         "\t\t\tvoid main()\n" +
         "\t\t\t{\n" +
         "\t\t\t\tvUV = uv;\n" +
-        "\t\t\t\tfloat h = decodeHeight(texture2D(t_height, uv)) * disp;\n" +
+        "\t\t\t\tfloat h = decodeHeight(texture2D(t_height, uv)) / mpp();\n" +
         "\t\t\t\tfN = normalize(texture2D(t_normal, uv).xyz * 256.);\n" +
         "\t\t\t\tfE = -(modelViewMatrix * vec4(position, 1.0)).xyz;\n" +
         "\t\t\t\tfL = normalize(light);\n" +
@@ -156,16 +165,16 @@ function addOneTile(x_offset, y_offset, base_texture, height_texture, normal_tex
 // create one tile mesh
 function createOneTile(x_idx,y_idx, x_offset, y_offset) {
 
-	// Elevation and lighting layers
-	var height_tex_url = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/' + String(config['z']) + '/' + String(config['xmin'] + x_idx) + '/' + String(config['eymin'] + y_idx) + '.png'
-	var norm_tex_url = 'https://s3.amazonaws.com/elevation-tiles-prod/normal/' + String(config['z']) + '/' + String(config['xmin'] + x_idx) + '/' + String(config['eymin'] + y_idx) + '.png'
+    var z = _zoom;
+    var x = _config.xmin + x_idx;
+    var y = _config.eymin + y_idx;
+    var heightTileUrl = getTileUrl(heightDataUrl, z, x, y);
+    var normalTileUrl = getTileUrl(normalDataUrl, z, x, y);
+    var baseTileUrl = getTileUrl(topographicBasemapUrl, z, x, y);
 
-	// Basemap texture
-	var base_tex_url =  topographicBasemapUrl.replace('{z}', config['z']).replace('{x}', config['xmin'] + x_idx).replace('{y}', config['eymin'] + y_idx);
-    //loader.load(blank_tex_url, function(b_texture) {
-	loader.load(base_tex_url, function(b_texture) {
-		loader.load(height_tex_url, function(h_texture) {		// better to use a full asset loader like we have in landscape sim, but this suffices for demo
-			loader.load(norm_tex_url, function(t_texture) {
+	loader.load(baseTileUrl, function(b_texture) {
+		loader.load(heightTileUrl, function(h_texture) {
+			loader.load(normalTileUrl, function(t_texture) {
                 addOneTile(x_offset, y_offset, b_texture, h_texture, t_texture);
 				num_requests--;
 				if (num_requests === 0) {
@@ -198,7 +207,7 @@ scene.translateOnAxis(new THREE.Vector3(1,0,0), - w_width / 2 + tile_size/2);
 scene.translateOnAxis(new THREE.Vector3(0,0,1), - w_height / 3 * 2 + tile_size/2);
 
 // move the camera
-camera.position.z = 800;
+camera.position.y = 800;
 
 var resize = function () {
     renderer.setSize( container.offsetWidth, container.offsetHeight );
