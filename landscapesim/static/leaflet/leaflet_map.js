@@ -101,8 +101,6 @@ function loadOutputLayers(results_scenario_configuration){
                 orient: 'horizontal',
                 iconClass: 'leaflet-range-icon'
             });
-
-
         }
     }
     else{
@@ -119,6 +117,7 @@ function loadOutputLayers(results_scenario_configuration){
 }
 
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
+var activeRun, globalTimestep;
 function changeOutputStateClass(run) {
 
     activeRun = run;
@@ -147,9 +146,12 @@ function changeOutputStateClass(run) {
         outputStateClassLayers[run].redraw();
         outputStateClassLayers[run].bringToFront();
 
-    });
+        // Also update the 3D layer
+        update3DLayer(outputStateClassLayers[run]._url.replace('{t}', globalTimestep).replace('{it}', 1))
 
-    if (typeof globalTimestep != "undefined") {
+    });
+    var globalTimestepSet = typeof globalTimestep != "undefined";
+    if (globalTimestepSet) {
         outputStateClassLayers[run].options.t = globalTimestep;
         outputTimestepSliders[run].setValue(globalTimestep)
     }
@@ -158,10 +160,12 @@ function changeOutputStateClass(run) {
 
     outputStateClassLayers[run].addTo(map);
 
+    // Set the initial timestep map layer in 3D
+    var mapTimestep = !globalTimestepSet ? results_scenario_configuration.run_control.max_timestep : globalTimestep;
+    update3DLayer(outputStateClassLayers[run]._url.replace('{t}', mapTimestep).replace('{it}', 1))
 }
 
 // Zoom control
 L.control.zoom({
     position:'topleft'
 }).addTo(map);
-

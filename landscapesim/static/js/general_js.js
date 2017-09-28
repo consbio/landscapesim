@@ -176,7 +176,6 @@ $(document).ready(function() {
                         })
                     }, 1500)
                 })();
-
             });
     });
 
@@ -269,7 +268,7 @@ $(document).ready(function() {
                     setInitialConditionsSidebar(veg_initial_conditions);
 
                     loadLayers(current_scenario.config.scenario_input_services);
-                    init3DScenario();   // maybe init with the same values?
+                    init3DScenario(inputStratumLayer._url);   // maybe init with the same values?
 
                     $(".veg_slider_bars").slider("disable");
                     $(".veg_slider_bars").addClass("disabled");
@@ -419,6 +418,7 @@ $(document).ready(function() {
 
     $(document).on("click", ".close_state_class", function(){
         map.removeLayer(inputStateClassLayer);
+        update3DLayer(inputStratumLayer._url);
         $(this).parents(".sub_slider_text_inputs").hide()
     });
 
@@ -444,16 +444,19 @@ $(document).ready(function() {
     // delegate the popup menus for any that occur on the page.
     function delegatedPopupContext(selector, element) {
         $(document).on('click', selector, function () {
+            var url;
             if ($(this).siblings(element).is(":visible")) {
                 $(this).siblings(element).hide();
                 map.removeLayer(inputStateClassLayer);
+                url = inputStratumLayer._url
             }
             else {
                 $(".sub_slider_text_inputs").hide();
                 $(this).siblings(element).show();
                 inputStateClassLayer.addTo(map);
-
+                url = inputStateClassLayer._url
             }
+            update3DLayer(url);
         });
     }
 
@@ -1261,7 +1264,4 @@ function createColorMap(project_definitions){
         colorMap["Vegetation Types"][object.name] = "rgb(" + rgb_string + ")";
 
     });
-
 }
-
-
