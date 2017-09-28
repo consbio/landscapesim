@@ -418,6 +418,7 @@ $(document).ready(function() {
 
     $(document).on("click", ".close_state_class", function(){
         map.removeLayer(inputStateClassLayer);
+        updateLegend("Vegetation Types");
         update3DLayer(inputStratumLayer._url);
         $(this).parents(".sub_slider_text_inputs").hide()
     });
@@ -448,12 +449,14 @@ $(document).ready(function() {
             if ($(this).siblings(element).is(":visible")) {
                 $(this).siblings(element).hide();
                 map.removeLayer(inputStateClassLayer);
+                updateLegend("Vegetation Types");
                 url = inputStratumLayer._url
             }
             else {
                 $(".sub_slider_text_inputs").hide();
                 $(this).siblings(element).show();
                 inputStateClassLayer.addTo(map);
+                updateLegend("State Classes");
                 url = inputStateClassLayer._url
             }
             update3DLayer(url);
@@ -725,6 +728,15 @@ function createVegTypeStateClassesJSON(veg_initial_conditions){
 }
 
 /*************************************** Initial Vegetation Cover Inputs **********************************************/
+function updateLegend(name) {
+    if (colorMap != undefined && colorMap[name] != undefined) {
+        $("#scene_legend").empty();
+        $("#scene_legend").append("<div class='legend_title'>" + name + "</div>");
+        $.each(colorMap[name], function (key, value) {
+            $("#scene_legend").append("<div class='scene_legend_color' style='background-color:" + value + "'> &nbsp</div>" + key + "<br>")
+        });
+    }
+}
 
 var veg_slider_values = {};
 var slider_values = {};
@@ -995,31 +1007,6 @@ function total_percent_action(value){
 
 /***********************************************Map and 3D Scene Controls  ********************************************/
 
-function activate_map() {
-    $("#map_button").addClass("selected");
-    $("#scene_button").removeClass("selected");
-    $("#map").show();
-    $("#scene").hide();
-    $("#selected_features").hide();
-    //window.removeEventListener('resize', landscape_viewer.resize, false);
-    $("#scene_legend").hide();
-    $("#general_settings_instructions").html("Select an area of interest by clicking on a reporting unit (e.g., a watershed), or by using the rectangle tool to define your own area of interest.");
-    $("div.leaflet-control-layers:nth-child(1)").css("top","55px")
-}
-
-function activate_scene(){
-    $("#map_button").removeClass("selected");
-    $("#scene_button").addClass("selected");
-    $("#scene").show();
-    $("#map").hide();
-    $("#step1").hide();
-    $("#selected_features").show();
-    //window.addEventListener('resize', landscape_viewer.resize, false);
-    //landscape_viewer.resize();
-    $("#scene_legend").show();
-    $("#general_settings_instructions").html("Now use the controls below to define the scenario you'd like to simulate. When you are ready, push the Run Model button to conduct a model run.");
-}
-
 $("#spatial_link").click(function(){
     var button = $('#spatial_button');
     if (button.hasClass('selected')) {
@@ -1029,14 +1016,6 @@ $("#spatial_link").click(function(){
     }
     settings['spatial'] = button.hasClass('selected');
 });
-
-function hideSceneLoadingDiv() {
-    $('#scene_loading_div').hide();
-}
-
-function showSceneLoadingDiv() {
-    $('#scene_loading_div').show();
-}
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 
