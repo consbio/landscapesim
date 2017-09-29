@@ -88,8 +88,8 @@ var fragmentShader = [
     "",
     "    vec4 finalColor = ambient + diffuse + specular;",
     "    finalColor.a = 1.0;",
-    "    if (hasLayerMap > 0 && layerColor.a > 0.0) {",
-    "        finalColor.xyz = mix(layerColor.xyz, baseColor.xyz, 0.5);",
+    "    if (hasLayerMap > 0 && layerColor.a > 0.5) {",
+    "        finalColor.xyz = mix(layerColor.xyz, finalColor.xyz, 0.5);",
     "    }",
     "    gl_FragColor = finalColor;",
     "}"].join('\n');
