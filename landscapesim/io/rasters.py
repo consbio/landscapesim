@@ -21,6 +21,7 @@ from landscapesim.models import ScenarioInputServices, ScenarioOutputServices, T
     StateAttributeType, TransitionAttributeType
 
 NC_ROOT = getattr(settings, 'NC_SERVICE_DATA_ROOT')
+CLOVER_PATH = getattr(settings, 'CLOVER_PATH', None)
 
 
 # Sanity check for creating ncdjango services correctly
@@ -320,7 +321,7 @@ def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name):
     """
 
     try:
-        subprocess.run(["clover", "to_netcdf", geotiff_file_or_pattern, netcdf_out, variable_name])
+        subprocess.run([CLOVER_PATH if CLOVER_PATH else "clover", "to_netcdf", geotiff_file_or_pattern, netcdf_out, variable_name])
     except:
         raise subprocess.SubprocessError("Failed calling clover. Did you setup clover correctly?")
 
