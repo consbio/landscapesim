@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.abspath(__file__)
@@ -116,3 +117,11 @@ NC_INSTALLED_INTERFACES = (
     'ncdjango.interfaces.arcgis',
     'landscapesim.tiles'
 )
+
+CELERYBEAT_SCHEDULE = {
+    'poll-for-new-services': {
+        'task': 'landscapesim.async.tasks.poll_for_new_services',
+        'schedule': timedelta(seconds=5),
+        'args': ()
+    }
+}

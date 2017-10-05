@@ -10,4 +10,10 @@ stsim-libs/
 .idea
 
 
+celerybeat-schedule\.dir
+
+celerybeat-schedule\.dat
+
+celerybeat-schedule\.bak
+
 \.vscode/

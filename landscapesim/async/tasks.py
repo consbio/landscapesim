@@ -121,3 +121,10 @@ def run_model(self, library_name, pid, sid):
         t = time.time()
         process_scenario_inputs(console, scenario, create_input_services=False)
         print("Scenario imported in {} seconds".format(time.time() - t))
+
+@task(bind=True)
+def poll_for_new_services(self):
+    print("Looking for data to be processed...")
+
+    print(Library.objects.all())
+
