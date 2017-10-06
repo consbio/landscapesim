@@ -47,15 +47,9 @@ class Scenario(models.Model):
 
     @property
     def output_directory(self):
-        if self.is_result:
-            path = os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
-            if os.path.exists(path):
-                return path
-            else:
-                raise OSError("Scenario {} has no spatial directory. No spatial outputs were created.")
-        else:
-            raise ValueError("Scenario {} is not a result scenario. Output directory does not exist.".format(self.sid))
-
+        # Note: not all scenarios have output directories. Testing for existence should be contextual
+        return os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
+        
     @property
     def multiplier_directory(self):
         return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
