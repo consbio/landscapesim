@@ -125,3 +125,8 @@ CELERYBEAT_SCHEDULE = {
         'args': ()
     }
 }
+
+CELERY_ROUTES = {
+    'landscapesim.async.tasks.poll_for_new_services': { 'queue': 'poll-for-services' },
+    'landscapesim.async.tasks.run_model': { 'queue': 'run-model' }
+}
