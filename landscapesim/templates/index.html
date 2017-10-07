@@ -68,11 +68,21 @@
     <link rel="stylesheet" href="{% static "css/buttons.css" %}" />
     <link rel="stylesheet" href="{% static "css/toggle.css" %}" />
     <link rel="stylesheet" href="{% static "css/popup.css" %}" />
-
 </head>
-
 <body>
-    <div id="header"><img id="site_icon" src="{% static 'img/site_icon.png' %}">Landscape Simulator</div>
+    <div id="header"><img id="site_icon" src="{% static 'img/site_icon.png' %}">
+        <ul style="float: left;">
+            <li style="padding: 3px 10px">
+                Landscape Simulator    
+            </li>    
+        </ul>
+        <ul style="float: right; padding-right:40px;">
+            <li><a>Purpose</a></li>
+            <li><a>ST-Sim</a></li>
+            <li><a>Instructions</a></li>
+            <li><a>Contact</a></li>
+        </ul>
+    </div>
         <div id="left">
 
             <!-- Welcome and Library Widgets -->

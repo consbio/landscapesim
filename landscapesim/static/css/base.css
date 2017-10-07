@@ -22,14 +22,51 @@ canvas {
 	top: 0px;
 	right: 0px;
 	left: 0px;
+	font-weight: bold;	
 	width: 100%;
-	font-weight: bold;
 	height: 50px;
 	background-color: #424242;
 	font-size: 18px;
 	padding-left: 10px;
 	line-height: 45px;
 	color: #e3e3e3;
+	display: inline;
+}
+
+#header ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	border-width: 1px 0px 1px 0px;
+	border-color: #e7e7e7;
+	background-color: #444;
+	/*height: 36px;*/
+}
+
+#header ul li {
+	float: left
+}
+
+#header  ul  li  a {
+	display: block;
+	color: #d7d7d7;
+	text-align: center;
+	padding: 3px 10px;
+	text-decoration: none;
+	font-family: arial;
+	font-size: .9em;
+	letter-spacing: 0px;
+}
+
+#header ul li a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+#header ul li a {
+    color: white;
+    background-color: #424242;
 }
 
 #contents {
