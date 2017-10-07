@@ -96,10 +96,10 @@ var fragmentShader = [
 
 // scene graph, camera and builtin WebGL renderer
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1500);
+var camera = new THREE.PerspectiveCamera(65, container.offsetWidth / container.offsetHeight, 0.1, 1500);
 
 var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(container.offsetWidth, container.offsetHeight);
 container.appendChild(renderer.domElement);
 
 var controls = new THREE.OrbitControls(camera, container);
@@ -288,8 +288,6 @@ var resize = function () {
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
 };
-
-window.addEventListener('resize', resize, false);
 
 var renderID;
 

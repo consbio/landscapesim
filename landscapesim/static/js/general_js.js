@@ -315,20 +315,22 @@ $(document).ready(function() {
     /********************************************* General UI Functions ***********************************************/
 
     // Switch context between map and 3D viewer
-    $('#scene-toggle').on('click', function(){
-        var switcher = $('#switcher')
-        if (switcher.text() === "Map") {
+    $(document).on("change", "#scene-switch", function(){
+        if ($(this)[0].checked){
             $('#map').hide();
             $('#scene').show();
-            switcher.text("3D");
+            resize();
+            window.addEventListener('resize', resize, false);
             animate();
-        } else {
-            $('#scene').hide();
-            $('#map').show();
-            switcher.text("Map");
-            cancelAnimate();
         }
-    })
+        else{
+            $('#scene').hide();
+            window.removeEventListener('resize', resize, false);
+            cancelAnimate();
+            $('#map').show();
+            map.invalidateSize();
+        }
+    });
 
     // Collapse div on header click
     $(document).on("click", ".header", function () {
