@@ -77,10 +77,10 @@
             </li>    
         </ul>
         <ul style="float: right; padding-right:40px;">
-            <li><a>Purpose</a></li>
-            <li><a>ST-Sim</a></li>
-            <li><a>Instructions</a></li>
-            <li><a>Contact</a></li>
+            <li><a class="modal-item" id="purpose">Purpose</a></li>
+            <li><a class="modal-item" id="st-sim">ST-Sim</a></li>
+            <li><a class="modal-item" id="instructions">Instructions</a></li>
+            <li><a class="modal-item" id="contact">Contact</a></li>
         </ul>
     </div>
         <div id="left">
@@ -89,7 +89,6 @@
             <div class="widget_div" id="welcome">
                 <div class="header" id="welcome_header">
                     Welcome & Getting Started
-                    <span class="context_button" id="help_step_1"> <img class="context_img" src="/static/img/help.png"></span>
                     <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}">
                 </div>
                 <div class="collapsible_div" visibility="visible">
@@ -104,9 +103,11 @@
             </div>
 
             <div class="widget_div">
-                <div class="header" id="library_header">ST-Sim Library <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                <div class="header" id="library_header">
+                    ST-Sim Library
+                    <span class="context_button" id="library"> <img class="context_img" src="/static/img/help.png"></span>
+                    <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
                 <div class="collapsible_div" visibility="visible">
-
                     <div id="library_info">
                         <table id="library_info_table">
                             <tr><td class="library_info_hidden">Library:</td>
@@ -139,7 +140,11 @@
             <div id="inputs">
                 <div class="widget_div">
                     <div id="input_initial_veg">
-                        <div class="header full_border_radius" id="steps_initial_vegetation_cover">Initial Vegetation Cover <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                        <div class="header full_border_radius" id="steps_initial_vegetation_cover">
+                            Initial Vegetation Cover
+                            <span class="context_button" id="vegcover"> <img class="context_img" src="/static/img/help.png"></span>
+                            <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}">
+                        </div>
                         <div id="initial_vegetation_container" class="collapsible_div collapsed full_border_radius">
                             <div id="veg_slider_notice">Note: Initial vegetation cover values can only be modified when doing a non-spatial run (under Run Control, set the spatial output switch to "Off").</div>
                             <div id="vegtype_slider_container">
@@ -152,7 +157,11 @@
 
                 <div class="widget_div">
                     <div id="input_probabilistic_transitions">
-                        <div class="header full_border_radius">Probabilistic Transitions <img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                        <div class="header full_border_radius">
+                            Probabilistic Transitions
+                            <span class="context_button" id="probabilities"> <img class="context_img" src="/static/img/help.png"></span>
+                            <img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}">
+                        </div>
                         <div class="collapsible_div collapsed">
                             <table id="probabilisticTransitionSliderTable" class="sliderTable"></table>
                         </div>
@@ -161,7 +170,11 @@
 
                 <div class="widget_div">
                     <div id="general_settings">
-                        <div class="header full_border_radius">Run Control<img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                        <div class="header full_border_radius">
+                            Run Control
+                            <span class="context_button" id="run-control"> <img class="context_img" src="/static/img/help.png"></span>
+                            <img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}">
+                        </div>
                         <div class="collapsible_div collapsed" >
                             <table id="general_settings_table">
                                 {%  comment %}
@@ -321,8 +334,32 @@
         <link rel="stylesheet"  href="{% static 'css/cost.css' %}">
         <link rel="stylesheet"  href="{% static 'css/manage.css' %}">
 
+        <!-- Text for modals -->
+        <script type="x-text" id="x-purpose">
+            The Landscape Simulator is a GIS mapping application intended to help land managers understand how vegetation composition will change due to stochastic events (e.g. fire, disease) and prescribed management actions (e.g. treatments) will affect the landscape years into the future.
+        </script>
+        <script type="x-text" id="x-st-sim">
+            This tool utilizes State and Transition Simulation Models, or ST-Sim, which is the next evolution of the VDDT models. ST-Sim models can be run using spatially explicit inputs to produce more accurate vegetation dynamic projections. We build on top of ST-Sim by providing a visualization and management interface to give land managers a better picture of the future of their landscape.
+        </script>
+        <script type="x-text" id="x-instructions">
+            Todo! Stay tuned.
+        </script>
+        <script type="x-text" id="x-contact">
+            For help or more information, contact taylor.mutch@consbio.org
+        </script>
 
-
-
+        <!-- Text for hover text -->
+        <script type="x-text" id="x-library">
+            Choose a scenario to load. Scenarios are based on available ST-Sim models.
+        </script>
+        <script type="x-text" id="x-vegcover">
+            Vegetation present in this study area, separated by percent cover.
+        </script>
+        <script type="x-text" id="x-probabilities">
+            Adjust probabilities to affect the rate at which vegetation will change due to disturbances.
+        </script>
+        <script type="x-text" id="x-run-control">
+            Configure the scenario model run length.
+        </script>
 </body>
 </html>

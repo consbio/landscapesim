@@ -1419,6 +1419,8 @@ div.leaflet-bottom:nth-child(4){
 
 .alertify {
 	top: 70px;
-	width: 590px;
 }
 
+.alertify-p {
+	padding: 10px 20px;
+}

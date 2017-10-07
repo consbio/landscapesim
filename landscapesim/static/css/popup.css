@@ -43,9 +43,9 @@
 	font-size: .7em;
 	color: #007BB0;
 	cursor: pointer;
-	float: right;
+	float: left;
 	z-index: 999;
-	top: 4px;
+	top: 2px;
 	right: 10px;
 	position: relative;
 }
