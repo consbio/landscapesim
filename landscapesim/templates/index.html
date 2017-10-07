@@ -61,11 +61,13 @@
 
     <!-- My Javascript -->
     <script src="{%  static "js/general_js.js" %}" type="text/javascript"></script>
+    <script src="{%  static "js/context_help.js" %}" type="text/javascript"></script>
 
     <!-- My CSS -->
     <link rel="stylesheet" href="{% static "css/base.css" %}" />
     <link rel="stylesheet" href="{% static "css/buttons.css" %}" />
     <link rel="stylesheet" href="{% static "css/toggle.css" %}" />
+    <link rel="stylesheet" href="{% static "css/popup.css" %}" />
 
 </head>
 
@@ -75,7 +77,11 @@
 
             <!-- Welcome and Library Widgets -->
             <div class="widget_div" id="welcome">
-                <div class="header" id="welcome_header">Welcome & Getting Started <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
+                <div class="header" id="welcome_header">
+                    Welcome & Getting Started
+                    <span class="context_button" id="help_step_1"> <img class="context_img" src="/static/img/help.png"></span>
+                    <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}">
+                </div>
                 <div class="collapsible_div" visibility="visible">
                     <div id="intro">
                         The Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
@@ -203,9 +209,6 @@
             </div>
         </div>
 
-        <!--div id="scene-toggle">
-            <div id="switcher" class="context-switcher full_border_radius">Map</div>
-        </div-->
         <div id="scene-toggle">
             <label class="switch">
                 <input id="scene-switch" type="checkbox">
@@ -277,6 +280,9 @@
                 <a href="mailto:info@consbio.org">info@consbio.org</a>
             </div>
         </div>
+
+        <!-- Hidden div for displaying popups -->
+        <div id="pop-up"></div>
 
         <!-- Leaflet Map -->
         <script src="{%  static "leaflet/leaflet_map.js" %}" type="text/javascript"></script>

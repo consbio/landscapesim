@@ -1,0 +1,51 @@
+/* Popup contexts */
+
+#pop-up {
+    display: none;
+    position: absolute;
+    width: 280px;
+    padding: 10px;
+    color: #e5e5e5;
+    z-index:99999;
+}
+
+.context_basic {
+	background-color: #E9E9E9;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	padding: 1px 10px 1px 10px;
+    color: black;
+	text-align: left!important;
+	z-index: 10000;
+}
+
+.context_basic p {
+	width: inherit;
+}
+
+.context_title {
+	text-align: center;
+	font-weight: bold;
+}
+
+
+.context_img {
+	position: relative;
+	left: 5px;
+    top: -1px;
+    background-color: white;
+    border-radius: 10px;
+	width: 17px;
+	height: 17px;
+}
+
+.context_button {
+	font-size: .7em;
+	color: #007BB0;
+	cursor: pointer;
+	float: right;
+	z-index: 999;
+	top: 4px;
+	right: 10px;
+	position: relative;
+}

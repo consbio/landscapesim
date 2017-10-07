@@ -623,19 +623,6 @@ label, td{
 	color:white;
 }
 
-div#pop-up {
-    display: none;
-    position: absolute;
-    width: 280px;
-    padding: 10px;
-    color: #e5e5e5;
-    font-size: 90%;
-    z-index:9999;
-    background: rgba(68, 68, 68, 1);
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
-    border-radius: 5px;
-}
-
 .sliderTable {
 	position: relative;
 	width: 100%;
