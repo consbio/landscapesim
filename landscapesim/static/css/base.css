@@ -54,8 +54,8 @@ canvas {
 
 #scene-toggle {
 	position: relative;
-	top: 71px;
-	left: 371px;
+	top: 79px;
+	left: -9px;
 	z-index: 10000;
 }
 

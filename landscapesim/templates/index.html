@@ -184,12 +184,14 @@
                                     </td>
                                     <td>
                                         <div id="spatial_control">
-                                            <div id="spatial_off">Off</div>
+                                            <div class="spatial_off">Off</div>
                                                     <label class="switch">
                                                       <input id="spatial_switch" checked type="checkbox">
-                                                        <div class="slider round"></div>
+                                                        <div class="slider round">
+                                                            <div class="round-handle"></div>
+                                                        </div>
                                                     </label>
-                                            <div id="spatial_on"> On</div>
+                                            <div class="spatial_on"> On</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -201,9 +203,22 @@
             </div>
         </div>
 
-        <div id="scene-toggle">
+        <!--div id="scene-toggle">
             <div id="switcher" class="context-switcher full_border_radius">Map</div>
+        </div-->
+        <div id="scene-toggle">
+            <label class="switch">
+                <input id="scene-switch" type="checkbox">
+                <div class="slider round map-slider">
+                    <div class="round-handle">
+                        <div class="round-handle-text">
+                            3D
+                        </div>
+                    </div>
+                </div>
+            </label>
         </div>
+
 
         <div id="map"></div>
         <div id="scene" style="display: none"></div>
