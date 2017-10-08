@@ -29,3 +29,10 @@ $(document).on({
         $("#pop-up").hide();
     }
 }, '.context_button');
+
+// Allow dismiss on click
+$(document).on({
+    click: function(e) {
+        document.getElementById('alertify-ok').click();
+    }
+}, '#alertify-cover');
