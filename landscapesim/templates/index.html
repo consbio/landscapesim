@@ -78,7 +78,7 @@
         </ul>
         <ul style="float: right; padding-right:40px;">
             <li><a class="modal-item" id="purpose">Purpose</a></li>
-            <li><a class="modal-item" id="st-sim">ST-Sim</a></li>
+            <li><a class="modal-item" id="st-sim">STSMs</a></li>
             <li><a class="modal-item" id="instructions">Instructions</a></li>
             <li><a class="modal-item" id="contact">Contact</a></li>
         </ul>
@@ -93,11 +93,11 @@
                 </div>
                 <div class="collapsible_div" visibility="visible">
                     <div id="intro">
-                        The Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.
+                        The Landscape Simulator is a web-based state-and-transition modelling framework powered by <a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank">ST-Sim</a>.
                         <p>
                         It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
                         <p>
-                        To get started, select an ST-Sim library from the table below.<p>
+                        To get started, select a library from the table below.<p>
                     </div>
                 </div>
             </div>
@@ -336,18 +336,18 @@
 
         <!-- Text for modals -->
         <script type="x-text" id="x-purpose">
-            The Landscape Simulator is a GIS mapping application for visualizing outputs from state-and-transition simulation (ST-Sim) models.
+            The Landscape Simulator is a GIS mapping application for visualizing outputs from state-and-transition simulation (STSM) models.
             <br><br>
             It's primary purpose is to help land managers understand how vegetation composition will change due to stochastic events (e.g. fire, disease) and prescribed management actions (e.g. treatments). 
             Users can visualize how these effects change the landscape in the future, and can be used to help plan for future adaptation or other landscape changes.
         </script>
         <script type="x-text" id="x-st-sim">
-            This tool utilizes State and Transition Simulation Models, or ST-Sim, which is the next evolution of the VDDT models. 
-            ST-Sim models can be run in a Monte Carlo environment using spatially explicit inputs to produce more accurate vegetation 
-            dynamic projections. We build on top of ST-Sim by providing a visualization and analysis interface to give land managers a 
+            This tool utilizes State and Transition Simulation Models, or STSMs, which is the next evolution of the VDDT models. 
+            STSM models can be run in a Monte Carlo environment using spatially explicit inputs to produce more accurate vegetation 
+            dynamic projections. We build on top of ST-Sim, a plugin for <a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank">SyncroSim</a> by providing a visualization and analysis interface to give land managers a 
             better picture of the future of their landscape.
             <br><br>
-            To learn more about ST-Sim, please visit <a href='http://www.apexrms.com/' target='_blank'>ApexRMS</a>.
+            To learn more about ST-Sim, please visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.
         </script>
         <script type="x-text" id="x-instructions">
             1. Select a ST-Sim model library and an available scenario.
@@ -365,14 +365,14 @@
             7. (TODO) Download model results and reports for further analysis.
         </script>
         <script type="x-text" id="x-contact">
-            For more information, contact info@consbio.org.
+            For more information, contact <a href="mailto:info@consbio.org">info@consbio.org</a>.
             <br><br>
-            To report an issue, please visit our <a href='https://github.com/consbio/landscapesim/issues/new'>issue tracker</a>.
+            To report an issue, please visit our <a href='https://github.com/consbio/landscapesim/issues/new' target='_blank'>issue tracker</a>.
         </script>
 
         <!-- Text for hover text -->
         <script type="x-text" id="x-library">
-            Choose a scenario to load. Scenarios are based on available ST-Sim models.
+            Choose a scenario to load. Scenarios are based on available STSM models.
         </script>
         <script type="x-text" id="x-vegcover">
             Vegetation present in this study area, separated by percent cover.

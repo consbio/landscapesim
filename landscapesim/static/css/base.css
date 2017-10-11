@@ -40,8 +40,6 @@ canvas {
 	overflow: hidden;
 	border-width: 1px 0px 1px 0px;
 	border-color: #e7e7e7;
-	background-color: #444;
-	/*height: 36px;*/
 }
 
 #header ul li {
