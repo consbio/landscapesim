@@ -268,7 +268,7 @@ $(document).ready(function() {
                     setInitialConditionsSidebar(veg_initial_conditions);
 
                     loadLayers(current_scenario.config.scenario_input_services);
-                    init3DScenario(inputStratumLayer._url);   // maybe init with the same values?
+                    init3DScenario(inputStratumLayer._url);
 
                     $(".veg_slider_bars").slider("disable");
                     $(".veg_slider_bars").addClass("disabled");
@@ -304,6 +304,9 @@ $(document).ready(function() {
             $(".leaflet-control-command-form").show();
             $(".leaflet-control-command").show();
             $(".leaflet-draw").show();
+
+            $(".leaflet-left")[0].style.top = '60px';
+            $("#scene-toggle").show();
 
             library_selected = true
 

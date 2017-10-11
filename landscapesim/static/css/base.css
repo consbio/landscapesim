@@ -94,6 +94,7 @@ canvas {
 	top: 79px;
 	left: -9px;
 	z-index: 10000;
+	display: none;
 }
 
 .context-switcher {
@@ -1337,7 +1338,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 .leaflet-left {
 	left: 360px;
-	top: 60px;
+	top: 10px;
 }
 
 #footer {

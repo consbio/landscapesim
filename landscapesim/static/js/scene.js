@@ -5,7 +5,7 @@ var topographicBasemapUrl = L.esri.BasemapLayer.TILES.Imagery.urlTemplate.replac
 var heightDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
 var normalDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/normal/{z}/{x}/{y}.png';
 var blankDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==";
-var tileSize = 256;
+var tileSize = 128;
 var numRequests = 0;
 
 var vertexShader = [
@@ -224,7 +224,7 @@ var currentLayerUrl = null;
 function init3DScenario(initialLayerUrl) {
     resetScene();
     controls.reset();
-    scene.position.set(0, 0, 0); // = new THREE.Vector3(0, 0, 0);     // Reset scene position
+    scene.position.set(0, 0, 0);
 
     if (initialLayerUrl) {
         currentLayerUrl = initialLayerUrl;
