@@ -161,7 +161,7 @@ function createOneTile(z, x, y, latitude, x_offset, y_offset) {
                     numRequests--;
                     if (numRequests === 0) {
                         console.log('All terrains loaded');
-                        canRenderLayer = true;
+                        canRender3DLayer = true;
                         if (currentLayerUrl) {
                             update3DLayer(currentLayerUrl);
                         }
@@ -193,6 +193,15 @@ function updateOneTile(t) {
     })
 }
 
+function updateSceneTiles() {
+    var tiles = sceneConfig().tiles;
+    for (var i = 0; i < tiles.length; i++) {
+        var t = tiles[i];
+        updateOneTile(t);
+    }
+    sceneNeedsUpdate = false;
+}
+
 function sceneConfig() {
     var libInfo = library_config[$(".model_selection").val()];
     var e = libInfo.extent;
@@ -201,16 +210,15 @@ function sceneConfig() {
     return {tiles: xyz(bounds, zoom), zoom: zoom, lat: e[1][0]};
 }
 
+var sceneEnabled = function() { return $('#scene-switch')[0].checked; }
+
+var sceneNeedsUpdate = false;
 function update3DLayer(layerUrl) {
     currentLayerUrl = layerUrl;
-    var tiles = sceneConfig().tiles;
-    for (var i = 0; i < tiles.length; i++) {
-        var t = tiles[i];
-        updateOneTile(t);
-    }
+    sceneNeedsUpdate = true;
 }
 
-var canRenderLayer = false;
+var canRender3DLayer = false;
 var currentLayerUrl = null;
 
 function init3DScenario(initialLayerUrl) {
@@ -279,7 +287,7 @@ var resetScene = function() {
         // Dispose of the uniforms
         child.material.dispose();
     }
-    canRenderLayer = false;
+    canRender3DLayer = false;
 };
 
 var resize = function () {
@@ -298,6 +306,7 @@ var render = function() {
 
 var animate = function () {
     render();
+    if (sceneNeedsUpdate) updateSceneTiles();
     renderID = requestAnimationFrame( animate );
 };
 
