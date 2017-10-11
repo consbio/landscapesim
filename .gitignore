@@ -9,3 +9,5 @@ stsim-libs/
 *.swp
 .idea
 
+
+\.vscode/
