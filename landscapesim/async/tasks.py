@@ -95,7 +95,8 @@ def run_model(self, library_name, pid, sid):
             project=job.parent_scenario.project,
             name=scenario_info['name'],
             sid=result_sid,
-            is_result=True
+            is_result=True,
+            parent=job.parent_scenario
         )
         job.result_scenario = scenario
         job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})

@@ -38,10 +38,7 @@ class Scenario(models.Model):
     name = models.CharField(max_length=50)
     is_result = models.BooleanField(default=False)
     sid = models.PositiveSmallIntegerField()
-
-    # TODO - Add detection for scenario dependencies (as a console action)
-    # Note - A scenario can itself have scenarios as dependencies, but a top level scenario won't be a dependency
-    is_dependency_of = models.ForeignKey("self", null=True, blank=True)
+    parent = models.ForeignKey("self", null=True, blank=True)
 
     @property
     def input_directory(self):
