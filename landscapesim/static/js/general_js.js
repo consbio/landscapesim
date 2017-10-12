@@ -275,7 +275,8 @@ $(document).ready(function() {
                     $(".veg_state_class_entry").addClass("disabled");
                     $(".veg_state_class_entry").prop("disabled", true);
 
-                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep)
+                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep);
+                    $("#timesteps_div").text(["Timesteps (", unitConfig[$(".model_selection").val()].timesteps, "):"].join(''));
                 })
 
             });
@@ -1124,7 +1125,7 @@ function update_results_table(run) {
         $("#column_charts_" + run).show()
         $("#iteration_tr_" + run).hide()
         $("#area_charts_" + run).hide()
-        $("#veg_output_th_" + run).html("Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " Years")
+        $("#veg_output_th_" + run).html("Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
     });
 
     // Chart button click functions
