@@ -96,34 +96,7 @@ def generate_stretched_renderer(info):
     ])
 
 
-def generate_service(scenario, filename_or_pattern, variable_name, unique=True, has_colormap=True,
-                     model_set=None, model_id_lookup=None,):
-    """
-    Creates an ncdjango service from a geotiff (stack).
-    :param scenario:
-    :param filename_or_pattern: A local filename or glob pattern.
-    :param variable_name:
-    :param unique:
-    :param has_color: Indicate whether the service ha
-    :param model_set:
-    :param model_id_lookup:
-    :return: One (1) ncdjango service.
-    """
-
-    has_time = '*' in filename_or_pattern   # pattern if true, filename otherwise
-
-    # Construct relative path for new netcdf file, relative to NC_ROOT. Used as 'data_path' in ncdjango.Service
-    nc_rel_path = os.path.join(scenario.project.library.name, scenario.project.name, 'Scenario-' + str(scenario.sid))
-    if has_time:
-        nc_rel_path = os.path.join(nc_rel_path, 'output', variable_name + '.nc')
-    else:
-        nc_rel_path = os.path.join(nc_rel_path, filename_or_pattern.replace('tif', 'nc'))
-
-    # Absolute path where we want the new netcdf to live.
-    nc_full_path = os.path.join(NC_ROOT, nc_rel_path)
-    if not os.path.exists(os.path.dirname(nc_full_path)):
-        os.makedirs(os.path.dirname(nc_full_path))
-
+def create_netcdf_dataset(scenario, nc_full_path, filename_or_pattern, variable_name, has_time):
     variable_names = []
 
     # No patterns, so create a simple input raster
@@ -219,7 +192,42 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
                 convert_to_netcdf(pattern, iteration_nc_file, iteration_var_name)
 
         merge_netcdf(merge_nc_pattern, nc_full_path)
+    
+    return variable_names
 
+
+def generate_service(scenario, filename_or_pattern, variable_name, unique=True, has_colormap=True,
+                     model_set=None, model_id_lookup=None,):
+    """
+    Creates an ncdjango service from a geotiff (stack).
+    :param scenario:
+    :param filename_or_pattern: A local filename or glob pattern.
+    :param variable_name:
+    :param unique:
+    :param has_color: Indicate whether the service ha
+    :param model_set:
+    :param model_id_lookup:
+    :return: One (1) ncdjango service.
+    """
+
+    has_time = '*' in filename_or_pattern   # pattern if true, filename otherwise
+
+    # Construct relative path for new netcdf file, relative to NC_ROOT. Used as 'data_path' in ncdjango.Service
+    nc_rel_path = os.path.join(scenario.project.library.name, scenario.project.name, 'Scenario-' + str(scenario.sid))
+    if has_time:
+        nc_rel_path = os.path.join(nc_rel_path, 'output', variable_name + '.nc')
+    else:
+        nc_rel_path = os.path.join(nc_rel_path, filename_or_pattern.replace('tif', 'nc'))
+
+    # Absolute path where we want the new netcdf to live.
+    nc_full_path = os.path.join(NC_ROOT, nc_rel_path)
+    if not os.path.exists(os.path.dirname(nc_full_path)):
+        os.makedirs(os.path.dirname(nc_full_path))
+
+    # Create the netcdf dataset
+    variable_names = create_netcdf_dataset(scenario, nc_full_path, filename_or_pattern, variable_name, has_time)
+
+    # Now create the service
     info = describe(nc_full_path)
     grid = info['variables'][variable_names[0] if len(variable_names) else variable_name]['spatial_grid']['extent']
     extent = BBox((grid['xmin'], grid['ymin'], grid['xmax'], grid['ymax']), projection=pyproj.Proj(grid['proj4']))
@@ -232,9 +240,13 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         x, y = ('x', 'y')
     else:
         x, y = ('lon', 'lat')
+    
     if has_time:
         t = 'time'
-        steps_per_variable = info['dimensions'][t]['length']
+        try:
+            steps_per_variable = info['dimensions'][t]['length']
+        except KeyError:
+            steps_per_variable = 0
         t_start = datetime.datetime(2000, 1, 1)
         t_end = t_start + datetime.timedelta(1) * steps_per_variable
 
@@ -312,6 +324,14 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         raise Error(CREATE_SERVICE_ERROR_MSG.format(variable_name, scenario.sid))
 
 
+# TODO - allow us to update a service with a given service and the path to the tif data to be added onto it
+# From there, we want to signal to the user that this service has been updated with the latest timestep to visualize.
+def update_service(*args, **kwargs):
+    #scan_directory = scenario.output_directory
+    #tifs = glob.glob(os.path.join(scenario.output_directory, ))
+    pass
+
+
 def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name):
     """
     Convert input rasters to netcdf for use in ncdjango
@@ -373,7 +393,7 @@ def process_output_rasters(scenario):
 
     assert scenario.is_result   # sanity check
 
-    sos = ScenarioOutputServices.objects.create(scenario=scenario)
+    sos, _ = ScenarioOutputServices.objects.get_or_create(scenario=scenario)
     oo = scenario.output_options
 
     if oo.raster_sc:

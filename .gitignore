@@ -17,3 +17,5 @@ celerybeat-schedule\.dat
 celerybeat-schedule\.bak
 
 \.vscode/
+
+celerybeat\.pid

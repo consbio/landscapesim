@@ -1,3 +1,5 @@
+import glob
+import os
 import csv
 import json
 import time
@@ -5,14 +7,15 @@ import time
 from celery.task import task
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 
 from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.query import ssim_query
-from landscapesim.io.rasters import process_output_rasters
+from landscapesim.io.rasters import process_output_rasters, generate_service, update_service
 from landscapesim.io.reports import process_reports
 from landscapesim.io.utils import get_random_csv, process_run_control, process_scenario_inputs
-from landscapesim.models import Library, Scenario, RunScenarioModel
+from landscapesim.models import Library, Scenario, RunScenarioModel, ScenarioOutputServices
 
 exe = settings.STSIM_EXE_PATH
 
@@ -91,14 +94,16 @@ def run_model(self, library_name, pid, sid):
                      if int(x['sid']) == result_sid][0]
     print('Model run complete - new scenario created: {}'.format(result_sid))
     with transaction.atomic():
-        scenario = Scenario.objects.create(
+        scenario, _ = Scenario.objects.get_or_create(
             project=job.parent_scenario.project,
             name=scenario_info['name'],
             sid=result_sid,
             is_result=True,
             parent=job.parent_scenario
         )
-        job.result_scenario = scenario
+        print('Scenario ID is : {}'.format(scenario.id))
+        if job.result_scenario is None:
+            job.result_scenario = scenario
         job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
         job.model_status = 'processing'
         job.save()
@@ -106,7 +111,7 @@ def run_model(self, library_name, pid, sid):
     with transaction.atomic():
         t = time.time()
         process_run_control(console, scenario)
-        process_output_rasters(scenario)
+        #process_output_rasters(scenario)
         print("Output rasters created in {} seconds".format(time.time() - t))
         t = time.time()
         process_reports(console, scenario, get_random_csv(lib.tmp_file))
@@ -124,7 +129,40 @@ def run_model(self, library_name, pid, sid):
 
 @task(bind=True)
 def poll_for_new_services(self):
-    print("Looking for data to be processed...")
+    query = Q(model_status='running') | Q(model_status='processing')
+    active_model_runs = RunScenarioModel.objects.filter(query)
+    
+    if active_model_runs:
+        run = active_model_runs[0]  # Since we know we can only have 1 at a time, we cheat here
 
-    print(Library.objects.all())
-
+        # Check if we have created the scenario for this model run        
+        recorded_sids = {x['sid'] for x in Scenario.objects.filter(is_result=True).values('sid')}
+        directory_sids = {int(x.split('-')[1]) for x in os.listdir(os.path.dirname(os.path.dirname(run.parent_scenario.output_directory)))}
+        new_sids = directory_sids - recorded_sids
+        if new_sids:
+            sid = new_sids.pop()
+            scenario, _ = Scenario.objects.get_or_create(
+                    project=run.parent_scenario.project,
+                    name=run.parent_scenario.name,
+                    sid=sid,
+                    is_result=True,
+                    parent=run.parent_scenario
+            )
+            run.result_scenario = scenario
+            run.save()
+        else:
+            scenario = run.result_scenario
+        
+        if scenario is None:    # race condition where the previous instance is creating the map service
+            return
+        
+        print(scenario.id)
+            
+        # Now we check if we need to create or update the map service
+        with transaction.atomic():
+            sos, created = ScenarioOutputServices.objects.get_or_create(scenario=scenario)
+            if created:
+                sos.stateclass = generate_service(scenario, 'It*-Ts*-sc.tif', 'stateclasses')
+                sos.save()
+            else:
+                update_service(sos.stateclass, scenario, 'It*-Ts*-sc.tif', 'stateclasses')
