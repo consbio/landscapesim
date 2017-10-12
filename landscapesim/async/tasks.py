@@ -118,5 +118,5 @@ def run_model(self, library_name, pid, sid):
     # Post-processing for later usage
     with transaction.atomic():
         t = time.time()
-        process_scenario_inputs(console, scenario)
+        process_scenario_inputs(console, scenario, create_input_services=False)
         print("Scenario imported in {} seconds".format(time.time() - t))

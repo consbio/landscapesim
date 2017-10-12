@@ -281,7 +281,7 @@ def process_run_control(console, scenario):
     print('Imported output options for scenario {}'.format(scenario.sid))
 
 
-def process_scenario_inputs(console, scenario):
+def process_scenario_inputs(console, scenario, create_input_services=True):
 
     tmp_file = get_random_csv(scenario.project.library.tmp_file)
     project = scenario.project
@@ -430,7 +430,8 @@ def process_scenario_inputs(console, scenario):
             )
 
             # Create map services
-            process_input_rasters(ics)
+            if create_input_services:
+                process_input_rasters(ics)
 
     print('Imported initial conditions spatial settings for scenario {}'.format(scenario.sid))
 
