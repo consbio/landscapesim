@@ -147,6 +147,7 @@ class ScenarioInputServicesSerializer(serializers.ModelSerializer):
 
 class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
+    timesteps = serializers.SerializerMethodField(allow_null=True)
     stateclass = serializers.SerializerMethodField(allow_null=True)
     transition_group = serializers.SerializerMethodField(allow_null=True)
     age = serializers.SerializerMethodField(allow_null=True)
@@ -155,12 +156,23 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
     state_attribute = serializers.SerializerMethodField(allow_null=True)
     transition_attribute = serializers.SerializerMethodField(allow_null=True)
     avg_annual_transition_group_probability = serializers.SerializerMethodField(allow_null=True)
+    
 
     class Meta:
         model = models.ScenarioOutputServices
-        fields = ('stateclass', 'transition_group', 'age', 'tst',
+        fields = ('timesteps', 'stateclass', 'transition_group', 'age', 'tst',
                   'stratum', 'state_attribute', 'transition_attribute',
                   'avg_annual_transition_group_probability')
+
+    def get_timesteps(self, obj):
+        if obj.stateclass:
+            try:
+                sc = obj.stateclass
+                print(sc)
+                return 5
+            except AttributeError:
+                pass
+        return None
 
     def _get_url(self, service, many=False, variable_name=None):
         if many:

@@ -205,6 +205,10 @@ class TransitionAttributeTargetViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = scenarios.TransitionAttributeTargetSerializer
 
 
+class ScenarioOutputServicesViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = models.ScenarioOutputServices.objects.all()
+    serializer_class = scenarios.ScenarioOutputServicesSerializer
+
 """ Report viewsets """
 
 

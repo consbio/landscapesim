@@ -36,6 +36,7 @@ router.register('transition-size-prioritizations', views.TransitionSizePrioritiz
 router.register('state-attribute-values', views.StateAttributeValueViewset)
 router.register('transition-attribute-values', views.TransitionAttributeValueViewset)
 router.register('transition-attribute-targets', views.TransitionAttributeTargetViewset)
+router.register('scenario-output-services', views.ScenarioOutputServicesViewset)
 
 # Reports
 router.register('stateclass-summaries', views.StateClassSummaryReportViewset)

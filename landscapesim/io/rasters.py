@@ -17,6 +17,7 @@ from django.db import Error
 from ncdjango.models import Service, Variable
 
 from landscapesim.io.query import ssim_query
+from landscapesim.io.convert import to_netcdf
 from landscapesim.models import ScenarioInputServices, ScenarioOutputServices, TransitionGroup, \
     StateAttributeType, TransitionAttributeType
 
@@ -101,7 +102,7 @@ def create_netcdf_dataset(scenario, nc_full_path, filename_or_pattern, variable_
 
     # No patterns, so create a simple input raster
     if not has_time:
-        convert_to_netcdf(os.path.join(scenario.input_directory, filename_or_pattern), nc_full_path, variable_name)
+        convert_to_netcdf(os.path.join(scenario.input_directory, filename_or_pattern), nc_full_path, variable_name, has_z=False)
 
     # Time series output pattern, convert to timeseries netcdf
     else:
@@ -326,13 +327,18 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
 
 # TODO - allow us to update a service with a given service and the path to the tif data to be added onto it
 # From there, we want to signal to the user that this service has been updated with the latest timestep to visualize.
-def update_service(*args, **kwargs):
+def update_service(service, scenario, pattern, variable_name):
+
+    start = service.time_start
+    end = service.time_end
+    print(start, end)
+
     #scan_directory = scenario.output_directory
     #tifs = glob.glob(os.path.join(scenario.output_directory, ))
     pass
 
 
-def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name):
+def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name, has_z=True):
     """
     Convert input rasters to netcdf for use in ncdjango
     :param geotiff_in: Absolute path to geotiff to convert
@@ -340,10 +346,11 @@ def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name):
     :param variable_name: The variable name
     """
 
-    try:
-        subprocess.run([CLOVER_PATH if CLOVER_PATH else "clover", "to_netcdf", geotiff_file_or_pattern, netcdf_out, variable_name])
-    except:
-        raise subprocess.SubprocessError("Failed calling clover. Did you setup clover correctly?")
+    #try:
+    #    subprocess.run([CLOVER_PATH if CLOVER_PATH else "clover", "to_netcdf", geotiff_file_or_pattern, netcdf_out, variable_name])
+    #except:
+    #    raise subprocess.SubprocessError("Failed calling clover. Did you setup clover correctly?")
+    to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name, has_z=has_z)
 
 
 def merge_netcdf(pattern, out):
