@@ -2,15 +2,12 @@ import datetime
 import glob
 import os
 import random
-import subprocess
 import uuid
-from netCDF4 import Dataset
 
 import pyproj
 import xarray
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
-from clover.netcdf.crs import get_crs, set_crs
 from clover.render.renderers.stretched import StretchedRenderer
 from clover.render.renderers.unique import UniqueValuesRenderer
 from clover.utilities.color import Color
@@ -18,8 +15,8 @@ from django.conf import settings
 from django.db import Error
 from ncdjango.models import Service, Variable
 
-from landscapesim.io.query import ssim_query
 from landscapesim.io.convert import to_netcdf
+from landscapesim.io.query import ssim_query
 from landscapesim.models import ScenarioInputServices, ScenarioOutputServices, TransitionGroup, \
     StateAttributeType, TransitionAttributeType
 

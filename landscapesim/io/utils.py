@@ -2,8 +2,8 @@ import csv
 import os
 import uuid
 
-from landscapesim.io.rasters import process_input_rasters, process_output_rasters
 from landscapesim import models
+from landscapesim.io.rasters import process_input_rasters
 
 M2_TO_ACRES = 0.000247105
 

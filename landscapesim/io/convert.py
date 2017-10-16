@@ -1,14 +1,13 @@
 import glob
-from netCDF4 import Dataset
+
 import numpy
-from pyproj import Proj
 import rasterio
-from rasterio.crs import CRS
-from clover.cli import cli
-from clover.netcdf.variable import SpatialCoordinateVariables, DateVariable
+from clover.geometry.bbox import BBox
 from clover.netcdf.crs import set_crs
 from clover.netcdf.utilities import get_fill_value
-from clover.geometry.bbox import BBox
+from clover.netcdf.variable import SpatialCoordinateVariables
+from netCDF4 import Dataset
+from pyproj import Proj
 
 
 # Borrowed heavily from clover.cli.to_netcdf
