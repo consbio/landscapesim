@@ -4,11 +4,13 @@ import os
 import random
 import subprocess
 import uuid
+from netCDF4 import Dataset
 
 import pyproj
 import xarray
 from clover.geometry.bbox import BBox
 from clover.netcdf.describe import describe
+from clover.netcdf.crs import get_crs, set_crs
 from clover.render.renderers.stretched import StretchedRenderer
 from clover.render.renderers.unique import UniqueValuesRenderer
 from clover.utilities.color import Color
@@ -23,6 +25,9 @@ from landscapesim.models import ScenarioInputServices, ScenarioOutputServices, T
 
 NC_ROOT = getattr(settings, 'NC_SERVICE_DATA_ROOT')
 CLOVER_PATH = getattr(settings, 'CLOVER_PATH', None)
+
+
+# TODO - create class for interacting with timesteps and iterations from a pattern and a file directory
 
 
 # Sanity check for creating ncdjango services correctly
@@ -325,17 +330,51 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
         raise Error(CREATE_SERVICE_ERROR_MSG.format(variable_name, scenario.sid))
 
 
-# TODO - allow us to update a service with a given service and the path to the tif data to be added onto it
-# From there, we want to signal to the user that this service has been updated with the latest timestep to visualize.
 def update_service(service, scenario, pattern, variable_name):
+    """ Updates an ncdjango service with new dataset variables populated over time. """
 
-    start = service.time_start
-    end = service.time_end
-    print(start, end)
+    nc_full_path = os.path.join(NC_ROOT, service.data_path)
+    glob_pattern = glob.glob(os.path.join(scenario.output_directory, pattern))
+    glob_pattern.sort()
+    file_dict = {}
 
-    #scan_directory = scenario.output_directory
-    #tifs = glob.glob(os.path.join(scenario.output_directory, ))
-    pass
+    # Figure out the current timesteps that have been produced since the service was created
+    for f in glob_pattern:
+        it, ts, _ = f[:-4].split(os.sep)[-1].split('-')
+        if it not in file_dict:
+            file_dict[it] = []
+        if ts not in file_dict[it]:
+            file_dict[it].append(ts)
+
+    info = describe(nc_full_path)
+    recompute = False
+    t_dim = 'time'
+    t_end = None
+    t_start = datetime.datetime(2000, 1, 1)
+    for it in file_dict:
+        current_num_steps = len(file_dict[it])
+        iter_num = int(it[2:])
+        iteration_var_name = '{}-{}'.format(variable_name, iter_num)
+        ds_variable = info['variables'][iteration_var_name]
+        recorded_num_steps = info['dimensions'][t_dim]['length']
+        
+        # Determine whether we are behind. If any timestep is behind, we need to recreate the dataset
+        recompute = current_num_steps > recorded_num_steps
+        if recompute:
+            print("Detected new raster!")
+            break
+    
+    if recompute:
+        # Recompute the dataset and update the service and variables as necessary
+        create_netcdf_dataset(scenario, nc_full_path, pattern, variable_name, True)
+        info = describe(nc_full_path)
+        steps_per_variable = info['dimensions'][t_dim]['length']
+        service.time_end = t_start + datetime.timedelta(1) * steps_per_variable
+        service.save()
+
+        for variable in Variable.objects.filter(service=service):
+            variable.time_end = service.time_end
+            variable.save()
 
 
 def convert_to_netcdf(geotiff_file_or_pattern, netcdf_out, variable_name, has_z=True):
