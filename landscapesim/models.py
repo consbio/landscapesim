@@ -501,6 +501,12 @@ class RunScenarioModel(AsyncJobModel):
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
     model_status = models.TextField(null=False, default='complete')
 
+    @property
+    def output_services(self):
+        if self.result_scenario:
+            return self.result_scenario.scenario_output_services
+        return None
+
 
 class ScenarioInputServices(models.Model):
     """

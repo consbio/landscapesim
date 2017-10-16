@@ -9,7 +9,7 @@ from rest_framework import serializers
 from landscapesim.async.tasks import run_model
 from landscapesim.io.geojson import rasterize_geojson
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
-from landscapesim.serializers import imports
+from landscapesim.serializers import imports, scenarios
 
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
@@ -69,11 +69,12 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
     """
 
     model_status = serializers.CharField(read_only=True)
+    output_services = scenarios.ScenarioOutputServicesSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = RunScenarioModel
-        fields = ('uuid', 'created', 'status', 'model_status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
-        read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
+        fields = ('uuid', 'created', 'status', 'model_status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario', 'output_services')
+        read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario', 'output_services')
 
     @staticmethod
     def _filter_and_create_ics(config, library_name, pid, sid):

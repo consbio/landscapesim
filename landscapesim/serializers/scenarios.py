@@ -114,7 +114,7 @@ class ScenarioInputServicesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ScenarioInputServices
-        fields = ('stratum', 'secondary_stratum', 'stateclass', 'age')
+        fields = ('id', 'stratum', 'secondary_stratum', 'stateclass', 'age')
 
     def _get_url(self, service):
         return '/'.join(reverse('tiles_get_image', args=[service.name, 0, 0, 0])
@@ -160,7 +160,7 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ScenarioOutputServices
-        fields = ('timesteps', 'stateclass', 'transition_group', 'age', 'tst',
+        fields = ('id', 'timesteps', 'stateclass', 'transition_group', 'age', 'tst',
                   'stratum', 'state_attribute', 'transition_attribute',
                   'avg_annual_transition_group_probability')
 
@@ -168,8 +168,9 @@ class ScenarioOutputServicesSerializer(serializers.ModelSerializer):
         if obj.stateclass:
             try:
                 sc = obj.stateclass
-                print(sc)
-                return 5
+                start = sc.time_start.toordinal()
+                end = sc.time_end.toordinal()
+                return end - start
             except AttributeError:
                 pass
         return None
