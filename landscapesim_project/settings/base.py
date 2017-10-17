@@ -121,7 +121,7 @@ NC_INSTALLED_INTERFACES = (
 CELERYBEAT_SCHEDULE = {
     'poll-for-new-services': {
         'task': 'landscapesim.async.tasks.poll_for_new_services',
-        'schedule': timedelta(seconds=5),
+        'schedule': timedelta(seconds=10),
         'args': ()
     }
 }
