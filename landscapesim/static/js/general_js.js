@@ -104,6 +104,11 @@ $(document).ready(function() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
 
+                            if (update.output_services) {
+                                console.log(update.output_services);
+                                loadOutputLayers(update.output_services, true);
+                            }
+
                             if (update.status === 'success' || update.model_status === 'complete') {
 
                                 $("#output").show();
@@ -132,9 +137,7 @@ $(document).ready(function() {
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
-                                        results_scenario_report =  res
-
-                                        processStateClassSummaryReport(results_scenario_report);
+                                        processStateClassSummaryReport(res);
 
                                     });
 
@@ -144,7 +147,7 @@ $(document).ready(function() {
                                 $.getJSON(results_scenario_configuration_url).done(function (res) {
 
                                     results_scenario_configuration =  res;
-                                    loadOutputLayers(results_scenario_configuration, run);
+                                    loadOutputLayers(results_scenario_configuration, false);
 
                                     $("#model_results_header").click();
                                 });

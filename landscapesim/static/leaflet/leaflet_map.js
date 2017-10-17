@@ -62,41 +62,78 @@ var outputStateClassServices={};
 var outputStateClassLayers={};
 var outputTimestepSliders={};
 var outputRunSettings={};
+var streamingTimestep = 0;
 
-function loadOutputLayers(results_scenario_configuration){
+function loadOutputLayers(configuration, streaming){
 
     if( $("#spatial_switch")[0].checked) {
 
         map.removeLayer(inputStateClassLayer);
         map.removeLayer(inputStratumLayer);
+            
+        if (streaming) {
 
-        if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
+            var updatedStreamingTimestep = configuration.timesteps - 1;
+
+            if (updatedStreamingTimestep <= streamingTimestep) return;
+
+            if (map.hasLayer(outputStateClassLayers[run])) {
+                map.removeLayer(outputStateClassLayers[run]);
+                map.removeControl(outputTimestepSliders[run])
+            }
+
+            streamingTimestep = updatedStreamingTimestep;
 
             // Store the service for the model run
-            outputStateClassServices[run] = results_scenario_configuration.scenario_output_services.stateclass;
+            outputStateClassServices[run] = configuration.stateclass;
 
             // Store the run setting for this run (max timestep needed).
-            var runControl = {'t': current_scenario.config.run_control.max_timestep, 'it': 1};
+            var runControl = {'t': updatedStreamingTimestep, 'it': 1};
 
             // Create a layer from the run service. Show last timestep and first iteration by default.
-            outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl);
+            outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl).addTo(map);
 
-            // Add layer control
-            layerControl.addOverlay(outputStateClassLayers[run], "State Classes, Run " + run, "Model Results");
-
-            // Create an output time step slider.
+            // Create dynamic output time slider
             outputTimestepSliders[run] = L.control.range({
                 position: 'bottomright',
-                min: results_scenario_configuration.run_control.min_timestep,
-                max: results_scenario_configuration.run_control.max_timestep,
-                value: results_scenario_configuration.run_control.max_timestep,
+                min: 0,
+                max: updatedStreamingTimestep,
+                value: updatedStreamingTimestep,
                 step: 1,
                 orient: 'horizontal',
                 iconClass: 'leaflet-range-icon'
             });
+
+            changeOutputStateClass(run);
+
+        } else {
+            // Use global results scenario settings
+            // Store the service for the model run
+            outputStateClassServices[run] =  results_scenario_configuration.scenario_output_services.stateclass;
+
+            // Store the run setting for this run (max timestep needed).
+            var runControl = {'t': results_scenario_configuration.scenario_output_services.timesteps, 'it': 1};
+
+            // Create a layer from the run service. Show last timestep and first iteration by default.
+            outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl);
+
+            var max_timestep = results_scenario_configuration.run_control.max_timestep - 1;
+
+            // Create an output time step slider.
+            outputTimestepSliders[run] = L.control.range({
+                position: 'bottomright',
+                min: 0,
+                max: max_timestep,
+                value: max_timestep,
+                step: 1,
+                orient: 'horizontal',
+                iconClass: 'leaflet-range-icon'
+            });
+
+            document.getElementById("view" + run + "_link").click();
         }
     }
-    else{
+    else {
         var centroid = bounding_box_layer.getBounds().getCenter();
         var popup = L.popup()
             .setLatLng(centroid)
@@ -104,9 +141,6 @@ function loadOutputLayers(results_scenario_configuration){
             .openOn(map);
 
     }
-
-    // Click action will trigger the function below
-    document.getElementById("view" + run + "_link").click();
 }
 
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
@@ -157,7 +191,12 @@ function changeOutputStateClass(run) {
     outputStateClassLayers[run].addTo(map);
 
     // Set the initial timestep map layer in 3D
-    var mapTimestep = !globalTimestepSet ? results_scenario_configuration.run_control.max_timestep : globalTimestep;
+    var mapTimestep;
+    if (typeof results_scenario_configuration == "undefined") {
+        mapTimestep = streamingTimestep;
+    } else {
+        mapTimestep = !globalTimestepSet ? results_scenario_configuration.run_control.max_timestep : globalTimestep;
+    }
     update3DLayer(outputStateClassLayers[run]._url.replace('{t}', mapTimestep).replace('{it}', 1))
 }
 
