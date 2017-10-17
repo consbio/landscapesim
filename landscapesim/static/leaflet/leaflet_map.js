@@ -62,7 +62,7 @@ var outputStateClassServices={};
 var outputStateClassLayers={};
 var outputTimestepSliders={};
 var outputRunSettings={};
-var streamingTimestep = 0;
+var streamingTimestep = -1;
 
 function loadOutputLayers(configuration, streaming){
 
@@ -109,15 +109,16 @@ function loadOutputLayers(configuration, streaming){
         } else {
             // Use global results scenario settings
             // Store the service for the model run
+            streamingTimestep = -1;
             outputStateClassServices[run] =  results_scenario_configuration.scenario_output_services.stateclass;
 
+            var max_timestep = results_scenario_configuration.run_control.max_timestep - 1;
+
             // Store the run setting for this run (max timestep needed).
-            var runControl = {'t': results_scenario_configuration.scenario_output_services.timesteps, 'it': 1};
+            var runControl = {'t': max_timestep, 'it': 1};
 
             // Create a layer from the run service. Show last timestep and first iteration by default.
             outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl);
-
-            var max_timestep = results_scenario_configuration.run_control.max_timestep - 1;
 
             // Create an output time step slider.
             outputTimestepSliders[run] = L.control.range({
