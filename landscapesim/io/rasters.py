@@ -246,10 +246,7 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
     
     if has_time:
         t = 'time'
-        try:
-            steps_per_variable = info['dimensions'][t]['length']
-        except KeyError:
-            steps_per_variable = 0
+        steps_per_variable = info['dimensions'][t]['length']
         t_start = datetime.datetime(2000, 1, 1)
         t_end = t_start + datetime.timedelta(1) * steps_per_variable
 
@@ -396,7 +393,12 @@ def merge_netcdf(pattern, out):
     """
     glob_pattern = glob.glob(pattern)
     glob_pattern.sort()
-    xarray.merge(xarray.open_dataset(x) for x in glob_pattern).to_netcdf(out)
+    #xarray.merge(xarray.open_dataset(x) for x in glob_pattern).to_netcdf(out)
+    with xarray.open_dataset(glob_pattern.pop()) as start:
+        for x in glob_pattern:
+            with xarray.open_dataset(x) as ds:
+                start = xarray.merge([start, x])
+        start.to_netcdf(out)
 
 
 @has_nc_root
