@@ -500,6 +500,7 @@ class RunScenarioModel(AsyncJobModel):
     parent_scenario = models.ForeignKey('Scenario', related_name='parent_scenario')
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
     model_status = models.TextField(null=False, default='complete')
+    saved = models.BooleanField(default=False)
 
     @property
     def output_services(self):

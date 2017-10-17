@@ -118,15 +118,21 @@ NC_INSTALLED_INTERFACES = (
     'landscapesim.tiles'
 )
 
+CELERY_TRACK_STARTED = True
+
 CELERYBEAT_SCHEDULE = {
     'poll-for-new-services': {
         'task': 'landscapesim.async.tasks.poll_for_new_services',
         'schedule': timedelta(seconds=10),
+        'args': ()
+    },
+    'cleanup-model-runs': {
+        'task': 'landscapesim.async.tasks.cleanup_unsaved_model_runs',
+        'schedule': timedelta(seconds=3600),
         'args': ()
     }
 }
 
 CELERY_ROUTES = {
     'landscapesim.async.tasks.poll_for_new_services': { 'queue': 'poll-for-services' },
-    'landscapesim.async.tasks.run_model': { 'queue': 'run-model' }
 }

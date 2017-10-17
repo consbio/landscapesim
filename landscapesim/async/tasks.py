@@ -3,6 +3,8 @@ import os
 import csv
 import json
 import time
+import datetime
+import errno
 
 from celery.task import task
 from django.conf import settings
@@ -18,6 +20,8 @@ from landscapesim.io.utils import get_random_csv, process_run_control, process_s
 from landscapesim.models import Library, Scenario, RunScenarioModel, ScenarioOutputServices
 
 exe = settings.STSIM_EXE_PATH
+NC_ROOT = getattr(settings, 'NC_SERVICE_DATA_ROOT')
+SERVICES_TO_CLEANUP = ('stateclass',)
 
 
 def import_configuration(console, config, sid, tmp_file):
@@ -156,8 +160,6 @@ def poll_for_new_services(self):
         if scenario is None:    # race condition where the previous instance is creating the map service
             return
         
-        print(scenario.id)
-            
         # Now we check if we need to create or update the map service
         with transaction.atomic():
             sos, created = ScenarioOutputServices.objects.get_or_create(scenario=scenario)
@@ -166,3 +168,42 @@ def poll_for_new_services(self):
                 sos.save()
             else:
                 update_service(sos.stateclass, scenario, 'It*-Ts*-sc.tif', 'stateclasses')
+
+
+
+
+@task(bind=True)
+def cleanup_unsaved_model_runs(self):
+    cutoff = datetime.datetime.now() - datetime.timedelta(seconds=43200)    # 12 hours
+    unsaved_model_runs = RunScenarioModel.objects.filter(saved=False, model_status='complete', created__lt=cutoff)
+
+    with transaction.atomic():
+        services_to_delete = []
+        for run in unsaved_model_runs:
+            
+            scenario = run.result_scenario
+            output_services = getattr(scenario, 'scenario_output_services', None)
+            if not output_services:
+                continue
+
+            for name in SERVICES_TO_CLEANUP:
+                svc = getattr(output_services, name, None)
+                if svc:
+                    services_to_delete.append(svc)
+            
+            output_services.delete()
+            run.delete()
+        
+        files_to_delete = [os.path.join(NC_ROOT, svc.data_path) for svc in services_to_delete]
+
+        for svc, file_to_delete in zip(services_to_delete, files_to_delete):
+            svc.delete()
+            if os.path.exists(file_to_delete):
+                try:
+                    os.remove(file_to_delete)
+                    os.rmdir(os.path.dirname(file_to_delete))
+                    os.rmdir(os.path.dirname(os.path.dirname(file_to_delete)))
+                except OSError as e:
+                    if e.errno != errno.ENOTEMPTY:
+                        print("Error deleteing output service: {}".format(str(e)))
+
