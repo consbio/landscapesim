@@ -83,8 +83,6 @@ canvas {
 	height: calc(100% - 90px);
 	max-height: calc(100% - 90px);
 	padding: 20px;
-	/* overflow-y: auto; */
-	/* overflow-x: hidden; */
 }
 
 #scene-toggle {
@@ -97,7 +95,7 @@ canvas {
 
 .context-switcher {
 	cursor: pointer;
-	background-color: rgba(255,255,255,.9); /*#0092D1;*/
+	background-color: rgba(255,255,255,.9);
 	height: 22px;
 	font-weight: bold;
 	padding: 11px;
@@ -161,7 +159,6 @@ canvas {
 	padding: 5px 0px;
 	margin-bottom: 15px;
 	border-radius: 0px 0px 5px 5px;
-	/* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65); */
 	overflow-y: auto;
 	overflow-x: hidden;
 	max-height: calc(100vh - 400px);
@@ -211,20 +208,20 @@ canvas {
 	padding: 6px 15px;
 }
 
-#inputs{
+#inputs {
 	display:none;
 }
 
-#model_selection_container{
+#model_selection_container {
 	width:100%;
 	text-align:center;
 }
-#model_selection1{
+#model_selection1 {
 	margin-right:auto;
 	margin-right:auto;
 	width:100%;
 }
-#model_selection2{
+#model_selection2 {
 	width:100%;
 }
 
@@ -292,9 +289,7 @@ canvas {
 	max-height: calc(100vh - 132px);
 }
 
-
 #animation_container {
-	/*background-color: #0092D1;*/
 	background-color: #E9E9E9;
 	font-weight: bold;
 	padding: 9px 0px 9px 9px;
@@ -319,11 +314,12 @@ canvas {
 	line-height: 28px;
 	font-size: .8em;
 }
-.highlight_selected{
+
+.highlight_selected {
     background:#1EBA36;
 }
 
-.remove_highlight_selected{
+.remove_highlight_selected {
     background:white
 }
 
@@ -336,7 +332,7 @@ canvas {
 	width: 700px;
 }
 
-#veg_slider_notice{
+#veg_slider_notice {
 	background-color: white;
 	padding: 3px 20px;
 	font-size: .8em;
@@ -347,22 +343,6 @@ canvas {
 #vegtype_slider_container {
 	direction: ltr;
 	z-index: 999999;
-}
-
-#steps_initial_vegetation_cover{
-}
-
-#running_st_sim {
-	background-color: #1EBA36;
-	height: 22px;
-	color: #FFF;
-	font-weight: bold;
-	letter-spacing: 1px;
-	line-height: 22px;
-	font-size: 1.1em;
-	width: 335px;
-	position: relative;
-	border: 1px solid #1EBA36;
 }
 
 #results {
@@ -400,14 +380,8 @@ canvas {
 	overflow-x: hidden;
 }
 
-.scenario_radio_label{
+.scenario_radio_label {
     font-size:.95em;
-}
-
-label {
-}
-
-label, td{
 }
 
 #initial_conditions_table {
@@ -454,7 +428,7 @@ label, td{
 	padding-right: 8px;
 }
 
-.results_table td{
+.results_table td {
     background-color: #A8A8A8;
     background-color: #8C8CE4;
     letter-spacing: 1px;
@@ -470,7 +444,7 @@ label, td{
     font-weight: bold;
 }
 
-.location_th{
+.location_th {
     width:40px;
     max-width:40px;
 }
@@ -516,11 +490,11 @@ label, td{
 	min-width: 195px;
 }
 
-.probabilistic_transitions_tr_values{
+.probabilistic_transitions_tr_values {
     display:none;
 }
 
-.show_disturbance_probabilities_link{
+.show_disturbance_probabilities_link {
     cursor:pointer;
 }
 
@@ -558,7 +532,7 @@ label, td{
 	padding-right: 5px;
 }
 
-.overflow_ellipses{
+.overflow_ellipses {
 	text-overflow: ellipsis;
 	width: 210px;
 	white-space: nowrap;
@@ -575,7 +549,7 @@ label, td{
 }
 
 
-.veg_type_th{
+.veg_type_th {
     background-color:#E9E7E7;
     font-weight:normal;
     text-align:left;
@@ -605,16 +579,6 @@ label, td{
 .disabled {
 	cursor: not-allowed !important;
 }
-/*
-.disabled {
-	background-color: #e3e3e3 !important;
-	cursor: not-allowed !important;
-	text-shadow: none !important;
-	color: #777575 !important;
-	font-weight: normal;
-}
-*/
-
 
 .my-button {
 	border-radius: 4px;
@@ -686,7 +650,6 @@ label, td{
 .sub_slider_text_inputs {
 	position: fixed;
 	left: 370px;
-	/* top: -25px; */
 }
 .management_action_inputs{
 	position:absolute;
@@ -718,23 +681,7 @@ div.callout {
 	opacity: .8;
 }
 
-/*
-.callout::before {
-	content: "";
-	width: 0px;
-	height: 0px;
-	border: 0.8em solid transparent;
-	position: absolute;
-}
-
-.callout.right::before {
-	left: -20px;
-	top: 3px;
-	border-right: 10px solid #0070A1;
-}
-*/
-
-.manage_callout{
+.manage_callout {
 	width: 93%;
 	float: left;
 	background-color: #444 !important;
@@ -758,10 +705,7 @@ div.callout {
 }
 
 
-.sub_slider_table{
-}
-
-.sub_slider_table td{
+.sub_slider_table td {
    font-size:.85em;
 	white-space:nowrap;
 }
@@ -772,9 +716,6 @@ div.callout {
 	width: 308px;
 	background-color: #E9E9E9;
 	margin-left: 2px;
-	/*
-	height: 25px;
-	*/
 	line-height: 25px;
 	position: relative;
 	display: inline-block;
@@ -794,11 +735,11 @@ div.callout {
 	position: relative;
 }
 
-.state_class_tr{
+.state_class_tr {
     display:none;
 }
 
-.state_class_tr td{
+.state_class_tr td {
     padding-left:10px;
 }
 
@@ -806,8 +747,6 @@ div.callout {
 	font-size: .7em;
 	color: #007BB0;
 	cursor: pointer;
-	/* float: right; */
-	/* position: relative; */
 }
 
 .current_slider_setting {
@@ -850,74 +789,6 @@ div.callout {
 	color: #444343;
 	width: 70px;
 	max-width: 70px;
-}
-
-#climateFutureSliderTable{
-	width: 325px;
-	border: 1px solid #bfbfbf;
-	border-radius: 5px;
-}
-
-#climateFutureSliderTable td {
-	width: 150px;
-	min-width: 150px;
-	line-height: 20px;
-	padding-top: 5px;
-}
-
-#climate_future_temp_slider{
-	display:inline-block;
-	width:130px;
-	margin: 2px 0px 0px 10px;
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f2d130+0,f2d130+25,e8912e+25,e8912e+50,f4602e+50,f4602e+75,ff3030+75,ff0000+100 */
-    background: #f2d130; /* Old browsers */
-    background: -moz-linear-gradient(left,  #f2d130 0%, #f2d130 25%, #e8912e 25%, #e8912e 50%, #f4602e 50%, #f4602e 75%, #ff3030 75%, #ff0000 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #f2d130 0%,#f2d130 25%,#e8912e 25%,#e8912e 50%,#f4602e 50%,#f4602e 75%,#ff3030 75%,#ff0000 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #f2d130 0%,#f2d130 25%,#e8912e 25%,#e8912e 50%,#f4602e 50%,#f4602e 75%,#ff3030 75%,#ff0000 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2d130', endColorstr='#ff0000',GradientType=1 ); /* IE6-9 */
-
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f2d130+0,ff0000+100 */
-    background: #f2d130; /* Old browsers */
-    background: -moz-linear-gradient(left,  #f2d130 0%, #ff0000 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #f2d130 0%,#ff0000 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #f2d130 0%,#ff0000 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2d130', endColorstr='#ff0000',GradientType=1 ); /* IE6-9 */
-
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f2d130+0,f2d130+33,e8912e+33,e8912e+50,e8912e+66,ff3030+66,ff0000+100 */
-    background: #f2d130; /* Old browsers */
-    background: -moz-linear-gradient(left,  #f2d130 0%, #f2d130 33%, #e8912e 33%, #e8912e 50%, #e8912e 66%, #ff3030 66%, #ff0000 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #f2d130 0%,#f2d130 33%,#e8912e 33%,#e8912e 50%,#e8912e 66%,#ff3030 66%,#ff0000 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #f2d130 0%,#f2d130 33%,#e8912e 33%,#e8912e 50%,#e8912e 66%,#ff3030 66%,#ff0000 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2d130', endColorstr='#ff0000',GradientType=1 ); /* IE6-9 */
-
-}
-
-#climate_future_precip_slider{
-	display:inline-block;
-	width:130px;
-	margin: 2px 0px 0px 10px;
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1e69de+0,1e69de+25,3690f0+25,54a3ee+50,ccad74+50,ccad74+75,755232+75,755232+100 */
-    background: #1e69de; /* Old browsers */
-    background: -moz-linear-gradient(left,  #1e69de 0%, #1e69de 25%, #3690f0 25%, #54a3ee 50%, #ccad74 50%, #ccad74 75%, #755232 75%, #755232 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #1e69de 0%,#1e69de 25%,#3690f0 25%,#54a3ee 50%,#ccad74 50%,#ccad74 75%,#755232 75%,#755232 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #1e69de 0%,#1e69de 25%,#3690f0 25%,#54a3ee 50%,#ccad74 50%,#ccad74 75%,#755232 75%,#755232 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e69de', endColorstr='#755232',GradientType=1 ); /* IE6-9 */
-
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1e69de+0,ccad74+50,755232+100 */
-    background: #1e69de; /* Old browsers */
-    background: -moz-linear-gradient(left,  #1e69de 0%, #ccad74 50%, #755232 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #1e69de 0%,#ccad74 50%,#755232 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #1e69de 0%,#ccad74 50%,#755232 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e69de', endColorstr='#755232',GradientType=1 ); /* IE6-9 */
-
-	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1e69de+0,1e69de+33,3690f0+33,95b2c4+33,95b2c4+66,755232+66,755232+100 */
-    background: #1e69de; /* Old browsers */
-    background: -moz-linear-gradient(left,  #1e69de 0%, #1e69de 33%, #3690f0 33%, #95b2c4 33%, #95b2c4 66%, #755232 66%, #755232 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left,  #1e69de 0%,#1e69de 33%,#3690f0 33%,#95b2c4 33%,#95b2c4 66%,#755232 66%,#755232 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right,  #1e69de 0%,#1e69de 33%,#3690f0 33%,#95b2c4 33%,#95b2c4 66%,#755232 66%,#755232 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e69de', endColorstr='#755232',GradientType=1 ); /* IE6-9 */
-
-
 }
 
 .dropdown_arrows {
@@ -982,11 +853,6 @@ ul.tabs li.selected a, ul.tabs li.selected a:hover {
 	background: #FFF;
 	border-bottom: 1px solid #FFF;
 	color: #6E6E6E;
-
-}
-
-li.selected a:hover {
-
 }
 
 #general_settings_instructions{
@@ -1062,7 +928,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	padding: 8px 51px !important;
 }
 
-.general_settings_div{
+.general_settings_div {
 	background-color: #0092D1;
 	color: white;
 	border-radius: 5px 0px 0px 5px;
@@ -1072,8 +938,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	line-height:30px;
 }
 
-
-.selected_td_button{
+.selected_td_button {
 	background-color: rgb(46, 178, 66);
 	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) inset;
 }
@@ -1092,33 +957,6 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	position: absolute;
 }
 
-.selectboxit-container .selectboxit-options {
-	width: 150px;
-}
-
-/* Width of the dropdown */
-#settings_librarySelectBoxIt{
-	width: 144px !important;
-	height: 28px !important;
-}
-
-.selectboxit-container .selectboxit {
-	width: 220px;
-	cursor: pointer;
-	margin: 0;
-	padding: 0;
-	border-radius: 0px 5px 5px 0px;
-	overflow: hidden;
-	display: block;
-	position: relative;
-}
-
-.selectboxit-container span, .selectboxit-container .selectboxit-options a {
-	height: 30px;
-	line-height: 25px !important;
-	display: block;
-}
-
 .select_container_2 {
 	font-family: Verdana,Geneva,sans-serif !important;
 	font-size: 13px !important;
@@ -1135,42 +973,12 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	font-weight:bold;
 }
 
-
 .styled-select2{
 	color: #444444 !important;
 	margin-left:auto;
 	margin-right:auto;
 	text-align:center;
 	display:inline;
-}
-
-.selectboxit-btn {
-	background-color: #31C047;
-	background-image: -moz-linear-gradient(top, #31C047, #2DAC40);
-	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#31C047), to(#2DAC40));
-	background-image: -webkit-linear-gradient(top,#31C047, #2DAC40);
-	background-image: -o-linear-gradient(top, #31C047, #2DAC40);
-	background-image: linear-gradient(to bottom, #31C047, #2DAC40);
-	background-repeat: repeat-x;
-	border: 1px solid #cccccc;
-	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-	border-bottom-color: #b3b3b3;
-	color:white !important
-}
-
-.selectboxit-btn.selectboxit-enabled:hover,
-.selectboxit-btn.selectboxit-enabled:focus,
-.selectboxit-btn.selectboxit-enabled:active {
-	color: #333333;
-	background-color: #2DAC40;
-}
-
-.selectboxit .selectboxit-arrow-container .selectboxit-arrow {
-	margin: 0 auto;
-	position: absolute;
-	top: 40%;
-	right: 0;
-	left: 0;
 }
 
 .manage_div {
@@ -1189,7 +997,6 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 .state_class_div {
 	font-size: 1em;
-	/* right: 70px; */
 }
 
 .state_class_span {
@@ -1218,10 +1025,6 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	border-radius: 3px;
 	padding: 2px 0px 2px 3px;
 	font-size:.9em;
-}
-
-.initial_veg_cover_input_table {
-
 }
 
 .veg_state_class_entry{
@@ -1277,7 +1080,6 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	background-color: #FFF;
 	width: 298px;
 	display: block;
-	/* padding: 0px; */
 	font-size: 1em;
 	margin-bottom: 5px;
 	font-weight: bold;
@@ -1391,7 +1193,6 @@ div.leaflet-bottom:nth-child(4){
 .leaflet-popup-tip-container {
 	left: 0px;
 }
-
 
 .leaflet-control-command-button-container{
 	display:none;
