@@ -1002,7 +1002,7 @@ function updateModelRunSelection(run) {
     modelRunSelect.val(run);
 
     modelRunSelect.on('change', function() {
-        updateResultsViewer(run);
+        updateResultsViewer($(this).val());
     })
 }
 
