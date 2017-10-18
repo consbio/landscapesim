@@ -7,6 +7,12 @@ from rest_framework import serializers
 from landscapesim import models
 
 
+class GenerateReportSerializer(serializers.Serializer):
+    configuration = serializers.JSONField()
+    tile_layers = serializers.JSONField()
+    zoom = serializers.IntegerField()
+
+
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.StateClassSummaryReportRow

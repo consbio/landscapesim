@@ -47,5 +47,6 @@ router.register('transition-attribute-summaries', views.TransitionAttributeSumma
 # Exported url paths
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^download-csv/$', views.GenerateCSVReportView.as_view(), name='download_csv_report'),
     url(r'^jobs/', include('landscapesim.async.urls'))
 ]

@@ -1,9 +1,12 @@
+from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from landscapesim import models
+from landscapesim.report import Report
 from landscapesim.serializers import projects, reports, scenarios
 
 
@@ -231,3 +234,27 @@ class StateAttributeSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
 class TransitionAttributeSummaryReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = models.TransitionAttributeSummaryReport.objects.all()
     serializer_class = reports.TransitionAttributeSummaryReportSerializer
+
+
+class ReportViewBase(GenericAPIView):
+    serializer_class = reports.GenerateReportSerializer
+
+    def _response(self, report):
+        raise NotImplementedError
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        config = data['configuration']
+        zoom = data.get('zoom', None)
+        layers = data.get('tile_layers', None)
+        return self._response(Report(config, zoom, layers))
+
+
+class GenerateCSVReportView(ReportViewBase):
+    def _response(self, report):
+        csv_data = report.get_csv_data()
+        response = HttpResponse(content=csv_data.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(report.report_name)
+        return response
