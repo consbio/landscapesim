@@ -260,7 +260,11 @@
 
             <div id="output">
                 <div id="model_results_header" class="right_header">Model Results<img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
-                     <div id="results_container" class="collapsible_div">
+                    <div id="results_container" class="collapsible_div">
+                        <div style="padding-bottom: 10px">
+                            <select id="model-run-select"></select>
+                            <input type="button" class="my-button my-button-ok" id="download-data" value="Download Data &amp; Results">
+                        </div>
                         <div id="results_viewer">
                             <div id="tabular_output">
                                 <table id="results_table" class="results_table"></table>

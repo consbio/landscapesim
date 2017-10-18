@@ -982,24 +982,63 @@ $("#spatial_link").click(function(){
     settings['spatial'] = button.hasClass('selected');
 });
 
+$("#model-run-select").on('change', function() {
+    console.log('changed!')
+});
+
+/***************************** Results selection and data download *******************************************/
+
+
+function updateModelRunSelection(run) {
+    var modelRunSelect = $("#model-run-select");
+    modelRunSelect.unbind('change')
+    modelRunSelect.empty();
+
+    for (var model_run in model_run_cache) {
+        modelRunSelect.append([
+            "<option value=" + model_run + ">",
+            current_project.name + " (#" + model_run + ")",
+            "</option>"
+        ].join(''))
+    }
+
+    // Set value to current run
+    modelRunSelect.val(run);
+
+    modelRunSelect.on('change', function() {
+        updateResultsViewer(run);
+    })
+}
+
+
+function downloadModelResults() {
+    var modelCacheToDownload = $("#model-run-select").val();
+    console.log(modelCacheToDownload);
+}
+
+
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 
 var model_run_cache = {};   // Cache the results from every model run we perform on the client.
+var results_data_json_cache = {};
 
 // Process Web API Results. Restructure data, and create the charts.
 function processStateClassSummaryReport(res){
+
+    model_run_cache[run] = res;
     var data = res["results"];
     var results_data_json = {};
-    for (var i=1; i <= iterations; i++ ){
+
+    for (var i = 1; i <= iterations; i++) {
         results_data_json[i] = {};
         var this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
-        for (var j=0; j <= timesteps ; j++){
+        for (var j = 0; j <= timesteps; j++){
             var this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
             results_data_json[i][j] = {};
             $.each(this_timestep_object_list, function(index, object) {
                 var strata_object = $.grep(current_project.definitions.strata, function(e){ return e.id == object.stratum; });
                 var strata_name = strata_object[0].name;
-                if (! (strata_name in results_data_json[i][j]) ) {
+                if (!(strata_name in results_data_json[i][j])) {
                     results_data_json[i][j][strata_name] = {}
                 }
                 var state_class_object = $.grep(current_project.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
@@ -1009,13 +1048,14 @@ function processStateClassSummaryReport(res){
         }
     }
 
-    model_run_cache[run] = results_data_json;
+    results_data_json_cache[run] = results_data_json;
+    updateModelRunSelection(run);
     updateResultsViewer(run)    
 }
 
 // Change the currently visible results in the results sidebar.
 function updateResultsViewer(run) {
-    var results_data_json = model_run_cache[run];
+    var results_data_json = results_data_json_cache[run];
     update_results_table(results_data_json, run);
     create_area_charts(results_data_json, run, iteration);
     create_column_charts(results_data_json, run, iteration);
