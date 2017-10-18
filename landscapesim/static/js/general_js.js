@@ -1022,6 +1022,9 @@ function downloadModelResults() {
     var tileLayers = JSON.stringify({});
     var zoom = 10;
 
+    $('#download-data').val('Downloading...');
+
+
     $.post(download_csv_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
     .done(function(res) {
         var node = document.createElement('a')
@@ -1032,6 +1035,7 @@ function downloadModelResults() {
         document.body.appendChild(node)
         node.click()
         document.body.removeChild(node)
+        $('#download-data').val('Download Data & Results')
     });
 }
 

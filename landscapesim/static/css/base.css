@@ -388,6 +388,10 @@ canvas {
 	width: 45%;
 }
 
+#download-data {
+	width: 53%;
+}
+
 .results_charts {
 	position: relative;
 	overflow-y: scroll;
