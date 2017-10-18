@@ -28,10 +28,6 @@ $(document).ready(function() {
         });
 
         $("select").prop("selectedIndex",0);
-        // Option to select the first library
-        // $("select").prop("selectedIndex",1);
-        // showLibraryInfo()
-
         $("#spatial_switch")[0].checked = true
 
     });
@@ -83,9 +79,6 @@ $(document).ready(function() {
         $("#run_button").addClass('disabled');
         $("#run_button").html("Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div>");
         $("#running_st_sim").show()
-
-        //$("#results_table").empty()
-
         $(".leaflet-right").css("right", "380px");
 
         var inputs = {
@@ -287,18 +280,14 @@ $(document).ready(function() {
             map.removeLayer(bounding_box_layer);
 
             // Collapse the Welcome and Library divs.
-
             $("#welcome_header").siblings(".collapsible_div").slideUp(400, function(){});
             $("#library_header").siblings(".collapsible_div").slideUp(400, function(){});
-
             $("#welcome_header").children(".collapse_icon").addClass("rotate90");
             $("#library_header").children(".collapse_icon").addClass("rotate90");
 
             // Show the other inputs.
-
             $("#inputs").show();
             $("#initial_vegetation_container").show();
-
             $("#legend_container").show();
 
             // Management Action Controls
@@ -306,16 +295,11 @@ $(document).ready(function() {
             $(".leaflet-control-command-form").show();
             $(".leaflet-control-command").show();
             $(".leaflet-draw").show();
-
             $(".leaflet-left")[0].style.top = '60px';
             $("#scene-toggle").show();
             document.getElementById('scene-toggle').style.display = 'inline-block';
-
             library_selected = true
-
-
         })
-
     });
 
     /********************************************* General UI Functions ***********************************************/
@@ -419,10 +403,8 @@ $(document).ready(function() {
                 $(this).addClass("full_border_radius");
                 $(this).children(".collapse_icon").addClass("rotate90");
             });
-
         }
     }
-
 
     $(document).on("click", ".close_state_class", function(){
         map.removeLayer(inputStateClassLayer);
@@ -431,17 +413,15 @@ $(document).ready(function() {
         $(this).parents(".sub_slider_text_inputs").hide()
     });
 
-
     // Tooltip popup on management scenarios
     $(".scenario_radio_label").hover(function(e) {
         var moveLeft = 50;
         var moveDown = -20;
         $("div#pop-up").html(this.id);
         $('div#pop-up').show();
-
-       $('.scenario_radio_label').mousemove(function(e) {
-              $("div#pop-up").css('top', e.pageY + moveDown).css('left', e.pageX + moveLeft);
-            });
+        $('.scenario_radio_label').mousemove(function(e) {
+            $("div#pop-up").css('top', e.pageY + moveDown).css('left', e.pageX + moveLeft);
+        });
 
       // On mouse out
     },function(e){
@@ -476,13 +456,8 @@ $(document).ready(function() {
 
 
     $(".tab_container").on("click", function(){
-
-        this_tab_run = $(this).attr('run')
-
-        changeOutputStateClass(this_tab_run);
-
+        changeOutputStateClass($(this).attr('run'));
     });
-
 
 
     /*********************************************** Spatial Setting **************************************************/
@@ -635,11 +610,6 @@ $(document).ready(function() {
             $("#probabilistic_transition" + count + "_label").val("Default Probabilities");
             count+=1;
         });
-        $("#climate_future_disabled").hide();
-        $("#climate_future_precip_slider").slider("value",0);
-        $("#climate_future_temp_slider").slider("value",0);
-        $("#climate_future_precip_label").val(climate_future_precip_labels[1]);
-        $("#climate_future_temp_label").val(climate_future_temp_labels[0]);
     }
 
     /********************************************** Timestep Changes **************************************************/
@@ -964,7 +934,6 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
                 step: .25,
                 slide: function (event, ui) {
                     $("#probabilistic_transition" + iterator + "_label").val(probability_labels[ui.value]);
-                    $("#climate_future_disabled").show()
                 },
                 change: function (event, ui) {
                     probabilistic_transitions_slider_values[transition_type] = ui.value;
