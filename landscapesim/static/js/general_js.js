@@ -8,6 +8,7 @@ var available_scenarios = [];
 var scenario_url = '';
 var current_scenario = {};
 var run_model_url = '/api/jobs/run-model/';
+var download_csv_url = '/api/download-csv/';
 var result_url = '';
 
 var run;
@@ -365,9 +366,10 @@ $(document).ready(function() {
                 var height = $(window).height() - this_div_position - 120;
                 this_collapsible_div.css('height', height);
             });
-
-
     });
+
+    // Download data from currently viewable model results.
+    $("#download-data").on("click", downloadModelResults);
 
     function toggleIcon(collapse_icon){
 
@@ -982,10 +984,6 @@ $("#spatial_link").click(function(){
     settings['spatial'] = button.hasClass('selected');
 });
 
-$("#model-run-select").on('change', function() {
-    console.log('changed!')
-});
-
 /***************************** Results selection and data download *******************************************/
 
 
@@ -1010,12 +1008,34 @@ function updateModelRunSelection(run) {
     })
 }
 
-
+// Handle data download functionality
+var reportToDownload = '';
 function downloadModelResults() {
-    var modelCacheToDownload = $("#model-run-select").val();
-    console.log(modelCacheToDownload);
-}
 
+    // Identify which model to download
+    var modelRun = model_run_cache[$("#model-run-select").val()]
+    reportToDownload = 'stateclass-summary';    // TODO - add selection objects in a dropdown.
+
+    // Configure what data users wants to download
+    var configuration = JSON.stringify({
+        'scenario_id': modelRun.scenario,
+        'report_name': 'stateclass-summary'
+    })
+    var tileLayers = JSON.stringify({});
+    var zoom = 10;
+
+    $.post(download_csv_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
+    .done(function(res) {
+        var node = document.createElement('a')
+        var blob = new Blob(["\ufeff", res]);
+        var url = URL.createObjectURL(blob);
+        node.setAttribute('href', url)
+        node.setAttribute('download', reportToDownload + '.csv')
+        document.body.appendChild(node)
+        node.click()
+        document.body.removeChild(node)
+    });
+}
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 

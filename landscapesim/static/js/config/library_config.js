@@ -28,3 +28,21 @@ library_config[1] = {
         }
 };
 
+// Available ST-Sim reports to be downloaded.
+var availableReports = {
+    'stateclass-summary' : {
+        'label': 'Stateclass'
+    },
+    'transition-summary' : {
+        'label': 'Transitions'
+    },
+    'transition-stateclass-summary' : {
+        'label': 'Transitions by Stateclass'
+    },
+    'state-attributes' : {
+        'label': 'State Attributes'
+    },
+    'transition-attributes' : {
+        'label': 'Transition Attributes'
+    },
+}
