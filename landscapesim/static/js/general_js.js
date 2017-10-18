@@ -308,6 +308,7 @@ $(document).ready(function() {
 
             $(".leaflet-left")[0].style.top = '60px';
             $("#scene-toggle").show();
+            document.getElementById('scene-toggle').style.display = 'inline-block';
 
             library_selected = true
 
