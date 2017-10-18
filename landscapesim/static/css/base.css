@@ -1300,6 +1300,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	height: 100%;
 	position: relative;
 	margin:0px 20px;
+	max-height: 100px;
 }
 
 .scene_legend_color {
