@@ -146,7 +146,8 @@ $(document).ready(function() {
                                     results_scenario_configuration =  res;
                                     loadOutputLayers(results_scenario_configuration, run);
 
-                                    $("#model_results_header").click();
+                                    var results_header = $("#model_results_header");
+                                    if (!results_header.hasClass('full_border_radius')) results_header.click();
                                 });
 
 
