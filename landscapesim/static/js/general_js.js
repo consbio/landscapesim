@@ -144,8 +144,6 @@ $(document).ready(function() {
                                 $('input:submit').attr("disabled", false);
                                 $(".slider_bars").slider( "option", "disabled", false );
                                 $("#button_container").attr("disabled", false);
-                                $("#running_st_sim").removeClass("full_border_radius");
-
                                 $("#legend_header").nextAll(".collapsible_div:first").slideUp(400, function(){});
                                 $("#legend_header").children(".collapse_icon").addClass("rotate90");
                                 $("#legend_container").css("width", "100%")
