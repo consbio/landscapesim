@@ -8,8 +8,8 @@
     <link rel="shortcut icon" href="{% static 'img/site_icon.png' %}" />
 
     <!-- Three.js -->
-    <script src="{% static "js/three/three.min.js" %}"></script>
-    <script src="{% static "js/three/OrbitControls.js" %}"></script>
+    <script src="{% static "js/vendor/three/three.min.js" %}"></script>
+    <script src="{% static "js/vendor/three/OrbitControls.js" %}"></script>
 
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.3/dist/leaflet.css" />
@@ -30,7 +30,7 @@
 
     <!-- Leaflet.Range -->
     <link rel="stylesheet" href="{% static "css/L.Control.Range.css" %}" />
-    <script src="{% static "js/L.Control.Range-min.js" %}"></script>
+    <script src="{% static "js/vendor/L.Control.Range-min.js" %}"></script>
 
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -58,7 +58,7 @@
     <script src="https://unpkg.com/terraformer-wkt-parser@1.1.2"></script>
 
     <!-- Shapefile JS -->
-    <script src="{%  static "deps/shapefile-js-gh-pages/dist/shp.min.js" %}"> </script>
+    <script src="{%  static "js/vendor/shapefile-js-gh-pages/dist/shp.min.js" %}"> </script>
 
     <!-- My Javascript -->
     <script src="{%  static "js/general_js.js" %}" type="text/javascript"></script>
@@ -309,30 +309,30 @@
         <div id="pop-up"></div>
 
         <!-- Leaflet Map -->
-        <script src="{%  static "leaflet/leaflet_map.js" %}" type="text/javascript"></script>
-        <script src="{%  static "leaflet/xyz.js" %}" type="text/javascript"></script>
+        <script src="{%  static "js/leaflet_map.js" %}" type="text/javascript"></script>
+        <script src="{%  static "js/vendor/xyz.js" %}" type="text/javascript"></script>
         <!-- Stacked Area Chart -->
-        <script src="{% static 'highcharts/stacked_area.js' %}"></script>
+        <script src="{% static 'js/stacked_area.js' %}"></script>
 
         <!-- Column Chart -->
-        <script src="{% static 'highcharts/column_chart.js' %}"></script>
+        <script src="{% static 'js/column_chart.js' %}"></script>
 
         <!-- Library Configuration -->
-        <script src="{% static 'config/library_config.js' %}"></script>
-        <script src="{% static 'config/units.js' %}"></script>
+        <script src="{% static 'js/config/library_config.js' %}"></script>
+        <script src="{% static 'js/config/units.js' %}"></script>
 
         <!-- Shapefile Uploader -->
-        <script src="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.js' %}"></script>
-        <link rel="stylesheet"  href="{% static 'deps/L.Control.Shapefile/L.Control.Shapefile.css' %}">
+        <script src="{% static 'js/vendor/L.Control.Shapefile/L.Control.Shapefile.js' %}"></script>
+        <link rel="stylesheet"  href="{% static 'js/vendor/L.Control.Shapefile/L.Control.Shapefile.css' %}">
 
         <!-- My leaflet button control -->
-        <script src="{%  static 'deps/L.Control.Button/L.Control.Button.js' %}"></script>
-        <link rel="stylesheet" href="{% static 'deps/L.Control.Button/L.Control.Button.css' %}"/>
+        <script src="{%  static 'js/cost_button.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/cost_button.css' %}"/>
 
         <!-- Management Action Scripts -->
         <script src="{% static 'js/cost.js' %}"></script>
         <script src="{% static 'js/manage.js' %}"></script>
-        <script src="{%  static "js/scene.js" %}"></script>
+        <script src="{%  static 'js/scene.js' %}"></script>
         <link rel="stylesheet"  href="{% static 'css/cost.css' %}">
         <link rel="stylesheet"  href="{% static 'css/manage.css' %}">
 

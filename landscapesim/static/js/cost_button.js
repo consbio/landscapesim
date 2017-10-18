@@ -10,7 +10,7 @@ L.Control.Button = L.Control.extend({
 
         var img = L.DomUtil.create('img', 'leaflet-control-button-img', controlUI);
 
-        img.src = 'static/deps/L.Control.Button/img/button.png';
+        img.src = 'static/img/cost_button.png';
 
         // Click Event
         L.DomEvent
