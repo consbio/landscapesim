@@ -997,11 +997,11 @@ $("#spatial_link").click(function(){
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 
 // Process Web API Results. Restructure data, and create the charts.
-var results_data_json;
+//var results_data_json;
 function processStateClassSummaryReport(res){
 
     var data = res["results"];
-    results_data_json={};
+    var results_data_json={};
 
     for (var i=1; i <= iterations; i++ ){
 
@@ -1032,7 +1032,7 @@ function processStateClassSummaryReport(res){
 
     }
 
-    update_results_table(run);
+    update_results_table(results_data_json, run);
     create_area_charts(results_data_json, run, iteration);
     create_column_charts(results_data_json, run, iteration);
 }
@@ -1041,7 +1041,7 @@ function processStateClassSummaryReport(res){
 
 // Create the Results Table
 //function update_results_table(timestep,run) { // see TODO below
-function update_results_table(run) {
+function update_results_table(results_data_json, run) {
 
     $("#results_table_" + run).html("<tr class='location_tr'><td class='location_th' colspan='1'>Library</td><td colspan='2'>" + current_library.name + "</td></tr>");
 
