@@ -104,9 +104,6 @@ function loadOutputLayers(results_scenario_configuration){
             .openOn(map);
 
     }
-
-    // Click action will trigger the function below
-    document.getElementById("view" + run + "_link").click();
 }
 
 // Called after a model run (which triggers a tab click), or when a tab is clicked.

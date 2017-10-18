@@ -384,15 +384,17 @@ canvas {
 	top: 9px;
 }
 
+/*
 .area_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: calc(100vh - 435px);
+	height: calc(100vh - 360px);
 	padding-right: 30px;
 	overflow-x: hidden;
 }
+*/
 
-.column_charts {
+.results_charts {
 	position: relative;
 	overflow-y: scroll;
 	height: calc(100vh - 435px);
@@ -956,21 +958,13 @@ div.callout {
 	left: 1px;
 }
 
-#tab_container {
+#results_container {
 	display: none;
 	width: 335px;
 	padding: 10px;
 	overflow-y: hidden;
 	height: 100%;
 	max-height: 100vh;
-}
-
-.views{
-    display:none;
-}
-
-div.tabcontents {
-    padding: 10px 0px;
 }
 
 ul.tabs li a {

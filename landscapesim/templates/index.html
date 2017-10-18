@@ -45,8 +45,8 @@
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
 
     <!-- Tabs -->
-    <script src="{% static 'js/vendor/tabcontent.js' %}" type="text/javascript"></script>
-    <link href="{% static 'css/vendor/tabcontent.css' %}" rel="stylesheet" type="text/css" />
+    <!--script src="{% static 'js/vendor/tabcontent.js' %}" type="text/javascript"></script>
+    <link href="{% static 'css/vendor/tabcontent.css' %}" rel="stylesheet" type="text/css" /-->
 
     <!-- Alertify -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js"></script>
@@ -260,34 +260,10 @@
 
             <div id="output">
                 <div id="model_results_header" class="right_header">Model Results<img class="collapse_icon rotate90" src="{% static 'img/collapse_down_arrow.png' %}"></div>
-                     <div id="tab_container" class="collapsible_div">
-                        <!--data-persist="true" keeps the current tab active on page refresh-->
-                        <ul class="tabs" data-persist="false">
-                            <li id="view1_tab" style="display:none"><a onclick="changeOutputStateClass(1)" id="view1_link" href="#view1">Run 1</a></li>
-                            <li id="view2_tab" style="display:none"><a onclick="changeOutputStateClass(2)" id="view2_link" href="#view2">Run 2</a></li>
-                            <li id="view3_tab" style="display:none"><a onclick="changeOutputStateClass(3)" id="view3_link" href="#view3">Run 3</a></li>
-                            <li id="view4_tab" style="display:none"><a onclick="changeOutputStateClass(4)" id="view4_link" href="#view4">Run 4</a></li>
-                        </ul>
-                        <div class="tabcontents">
-                            <div id="view1" class="views">
-                                <div id="tabular_output_1">
-                                    <table id="results_table_1" class="results_table"></table>
-                                </div>
-                            </div>
-                            <div id="view2" class="views">
-                                <div id="tabular_output_2">
-                                    <table id="results_table_2" class="results_table"></table>
-                                </div>
-                            </div>
-                            <div id="view3" class="views">
-                                <div id="tabular_output_3">
-                                    <table id="results_table_3" class="results_table"></table>
-                                </div>
-                            </div>
-                            <div id="view4" class="views">
-                                <div id="tabular_output_4">
-                                    <table id="results_table_4" class="results_table"></table>
-                                </div>
+                     <div id="results_container" class="collapsible_div">
+                        <div id="results_viewer">
+                            <div id="tabular_output">
+                                <table id="results_table" class="results_table"></table>
                             </div>
                         </div>
                     </div>
