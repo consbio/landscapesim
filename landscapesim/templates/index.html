@@ -142,7 +142,7 @@
                 <div class="widget_div">
                     <div id="input_initial_veg">
                         <div class="header full_border_radius" id="steps_initial_vegetation_cover">
-                            Initial Vegetation Cover
+                            Initial Vegetation Composition
                             <span class="context_button" id="vegcover"> <img class="context_img" src="/static/img/help.png"></span>
                             <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}">
                         </div>
@@ -235,9 +235,9 @@
         <div id="map"></div>
         <div id="scene" style="display: none"></div>
         <div id="right">
-            <div id="progressbar-container" class="full_border_radius">
-                <div id="progressbar">
-                    <div id="progresslabel">
+            <div id="progressbar-container" class="progressbar-container full_border_radius" style="display: none;" >
+                <div id="progressbar" class="progressbar">
+                    <div id="progresslabel" class="progresslabel">
                         Waiting for worker...
                     </div>
                 </div>
@@ -254,7 +254,7 @@
                     <div id="results_container" class="collapsible_div">
                         <div style="padding-bottom: 10px">
                             <select id="model-run-select"></select>
-                            <input type="button" class="my-button my-button-ok" id="download-data" value="Download Data &amp; Results">
+                            <input type="button" class="my-button my-button-ok download-data" id="download-data" value="Download Data &amp; Results">
                         </div>
                         <div id="results_viewer">
                             <div id="tabular_output">
@@ -309,38 +309,133 @@
 
         <!-- Text for modals -->
         <script type="x-text" id="x-purpose">
-            The Landscape Simulator is a GIS mapping application for visualizing outputs from state-and-transition simulation (STSM) models.
+        <div class="alertify-step">
+            The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation (STSM) models.
             <br><br>
-            It's primary purpose is to help land managers understand how vegetation composition will change due to stochastic events (e.g. fire, disease) and prescribed management actions (e.g. treatments). 
-            Users can visualize how these effects change the landscape in the future, and can be used to help plan for future adaptation or other landscape changes.
+            Its primary purpose is to <b>help land managers understand</b> how vegetation composition will change over time due to stochastic events (e.g. fire, disease) and land use and management actions (e.g. treatments).
+            <br><br>
+            Users can visualize how <b>natural events</b> and <b>human actions</b> change the landscape in the future, and use the application to plan for cliamte adaptation or disturbance mitigation.
+        </div>
         </script>
         <script type="x-text" id="x-st-sim">
-            This tool utilizes State and Transition Simulation Models, or STSMs, which is the next evolution of the VDDT models. 
-            STSM models can be run in a Monte Carlo environment using spatially explicit inputs to produce more accurate vegetation 
-            dynamic projections. We build on top of ST-Sim, a plugin for <a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank">SyncroSim</a> by providing a visualization and analysis interface to give land managers a 
-            better picture of the future of their landscape.
+        <div class="alertify-step">
+            This tool utilizes <b>State and Transition Simulation Models (STSMs)</b>, which are designed to simulate changed in vegetation cover over time.
             <br><br>
-            To learn more about ST-Sim, please visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.
+            Vegetation cover is described in terms of <b>state classes</b> which are defined as a unique combination of <b>cover type</b> (grass, shrub, tree) and <b>structural stage</b> (i.e. age).
+            <br><br>
+            STSMs can be run multiple times in a <b>Monte Carlo</b> environment to evaluate the uncertainty across all possible vegetation dynamic projections. We use software from the VDDT family, 
+            called <a href="http://www.apexrms.com/state-and-transition-simulation-models/" target="_blank">ST-Sim</a>, and provide in this application 
+            a visualization and analysis interface to give natural resource managers a way to explore the possible futures of their landscape.
+            <br><br>
+            To learn more about ST-Sim, please contact Leonardo Frid (email) or visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.
+        </div>
         </script>
         <script type="x-text" id="x-instructions">
-            1. <b>Select a ST-Sim model library</b>.
-            <br><br>
-            2. <b>Edit initial vegetation composition for the scenario</b>. When running spatially explicit, initial vegetation composition is not editable. However, running non-spatially explicit can run faster and produce quick, iterative changes. It is recommended that if you are not familiar with ST-Sim that you run spatially explicit.
-            <br><br>
-            3. <b>Adjust the probabilistic transition effects</b>. This allows the user to apply global probability changes across the landscape. For example, to run the scenario with a 50 percent greater change for insect and disease to occur, the user can adjust the appropriate slider to apply the effect.
-            <br><br>
-            4. <b>Set the model run contorl</b>. Users can determine the number of timesteps and Monte-Carlo iterations to run the model for, allowing the user to observe a distribution of probabilistic outcomes. It is recommend that when first learning ST-Sim to only run the tool with one (1) iteration.
-            <br><br>
-            5. <b>Run the model</b>. As the model progresses, users will see an updated map, visualizing the progress of the model.
-            <br><br>
-            6. <b>Review the model results</b>. Results are viewable in the following ways: 1) As a bar chart, visualizing the final distribution of the vegetation composition at the end of the simulation, 2) as stacked area charts, visualizing the change in the vegetation composition during the simulation, and 3) as an interactive map.
-            <br><br>
-            7. (TODO) <b>Download model results and reports</b> for further analysis.
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>1. Select an <b>ST-Sim Library</b>.</div>
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>2. Review the <b>Initial Vegetation Composition</b>.</div>
+                When the model is run in the spatially explicit mode, the initial vegetation composition cannot be changed and the run will take some time depending of the time period chosen for the run. 
+                However, when the model is run in the non-spatially explicit mode, it can run faster and produce quick, iterative changes. 
+                <br><br>
+                <b>Recommendation</b>: If you are not familiar with ST-Sim or STSMs, the model should be run in the spatially explicit mode.
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>3. Adjust the <b>Probabilistic Transition</b> effects.</div>
+                This allows the user to apply global probability changes across the landscape. 
+                For example, to run the scenario with a 50 percent greater change for insect and disease to occur, the user can adjust the appropriate slider to apply the effect.
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>4a. Set the <b>Run Control</b>.</div>
+                Users can determine the number of timesteps to run the model and the number of Monte-Carlo iterations to evaluate uncertainty.
+                <br><br>
+                <b>Recommendation</b>: While discovering this tool and evaluating the usefulness of STSMs, use only one iteration for the model run.
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>4b. <b>Apply Management Actions</b> (Optional)</div>
+                As an option, the user can define a set of management actions on a fraction of the landscape using the management action controls on the left hand side of the map.
+                <table style="margin-top: 10px">
+                    <tbody>
+                        <tr>
+                            <td><img src='static/img/instructions/actions.png'><td>
+                            <td>Set the list of available management actions and their dollar amount per acre.<td>
+                        </tr>
+                        <tr>
+                            <td><img src='static/img/instructions/shapefile.png'><td>
+                            <td>Upload a zipped shapefile delineating an area in which to conduct a management action.<td>
+                        </tr>
+                        <tr>
+                            <td><img src='static/img/instructions/draw.png'><td>
+                            <td>Alternatively, use the polygon or box tool to manually delineate an area in the map in which to apply a management action.<td>
+                        </tr>
+                        <tr>
+                            <td><img src='static/img/instructions/edit-draw.png'><td>
+                            <td>Edit a management action boundary.<td>
+                        </tr>
+                    </tbody>
+                </table>
+                Once the user has set the available management actions and has delineated a management action on the map, 
+                the user defines the time steps when the management actions will be applied. 
+                In the example below, the user has indicated that they would like to conduct a prescribed burn during years 1 and 3 of the model run.
+                <br>
+                <img class='alertify-img' src='static/img/instructions/manage-poly.png'>
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>5. <b>Run The Model</b>.</div>
+                A progress bar will appear in the top right of the application showing the current status of your model run.
+                <br>
+                <div class="progressbar-container full_border_radius" style="margin-top: 10px;">
+                    <div class="progressbar" style="width: 33%!important">
+                        <div class="progresslabel" style="position: inherit !important">
+                            33% Complete
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='alertify-step' style='margin-bottom: -50px'>
+                <div class='alertify-subheader'>6. <b>Examine the Model Results</b>.</div>
+                Results are shown as:
+                <ul>
+                    <li>as an interactive map,
+                        <br>
+                        <img class='alertify-img' src='static/img/instructions/map-layer.png'>
+                        <br>
+                    </li>
+                    <li>
+                        bar charts with the final distribution of the vegetation composition at the end of the simulation, and
+                        <br>
+                        <img class='alertify-img' src='static/img/instructions/column-chart.png'>
+                        <br>
+                    </li>
+                    <li>
+                        stacked area charts displaying change in vegetation composition during the simulation.
+                        <br>
+                        <img class='alertify-img' src='static/img/instructions/stacked-chart.png'>
+                        <br>
+                    </li>
+                </ul>
+            </div>
+            <div class='alertify-step'>
+                <div class='alertify-subheader'>7. <b>Download Model Results and Reports</b>.</div>
+                After a model has been run, you can download results by clicking the 
+                <input disabled type="button" class="my-button my-button-ok download-data" style="width: 37%!important" value="Download Data &amp; Results"> 
+                button under the <b>Model Results</b> tab.
+            </div>
         </script>
         <script type="x-text" id="x-contact">
-            For more information, contact <a href="mailto:info@consbio.org">info@consbio.org</a>.
-            <br><br>
-            To report an issue, please visit our <a href='https://github.com/consbio/landscapesim/issues/new' target='_blank'>issue tracker</a>.
+        <div class="alertify-step">
+            <p>For <b>general information</b> about the Landscape Simulator:
+                <ul>
+                    <li>Dominique Bachelet (bacheled@oregonstate.edu)</li>
+                </ul>
+            <p>For <b>technical questions</b> about the Landscape Simulator:
+                <ul>
+                    <li>Mike Gough (mike.gough@consbio.org)</li>
+                    <li>Taylor Mutch (taylor.mutch@consbio.org)</li>
+                </ul>
+            <p>To report an issue, please visit our <a href='https://github.com/consbio/landscapesim/issues/new' target='_blank'>issue tracker</a>.</p>
+        </div>
         </script>
 
         <!-- Text for hover text -->

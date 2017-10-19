@@ -93,14 +93,13 @@ canvas {
 	display: none;
 }
 
-#progressbar-container {
-	display: none;
+.progressbar-container {
 	margin-bottom: 10px;
 	width: 100%;
 	background-color: #20b937;
 }
 
-#progressbar {
+.progressbar {
 	width: 0%;
 	height: 30px;
 	background-color: #0092d0;
@@ -110,12 +109,11 @@ canvas {
 	border-radius: inherit;
 }
 
-#progresslabel {
+.progresslabel {
 	position: absolute;
 	margin-left: 10px;
 	font-weight: bold;
 }
-
 
 .context-switcher {
 	cursor: pointer;
@@ -392,7 +390,7 @@ canvas {
 	width: 45%;
 }
 
-#download-data {
+.download-data {
 	width: 53%;
 }
 
@@ -1238,6 +1236,21 @@ div.leaflet-bottom:nth-child(4){
 	top: 70px;
 }
 
-.alertify-p {
-	padding: 10px 20px;
+.alertify-step {
+	padding: 15px 20px 2px 20px;
+}
+
+.alertify-scrollable-div {
+	overflow-y: auto;
+	max-height: 65vh;
+}
+
+.alertify-subheader {
+	font-size: 1.1em;
+	margin-bottom: 10px;
+}
+
+.alertify-img {
+	display: block;
+	margin: 10px auto;
 }

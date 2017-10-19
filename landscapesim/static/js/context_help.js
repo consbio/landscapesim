@@ -4,9 +4,13 @@
 // Tab info
 $(document).on({
     click: function(e) {
-        var text = document.getElementById('x-' + this.id).textContent;
+        var text = [
+            "<div class='alertify-scrollable-div'>",
+            document.getElementById('x-' + this.id).textContent,
+            "</div>"
+        ].join('');
         var title = this.text;
-        var text = ["<div class='header'>", this.text, "</div>", "<p class='alertify-p'>", text, "</p>"].join('')
+        var text = ["<div class='header'>", this.text, "</div>", text].join('')
         alertify.alert(text);
         $('.alertify-message').remove();    // Removes the extra div created, which we replace
     },
