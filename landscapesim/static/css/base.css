@@ -93,6 +93,30 @@ canvas {
 	display: none;
 }
 
+#progressbar-container {
+	display: none;
+	margin-bottom: 10px;
+	width: 100%;
+	background-color: #20b937;
+}
+
+#progressbar {
+	width: 0%;
+	height: 30px;
+	background-color: #0092d0;
+	text-align: center;
+	line-height: 30px;
+	color: white;
+	border-radius: inherit;
+}
+
+#progresslabel {
+	position: absolute;
+	margin-left: 10px;
+	font-weight: bold;
+}
+
+
 .context-switcher {
 	cursor: pointer;
 	background-color: rgba(255,255,255,.9);

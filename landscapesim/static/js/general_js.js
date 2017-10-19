@@ -42,6 +42,9 @@ $(document).ready(function() {
     settings = [];
     settings["spatial"] = false;
 
+    // Progressbar for model run
+    var progressbar = $('#progressbar'), progressbarlabel = $('#progresslabel');
+
     $('#run_button').on('click', function() {
 
         // Clear the current transition_spatial_multipliers
@@ -81,6 +84,33 @@ $(document).ready(function() {
         $("#run_button").html("Running ST-Sim...<div id='results_loading'><img src='/static/img/spinner.gif'></div>");
         $(".leaflet-right").css("right", "380px");
 
+        // Enable progressbar
+        $("#progressbar-container").show();
+
+        var updateProgress = function(progress, jobStatus, modelStatus) {
+
+            if (modelStatus == 'waiting') {
+                progressbarlabel.text("Waiting for worker...");
+            }
+            else if (modelStatus == 'starting') {
+                progressbarlabel.text("Starting worker...");
+            }
+            else if (jobStatus == 'started' && modelStatus == 'running') {
+                if (progress !== undefined && progress !== null) {
+                    var intProgress = parseInt(progress * 100);
+                    progressbar.css('width', intProgress + '%');
+                    progressbarlabel.text(intProgress + "% Complete")
+                }
+                else {
+                    progressbarlabel.text(0 + "% Complete")
+                }
+
+                if (modelStatus == 'processing' || modelStatus == 'complete') {
+                    progressbarlabel.text("Run Complete - Preparing Results");
+                }
+            }
+        }
+
         var inputs = {
             'sid': current_scenario.sid,
             'pid': current_project.pid,
@@ -96,6 +126,8 @@ $(document).ready(function() {
                 (function poll() {
                     setTimeout(function() {
                         $.getJSON(run_model_url + job.uuid).done(function (update) {
+
+                            updateProgress(update.progress, update.status, update.model_status);
 
                             if (update.status === 'success' || update.model_status === 'complete') {
 
@@ -120,10 +152,11 @@ $(document).ready(function() {
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
-                                        results_scenario_report =  res
-
+                                        results_scenario_report =  res;
                                         processStateClassSummaryReport(results_scenario_report);
-
+                                        $('#progressbar-container').hide();
+                                        progressbar.css('width', '0%');
+                                        progressbarlabel.text("Waiting for worker...")
                                     });
 
                                 });
