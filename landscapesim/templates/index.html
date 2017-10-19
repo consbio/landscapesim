@@ -310,20 +310,20 @@
         <!-- Text for modals -->
         <script type="x-text" id="x-purpose">
         <div class="alertify-step">
-            The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation (STSM) models.
+            The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation models (STSM).
             <br><br>
             Its primary purpose is to <b>help land managers understand</b> how vegetation composition will change over time due to stochastic events (e.g. fire, disease) and land use and management actions (e.g. treatments).
             <br><br>
-            Users can visualize how <b>natural events</b> and <b>human actions</b> change the landscape in the future, and use the application to plan for cliamte adaptation or disturbance mitigation.
+            Users can visualize how <b>natural events</b> and <b>human actions</b> change the landscape in the future, and use the application to plan for climate adaptation or disturbance mitigation.
         </div>
         </script>
         <script type="x-text" id="x-st-sim">
         <div class="alertify-step">
-            This tool utilizes <b>State and Transition Simulation Models (STSMs)</b>, which are designed to simulate changed in vegetation cover over time.
+            This tool utilizes <b>State and Transition Simulation Models (STSMs)</b>, which are designed to simulate changes in vegetation cover over time.
             <br><br>
             Vegetation cover is described in terms of <b>state classes</b> which are defined as a unique combination of <b>cover type</b> (grass, shrub, tree) and <b>structural stage</b> (i.e. age).
             <br><br>
-            STSMs can be run multiple times in a <b>Monte Carlo</b> environment to evaluate the uncertainty across all possible vegetation dynamic projections. We use software from the VDDT family, 
+            STSMs can be run multiple times in a <b>Monte Carlo</b> environment to evaluate the uncertainty across all possible vegetation projections. We use software from the VDDT family, 
             called <a href="http://www.apexrms.com/state-and-transition-simulation-models/" target="_blank">ST-Sim</a>, and provide in this application 
             a visualization and analysis interface to give natural resource managers a way to explore the possible futures of their landscape.
             <br><br>
@@ -336,19 +336,21 @@
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>2. Review the <b>Initial Vegetation Composition</b>.</div>
-                When the model is run in the spatially explicit mode, the initial vegetation composition cannot be changed and the run will take some time depending of the time period chosen for the run. 
-                However, when the model is run in the non-spatially explicit mode, it can run faster and produce quick, iterative changes. 
+                When the model is run in the spatially explicit mode, the initial vegetation composition cannot be changed. 
+                If you want to experiment with alternative vegetation compositions, you can disable spatial output under <b>Run Control</b>. 
+                This can lead to faster model runs in exchange for fewer visualizations provided by this tool.
                 <br><br>
-                <b>Recommendation</b>: If you are not familiar with ST-Sim or STSMs, the model should be run in the spatially explicit mode.
+                <b>Recommendation</b>: If you are not familiar with STSMs or ST-Sim in particular, the model should be run in the spatially explicit mode.
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>3. Adjust the <b>Probabilistic Transition</b> effects.</div>
-                This allows the user to apply global probability changes across the landscape. 
-                For example, to run the scenario with a 50 percent greater change for insect and disease to occur, the user can adjust the appropriate slider to apply the effect.
+                This allows the user to change the probability of events across the landscape. 
+                For example, to increase by 50% the likelihood of an insect or disease outbreakr, the user can adjust the appropriate slider to that number.
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>4a. Set the <b>Run Control</b>.</div>
-                Users can determine the number of timesteps to run the model and the number of Monte-Carlo iterations to evaluate uncertainty.
+                Users can determine the number of timesteps to run the model, the number of Monte-Carlo iterations to evaluate uncertainty, and whether 
+                to produce spatial output (i.e. time-series maps).
                 <br><br>
                 <b>Recommendation</b>: While discovering this tool and evaluating the usefulness of STSMs, use only one iteration for the model run.
             </div>
@@ -363,11 +365,11 @@
                         </tr>
                         <tr>
                             <td><img src='static/img/instructions/shapefile.png'><td>
-                            <td>Upload a zipped shapefile delineating an area in which to conduct a management action.<td>
+                            <td>Upload a zipped shapefile delineating a management unit where a specific management action is applied.<td>
                         </tr>
                         <tr>
                             <td><img src='static/img/instructions/draw.png'><td>
-                            <td>Alternatively, use the polygon or box tool to manually delineate an area in the map in which to apply a management action.<td>
+                            <td>Alternatively, use the polygon or box tool to manually delineate a management unit on the map where a specific management action is applied.<td>
                         </tr>
                         <tr>
                             <td><img src='static/img/instructions/edit-draw.png'><td>
