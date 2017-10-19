@@ -333,7 +333,16 @@ def merge_netcdf(pattern, out):
     """
     glob_pattern = glob.glob(pattern)
     glob_pattern.sort()
-    xarray.merge(xarray.open_dataset(x) for x in glob_pattern).to_netcdf(out)
+    first = glob_pattern.pop(0)
+    with xarray.open_dataset(first) as start:
+        for x in glob_pattern:
+            with xarray.open_dataset(x) as src:
+                xarray.merge([start, src])        
+        start.to_netcdf(out)
+
+    os.remove(first)
+    for x in glob_pattern:
+        os.remove(x)
 
 
 @has_nc_root
