@@ -116,3 +116,10 @@ NC_INSTALLED_INTERFACES = (
     'ncdjango.interfaces.arcgis',
     'landscapesim.tiles'
 )
+
+CELERY_TRACK_STARTED = True
+
+CELERY_ROUTES = {
+    'landscapesim.async.tasks.look_for_new_scenario': { 'queue': 'periodic-tasks' },
+    'landscapesim.async.tasks.run_model': {'queue': 'run-model'}
+}

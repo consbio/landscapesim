@@ -72,7 +72,7 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = RunScenarioModel
-        fields = ('uuid', 'created', 'status', 'model_status', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
+        fields = ('uuid', 'created', 'status', 'model_status', 'progress', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
     @staticmethod

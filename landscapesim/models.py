@@ -5,6 +5,7 @@
 """
 import os
 import uuid
+import json
 
 from celery.result import AsyncResult
 from django.db import models
@@ -47,14 +48,7 @@ class Scenario(models.Model):
 
     @property
     def output_directory(self):
-        if self.is_result:
-            path = os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
-            if os.path.exists(path):
-                return path
-            else:
-                raise OSError("Scenario {} has no spatial directory. No spatial outputs were created.")
-        else:
-            raise ValueError("Scenario {} is not a result scenario. Output directory does not exist.".format(self.sid))
+        return os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
 
     @property
     def multiplier_directory(self):
@@ -507,6 +501,26 @@ class RunScenarioModel(AsyncJobModel):
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
     model_status = models.TextField(null=False, default='complete')
 
+    @property
+    def progress(self):
+        """ The progress of the model run. """
+
+        if self.result_scenario:
+            # Scan output directory for progress of the model run by 
+            # checking the number of files created.
+            run_control = json.loads(self.inputs)['config']['run_control']
+            iterations = run_control['MaximumIteration']
+            timesteps = run_control['MaximumTimestep']
+            max_num_files = iterations * timesteps + iterations  # t-0 is included in file directory
+            outputs = [x for x in os.listdir(self.result_scenario.output_directory) if '.tif' in x]
+            print(self.result_scenario.output_directory)
+            print(outputs)
+            print(len(outputs))
+            print(max_num_files)
+            progress = len(outputs) / max_num_files
+            return progress
+        else:
+            return None
 
 class ScenarioInputServices(models.Model):
     """

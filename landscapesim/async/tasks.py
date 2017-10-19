@@ -1,6 +1,7 @@
 import csv
 import json
 import time
+import os
 
 from celery.task import task
 from django.conf import settings
@@ -14,7 +15,8 @@ from landscapesim.io.reports import process_reports
 from landscapesim.io.utils import get_random_csv, process_run_control, process_scenario_inputs
 from landscapesim.models import Library, Scenario, RunScenarioModel
 
-exe = settings.STSIM_EXE_PATH
+EXE = getattr(settings, 'STSIM_EXE_PATH')
+SCENARIO_SCAN_RATE = 2
 
 
 def import_configuration(console, config, sid, tmp_file):
@@ -52,6 +54,35 @@ def execute_ssim_queries(config, library, sid):
         ssim_query("DELETE FROM STSim_TransitionSpatialMultiplier WHERE ScenarioID={}".format(sid), library)
 
 
+@task(bind=True)
+def look_for_new_scenario(self, run_id):
+    """ Scan for the new scenario that was created. """
+    run = RunScenarioModel.objects.get(id=run_id)
+
+    # If run is not spatial, return immediately
+    is_spatial = json.loads(run.inputs)['config']['run_control']['IsSpatial']
+    if not is_spatial:
+        return
+
+    recorded_sids = {x['sid'] for x in Scenario.objects.filter(is_result=True).values('sid')}
+    spatial_directories = os.listdir(os.path.dirname(os.path.dirname(run.parent_scenario.output_directory)))
+    directory_sids = {int(x.split('-')[1]) for x in spatial_directories}
+    new_sids = directory_sids - recorded_sids
+    if new_sids:
+        sid = new_sids.pop()
+        scenario, _ = Scenario.objects.get_or_create(
+                    project=run.parent_scenario.project,
+                    name=run.parent_scenario.name,
+                    sid=sid,
+                    is_result=True,
+                    parent=run.parent_scenario
+            )
+        run.result_scenario = scenario
+        run.save()
+    else:
+        time.sleep(SCENARIO_SCAN_RATE)
+        look_for_new_scenario.delay(run_id)
+
 
 @task(bind=True)
 def run_model(self, library_name, pid, sid):
@@ -65,7 +96,7 @@ def run_model(self, library_name, pid, sid):
     :param sid: The scenario id which we are running the model on. The scenario must not be a result scenario.
     """
     lib = Library.objects.get(name__iexact=library_name)
-    console = STSimConsole(exe=exe, lib_path=lib.file, orig_lib_path=lib.orig_file)
+    console = STSimConsole(exe=EXE, lib_path=lib.file, orig_lib_path=lib.orig_file)
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
     job.model_status = 'starting'
     job.save()
@@ -81,43 +112,45 @@ def run_model(self, library_name, pid, sid):
     job.save()
     try:
         print('Running scenario {}...'.format(sid))
+        look_for_new_scenario.delay(job.id)
         result_sid = int(console.run_model(sid))
     except:
         raise IOError("Error running model")
-
     print("Model run time: {}".format(time.time() - t))
 
     scenario_info = [x for x in console.list_scenario_attrs(results_only=True)
                      if int(x['sid']) == result_sid][0]
     print('Model run complete - new scenario created: {}'.format(result_sid))
-    with transaction.atomic():
-        scenario = Scenario.objects.create(
-            project=job.parent_scenario.project,
-            name=scenario_info['name'],
-            sid=result_sid,
-            is_result=True,
-            parent=job.parent_scenario
-        )
-        job.result_scenario = scenario
-        job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
-        job.model_status = 'processing'
-        job.save()
+    scenario, created = Scenario.objects.get_or_create(
+        project=job.parent_scenario.project,
+        name=scenario_info['name'],
+        sid=result_sid,
+        is_result=True,
+        parent=job.parent_scenario
+    )
 
-    with transaction.atomic():
-        t = time.time()
-        process_run_control(console, scenario)
-        process_output_rasters(scenario)
-        print("Output rasters created in {} seconds".format(time.time() - t))
-        t = time.time()
-        process_reports(console, scenario, get_random_csv(lib.tmp_file))
-        print("Reports created in {} seconds".format(time.time() - t))
+    # If running spatially, we should have caught the scenario 
+    if not created:
+        job.refresh_from_db()
+    else:
+        job.result_scenario = scenario
+    job.outputs = json.dumps({'result_scenario': {'id': scenario.id, 'sid': scenario.sid}})
+    job.model_status = 'processing'
+    job.save()
+
+    t = time.time()
+    process_run_control(console, scenario)
+    process_output_rasters(scenario)
+    print("Output rasters created in {} seconds".format(time.time() - t))
+    t = time.time()
+    process_reports(console, scenario, get_random_csv(lib.tmp_file))
+    print("Reports created in {} seconds".format(time.time() - t))
 
         # Signal that the model can now be used for viewing.
-        job.model_status = 'complete'
-        job.save()
+    job.model_status = 'complete'
+    job.save()
 
     # Post-processing for later usage
-    with transaction.atomic():
-        t = time.time()
-        process_scenario_inputs(console, scenario, create_input_services=False)
-        print("Scenario imported in {} seconds".format(time.time() - t))
+    t = time.time()
+    process_scenario_inputs(console, scenario, create_input_services=False)
+    print("Scenario imported in {} seconds".format(time.time() - t))
