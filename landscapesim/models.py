@@ -513,10 +513,6 @@ class RunScenarioModel(AsyncJobModel):
             timesteps = run_control['MaximumTimestep']
             max_num_files = iterations * timesteps + iterations  # t-0 is included in file directory
             outputs = [x for x in os.listdir(self.result_scenario.output_directory) if '.tif' in x]
-            print(self.result_scenario.output_directory)
-            print(outputs)
-            print(len(outputs))
-            print(max_num_files)
             progress = len(outputs) / max_num_files
             return progress
         else:
