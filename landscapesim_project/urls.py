@@ -12,8 +12,4 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += [
-        url(r'^basictest/$', TemplateView.as_view(template_name='test.html')),
-        url(r'^maptest/$', TemplateView.as_view(template_name='mapviewer.html')),
-    ]
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
