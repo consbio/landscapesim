@@ -1042,46 +1042,57 @@ function updateModelRunSelection(run) {
 
 // Handle data download functionality
 var reportToDownload = '';
+var reportExtension = '';
 function downloadModelResults() {
+
+    // TODO - add selection objects in a modal.
 
     // Identify which model to download
     var modelRun = model_run_cache[$("#model-run-select").val()]
-    //reportToDownload = 'stateclass-summary';    // TODO - add selection objects in a dropdown.
+    reportToDownload = 'stateclass-summary';    
+    reportExtension = '.csv'
 
     reportToDownload = 'report';
+    reportExtension = '.pdf';
 
     // Configure what data users wants to download
-    var configuration = JSON.stringify({
+    var configuration = {
         'scenario_id': modelRun.scenario,
-        'report_name': 'stateclass-summary'
-    })
-    var tileLayers = JSON.stringify({});
+        'report_name': reportToDownload
+    }
+    var tileLayers = {};
     var zoom = 10;
 
     $('#download-data').val('Downloading...');
 
+    var reportUrl;
     if (reportToDownload in availableReports) {
-        $.post(download_csv_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
-        .done(function(res) {
+        reportUrl = download_csv_url;
+    } else {
+        reportUrl = download_pdf_url;
+    }
+
+    fetch(reportUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
+    }).then(function(res){ return res.blob()}).then(function(blob){
+        var reader = new FileReader()
+        reader.addEventListener('loadend', function(e) {
             var node = document.createElement('a')
-            var blob = new Blob(["\ufeff", res]);
-            var url = URL.createObjectURL(blob);
-            node.setAttribute('href', url)
-            node.setAttribute('download', reportToDownload + '.csv')
+            node.setAttribute('href', e.target.result)
+            node.setAttribute('download', reportToDownload + reportExtension)
             document.body.appendChild(node)
             node.click()
             document.body.removeChild(node)
             $('#download-data').val('Download Data & Results')
-        });
-    } else {
-        $.post(download_pdf_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
-        .done(function(res) {
-            console.log(res);
-            console.log(typeof res);
-        });    
-
-    }
-
+        })
+        reader.readAsDataURL(blob);
+    });
 }
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
