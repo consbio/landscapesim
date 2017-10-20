@@ -255,6 +255,14 @@ class ReportViewBase(GenericAPIView):
 class GenerateCSVReportView(ReportViewBase):
     def _response(self, report):
         csv_data = report.get_csv_data()
-        response = HttpResponse(content=csv_data.getvalue(), content_type='text/csv')
+        response = HttpResponse(content=csv_data, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(report.report_name)
+        return response
+
+
+class GeneratePDFReportView(ReportViewBase):
+    def _response(self, report):
+        pdf_data = report.get_pdf_data()
+        response = HttpResponse(content=pdf_data, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename={}.pdf'.format(report.report_name)
         return response

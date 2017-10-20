@@ -1,0 +1,1218 @@
+{% load static %}
+{% load collections %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <style>
+        body, html {
+            font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        h1, h2, h3, h4, h5 {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .small {
+            font-size: small;
+        }
+
+        .smaller {
+            font-size: smaller;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+        .column {
+            display: inline-block;
+            width: 45%;
+            text-align: center;
+        }
+
+        .column:first-child {
+            margin-right: 10px;
+        }
+
+        .column:last-child {
+            margin-left: 10px;
+        }
+
+        .page {
+            width: 8.5in;
+            height: 11in;
+            page-break-after: always;
+            position: relative;
+        }
+
+        .page > * {
+            width: 95%;
+            padding: 10px 15px 20px 10px;
+            position: absolute;
+            left: 10px;
+        }
+
+        .pageContent {
+            height: 5in;
+            top: 0.7in;
+            padding: 25px;
+            width: 90%;
+        }
+
+        .pageHeader {
+            border-bottom: 1px solid #666;
+            top: 0.1in;
+        }
+
+        .pageFooter {
+            border-top: 1px solid #666;
+            bottom: 0;
+        }
+
+        .pageHeader, .pageFooter {
+            height: 0.3in;
+        }
+
+        .pageHeader > div, .pageFooter > div {
+            display: inline;
+        }
+
+        table {
+            width: 100%;
+            background: #fff;
+            margin: 1em 0;
+            border: 1px solid rgba(34, 36, 38, .15);
+            box-shadow: none;
+            border-radius: .28571429rem;
+            text-align: center;
+            color: rgba(0, 0, 0, .87);
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.6em;
+        }
+
+        table:first-child {
+            margin-top: 0;
+        }
+
+        table:last-child {
+            margin-bottom: 0;
+        }
+
+        table thead th {
+            background: #f9fafb;
+            text-align: inherit;
+            color: rgba(0, 0, 0, .87);
+            padding: .92857143em .78571429em;
+            vertical-align: inherit;
+            font-style: none;
+            font-weight: 700;
+            text-transform: none;
+            border-bottom: 1px solid rgba(34, 36, 38, .1);
+            border-left: none;
+        }
+
+        table td {
+            padding: .78571429em .78571429em;
+            text-align: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="pageHeader">
+        <div>
+            <h3 style="display: inline;">
+                California Environmental & Land User Reporter
+            </h3>
+        </div>
+        <div class="right">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+        </div>
+        <br/>
+        <i>Environmental / Land Use Reporter</i>
+    </div>
+    <div class="pageContent">
+        <h4>Selected areas:</h4>
+        <img src="data:image/png;base64,{{ basemap }}" style="width: 5in; padding-left: 1.57in"/>
+    </div>
+    <div class="pageFooter">
+        <div>
+            {{ date_created }}
+        </div>
+    </div>
+</div>
+
+{% if has_custom_labels %}
+{% for legends in labels_legend|sort_by:'key'|item_breaker:'20' %}
+<div class="page">
+    <div class="pageHeader">
+        <div>
+            <h3 style="display: inline;">
+                California Environmental & Land User Reporter
+            </h3>
+        </div>
+        <div class="right">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+        </div>
+        <br/>
+        <i>Environmental / Land Use Reporter</i>
+    </div>
+    <div class="pageContent">
+        <h4>Labels for selected areas:</h4>
+        <table>
+            <thead><tr><th>Key</th><th>Value</th></tr></thead>
+            <tbody>
+                {% for legend in legends %}
+                    <tr><td>{{ legend.key }}</td><td>{{ legend.value }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pageFooter">
+        <div>
+            {{ date_created }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% for pad_charts in visuals.pad|sort_by:'label'|item_breaker:'4,6' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Protected Areas - PAD-US (CBI Edition) Version 2.1b, California
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/64538491f43e42ba83e26b849f2cad28">
+                    Access on Data Basin: databasin.org/datasets/64538491f43e42ba83e26b849f2cad28
+                </a>
+                <div class="small">
+                    <ul>
+                        <li>
+                            <b>GAP Status 1:</b> An area having permanent protection from conversion of natural land
+                            cover and a mandated management plan I operation to maintain a natural state within
+                            which
+                            disturbance events are allowed to proceed without interference.
+                        </li>
+                        <li>
+                            <b>GAP Status 2:</b> An area having permanent protection from conversion of natural land
+                            cover and a mandated management plan in operation to maintain a primarily natural state,
+                            but
+                            which may receive uses or management practices that degrade the quality of existing
+                            natural
+                            communities.
+                        </li>
+                        <li>
+                            <b>GAP Status 3:</b> An area having permanent protection from conversion of natural land
+                            cover for the majority of area. Subject to extractive uses.
+                        </li>
+                        <li>
+                            <b>GAP Status 4:</b> No known public/private institutional mandates/legally recognized
+                            easements.
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% for charts in pad_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ti_charts in visuals.ti|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Terrestrial Landscape Intactness
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65">
+                    Access on Data Basin: databasin.org/datasets/e3ee00e8d94a4de58082fdbc91248a65
+                </a>
+            {% endif %}
+
+            {% for charts in ti_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for dch_tables in visuals.dch|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Designated Critical Habitats
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/15bd24cca96c4c1eab4fd79cef7e4f76">
+                    Access on Data Basin: databasin.org/datasets/15bd24cca96c4c1eab4fd79cef7e4f76
+                </a>
+            {% endif %}
+
+            {% for tables in dch_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for cnddb_tables in visuals.cnddb|sort_by:'label'|table_breaker:'15'|item_breaker:'2' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                CNDDB
+            </h4>
+
+            {% for tables in cnddb_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<div class="page">
+    <div class="pageHeader">
+        <div>
+            <h3 style="display: inline;">
+                California Environmental & Land User Reporter
+            </h3>
+        </div>
+        <div class="right">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+        </div>
+
+    </div>
+    <div class="pageContent">
+        <h4>
+            ACE II Native Species Basemaps
+        </h4>
+
+        <div class="row">
+            <div class="column">
+                <h5>Amphibians</h5>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAADICAYAAAAjriWnAAAJn0lEQVR4nO3dYY4cIQ4F4FwmJ8udcqrcJz93VVJYIRabZ2MwRb0nlZLp6a7J8LXBVPdkfvz4l58/f/6nd/z69Qs6fv/+/b/jz58/accPph8UuHdbjUvgQ2MBbm8n8AviBW5xs5Gzx/HIzFSvhEzgw2JZf2tITtEviqXBqoHZRb8koypG1t5s5OwxPDoI7giWwAdHq+Dy8cm4BB5EAu6BE/iFkbZLFtxs5OwxPDp///5VYaUpuqC3TwACHxbkgkdv/ytd+CDwYbEAS8ieafqZOZ5D+zyBA4K+XKhdxeqtxeV+M8gEDogVGD3qNXqEbAVtH5M9hkcHAfbg1kep6ChgVjAYy7s5vLj14z2VijwBssfx2FjesjNTwau77OxxPDqnArOLDkrkFI1Mz2hnbemws8fw6HiAe1expMdZ9sktLIED4gWuYVcBc4qeTPuqkQbcm6a1S5fWNdiLS2Alli56tB5bHsMuelOQlwmRBmuE207nBN4QFDcCuHetmsCLEw0srcm9+xN4cdB3cXgquNeAIcAzryxlj+dx2QE8OljBCzPCRZF7DZTlIPCiWHGlPbC1alnBmzK7/53FJfDiRAF7cQm8OJYGC1mLn0HORM4ez+PiAZ6p1tETgsDByQaOruTs8TwyJwBbIaULIdljeWxWAxcABBiBJ7AjbwLmFO3IyiqWALWGi8ALEoE8qsQIXOkNednj94rMANdQPZio5ovAE0Gr2ItjmaKl87TABTl77F6RqJcOrcDW89TdNIGNWQlsRWaTtSA7gEfnsMCygo2ZBR6BIMAWZAI7MkKOmKKRJwrabBHYmJWddFSzReCJrAa2QiPbpewxe1Xa/zcLueBRf4yunyhu75wEnsjqCx4e5FEVZ4/Za2J5jTiqEyZwQtD3aGWuwzVy9ni9JmXALMAS9g7gcmSP26vSqwjPuy2jmy0CB8fyVtodwFo3nT1Wr0rU+6Ujp+jRfjh7zF4VL3CLHFnBo71w9pi9LhHAOxotAjtjhZ2p5IhpOnu8XpcZ3Bp51zqcPV6viufHWrQq3rUfzh6310T6JR1eZO6HD0wEbjl2TNNEdmQncEHudeKcqhcmAtiyDo+Apcpn0+XM7gq2Vm97Gy9+OBKxXYqqYuQc/JEWYyJwURzpsZbz8OeWHJlBtkzTBE7MbCVb1mENub0/ct7ssXtFnqpYDdyr5B601EFLVUxkMDuA6woeAaPNFpEN2V3B0jRtPSeRwaxssqQpGlmPCRwUtGK91WtZh71H9hgeHw02EmLlubPH8Ojsxp3ZFxPZmdXASAVHfI3scTwyGRWMfg3r180eyyOjDf7z+d3T9OzVruzxPC6jJktCWVXF2l4Z/drZY3pkEOD2c7PAo6tbM2t19ngeGW0P3LvdgjzaZ6PVTODJ1INfLvRHXdmy7LlncPlOkEHaQR+hrAb2NHVEHqQeYK2KI9bilcBEFtJulSKBW+jIbp3AYGrg8nEUslbJUcj875kGKYNcPtaAIxsuacqeBSZykxpt1HDtACZycLQBj0K2Nl0EDowXGEUuYAhwRKNF5CbaoCPT6wi3PVfkFonIYGq48mMvEcA1cl3FNXoUsgRM5B//D/wcEdN0i4dsk6K2SwSuogGv3jb1gD0VrQF/HrkddOuPnlqrbYTsqeQR8KeRe2gosGc6RV7YaKdsBJzIQtBKjQJGcD3dNgJMZGGa1tbi3cASNIEH8a7Ds1U8wtRu9wB/FrkHrP2yrfrvHuDypxVYmrItwJ9HRn/RltQFW6DR6XmETGBjCiz629Q8U3WvSq3oHlwi/4u07nq6XBR4dO7IafrzyFpzFVnFKHR7X28nTeR/0bZIkbjWhko7CGxIBvBoGl4B/FnkFlObrgvMLLTWXa8E/hSytu9duQ6XJ8lMIzcD/BlkCXMn8sx6TOBBRt3zzcCfQB5tjXYC977O6rX4s8hSsxUNXJClNXkH8PXIs9P0yoYLfTyBlViuYvUqfPVavKOCr0bWgJG9cbtH3gkchXs1MlrB6P0igXdV79XAT6zV21ub64ZpRwVH434eWavilevwbuBPI0tVHNFR17NA1hp8PTJaxT2E2So+ocm6HviJFzm6k26rejfw55F7RwQyArsL+Fpky8WPyCtb7eMJvCjoxY8VwNK0vRpZO1e2x5JYkCM7aUsVR1bq6HzZHuGZqeKoRmt3BbOKB8heWO8UvWMNvhrZU8UrgLMbrWuRvdN0JHCLmQ18HfKTnVU8qtRs3E8Br260NOQsXCIHXpM+YTr+DPKubvotuNcBl0jANfTKNfi0I9sjPKNKXoFL5I0ZbZ2e40u4BHauw0ROSm/tZRVfiKzhfhX4KuTnm5GQpW56pgnLhvsc8JP2NeHevrjAWnCfgdoJHH3+bJew9ICjL1+uguk9kSKfMNk202nxtCnagtt7BWklcI1M4CoS8Ez1tvdFBhK9X8R5PgX8pIcs4SLI0hNiB0ok7pXAES8jWl5oWD2Fs4J/yBXsnaot0/kIMLPCrwVGD+sUbe24T5i+r0Du4aFTtXYxZGZ7lTk192aQbKOp7AJesYdmFQORMDzIlo6cwJsyarKs0NHA2dDXTdPI+7ZQdO1+1lesCDwZBBg9eucZzRQn4l4FLCUCXKt27aXJsq6fUMFXI7dBEbWq7t1P6shP2EZ9FhmBs1b4qc3Xp4CfoJ30zHR+CvDnKrhkFhf5ZV7ZwJ9ch0tmK7fgIhdSMqDrNT97rFPSa5Q80zMy3e9Gvg73+WZ6t5VDuo+275X2wG8Avg63PaTb68/XQauzfQKgwAg2191BkG++3A89p/dypoYrIRMYiFalnkTi7pqqr8V9Eon7BNkrW6fo1dunq4FXZMU0TeBDglTwac0WgQ15BgwFjlyPCbw5D0j9dwk6G5fAAek1WZZK5hr8gpT9rASchXz1Hnh3JFgNtwZYMVUTuJOZfbP1hYhR5c4iE7iTHnA9aKPHW4HRyp0BXjNSlyUKufdSJNffQ4Iio8B1U1YqucWZ7aB3jc0VWTFV1x9LFdxO1Qj856sXhZqJ510gElZv6iWwkh3A0iXMdmquK9iyvnKKPiDa/liantHmiRV8QEbAdYOl4fUaMA2awJuCVLAFTNsn927L/v5fkdn12oqMTM8j4PZ+keNxZWaBR9eqvVWMVjqRB5mpYgTYW8XI5wkMxHKRow0KXCN7K1haj+s3KTBCdgK3eJZr1b0KJjCQWWDkvVva5UoUuL5/Oe+K8WD+xfrmvFGXjALXlz+zx+DqoLjIlgkF5rq7MWgFIx01tz+HBgXuIWf/2xkwGvLuf8t/AbfKjlnimjA7AAAAAElFTkSuQmCC">
+            </div>
+            <div class="column">
+                <h5>Birds</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <h5>Fish</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+            <div class="column">
+                <h5>Mammals</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <h5>Plants</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+            <div class="column">
+                <h5>Reptiles</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+        </div>
+    </div>
+    <div class="pageFooter">
+        <div>
+            {{ date_created }}
+        </div>
+    </div>
+</div>
+
+<div class="page">
+    <div class="pageHeader">
+        <div>
+            <h3 style="display: inline;">
+                California Environmental & Land User Reporter
+            </h3>
+        </div>
+        <div class="right">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+        </div>
+
+    </div>
+    <div class="pageContent">
+        <h4>
+            ACE II Rare Species Basemaps
+        </h4>
+
+        <div class="row">
+            <div class="column">
+                <h5>Amphibians</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+            <div class="column">
+                <h5>Birds</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <h5>Fish</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+            <div class="column">
+                <h5>Mammals</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <h5>Plants</h5>
+                <img src="data:image/png;base64,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">
+            </div>
+            <div class="column">
+                <h5>Reptiles</h5>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAADICAYAAAAjriWnAAAF8klEQVR4nO2dUW7bMBAFfZmcLHfKqXKffLYgYCEMYcmSyN3ZJd8Ai6JB0ZhvtDIlk9bj8eTn5+ffVt/f3//qv2eqh3jNDHIl+IBNrARPSt3BmSXTOYbk6+srtVQJPoEELwAtR4KNoeVIsDG0HAk2hpZzp9q5A51haGhZ6mBjaDnqYGNoWepgY6y6SoKDYCHXWzadYWjo06sEG0PLkWBjMt6P1iz6JLQodbAxtBgJdoCWI8HG0HIk2BhajgQbQ8uRYEPKuixajgQbkvEaWIIv8EpwRul0jiGhpUiwMbQUCTaEFiLBxtBCeksfNryBFqQONoYWIsHG0ELqGnFZRucZDlqqBBtDSx1ddJ7hoIVIsDG0EAl2gJYyorb3bzrLsNCCRgguRecYGlrSiKIzDA0tR4IdoAWV6rkepvNLAS1YHWyMZfdZrxKhs0sB3YUS7IC3mFGdTeeWBroTJdgYWpQEO0DLkmBjaFkSbIwWvk8OLUuCjfn8/BwWvNfZgM4sDUVuxh2HdG5pyPrsBjq3NEjwAtCyJNgYdfDk9AimDg46s1TQ3SjBDtDCJNiYnrCJ0zSdVzrojpRgQ3QtPDlXT7WRDgY6uzRckRZJsCRf4G7AtHA6t1TQ3SjJxtCiJNmBM2FGnXnT2aXgrGBapiR3EFmgBA8iW+dK8kWyytX3eFzg1UMoo06wJPkmGbu4Ljq/8GRc8SHBFyjrpu/cq450KqczDE8RdXaBfP0+XQumZdMZhoaWI8kO0HIk2ZCyh+nqe2rUrqezDMn2/ltPoOrAaGmS3Ek9wYo0O5bkwdSCj2bVWQ4COs+QvBMYQe7Z309nGZYzAdOS1cWdZBMpyTeYQa4kH1B/xT4tSIINaJ+hQEu6U+01vahog6FlSfJgskyyrr5GOtcwZFvC0/5s73XTuYbhbodEqaPXTWcbAlqQddH5hoCWYNXBkvyElqQuNsa7oyTZmdFhSnIwsomS5IvQoVvWq4OUzhshw80OCe7kKJTMJclPZhW8V3TeCHToEuwILWBkvZpj1J+DLwstxkM8nTEKLaCVYfV/0zlj0FK9is4Zgw5eko0pA1/lsmkpyfV205UELyO53qAmwROymtTlJK8ueAnJdMARinZgCh2uR707U9EOTKHDj1K0BzPoYCMV7cIEOlTrujKRpF2YQUuIVLQLM+hgIxXtwgw62Cg17efHdLCRinZhBh1slJq2iwt0uBFq6udJ0OFGKtqFCdsRvOLnxEtJVk0seW+gK3T1qzHSPkygg6Yltz+jfQxn9k69I512MhQJ/it32kun1UW3CxNpH8NZXXCpj4+PP3+nnQyHDpisvSsH2slQ6JAjFu3EBJ2uf2u6WXVBtzB/5U456WqfWrqi6LKna9vXNZ3g+uhdUW4Zc5lRF8H1z2kvw6gHSodN1NFGPdrNMOiQyVpmlwQddNSivQxl1dN0qSUeM7Cy4HdFu+mGDpCopbbBrNa9Vy8LaT9DoEOPXLSbIax6s2MZwXSIkYt2M4QyEHXwxJJ1ip5cMh1ehqIddUGHl6FoR13Q4WUp2lMXdHgZinbUDR1g9KL9mEEHG6loF24Q4W6Xc+0yG6/fLckOtS2UIyQvJ7jgHW5ZS1WvhJRgBzzD3TaQlZJgJ7wDJm+t0lkjrCKYznkIrwbSDvLdv5mxPLI3Z29gVwZOi5DgE5wd8JWB04IkuGH04GhBktswenC0JAl24G7Aew+MluBAjA5dgoMxQqhubiSgDixSl0qwASO6WoKDM0qSpWw6o/RElivBFT1h7E2i6p/tiZRgJ16FcSUoS0mSa0hmyR75TMHZ0GihknuTUV2sO1gOeARwVYaFeMvxhcYjgAhbWi3HJx78+zE9/unxfs+VYGfob8Olx5+C3rDeLXL3OAhG5jElPSEdCfTs8JF5TEdPSGUf0tbBR5IlGKQnqG276N6arPZPCYa4G9TeqdhLrASfZITgVq5XWeQhntRyqcsmOoOpqS+R2odLHtWIg4Ae+xK0z3Y6s/l7ue+Dzk4td5tRnz1V069dnKQVS37rzX9AIaZNjRf+8QAAAABJRU5ErkJggg==">
+            </div>
+        </div>
+    </div>
+    <div class="pageFooter">
+        <div>
+            {{ date_created }}
+        </div>
+    </div>
+</div>
+
+{% for ace_charts in visuals.ace_amphibians|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Amphibians
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ace_charts in visuals.ace_birds|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Birds
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ace_charts in visuals.ace_fish|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Fish
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ace_charts in visuals.ace_mammals|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Mammals
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ace_charts in visuals.ace_plants|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Plants
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for ace_charts in visuals.ace_reptiles|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                ACE II - Reptiles
+            </h4>
+
+            {% for charts in ace_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for eca_charts in visuals.eca|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Essential Connectivity Areas
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/4f6cd2c4e5b4461e9de63e7f7eb2a67a">
+                    Access on Data Basin: databasin.org/datasets/4f6cd2c4e5b4461e9de63e7f7eb2a67a
+                </a>
+            {% endif %}
+
+            {% for charts in eca_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for iba_tables in visuals.iba|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Important Bird Areas
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/a2a77df9c31c4689b2373fb25d81d9bb">
+                    Access on Data Basin: databasin.org/datasets/a2a77df9c31c4689b2373fb25d81d9bb
+                </a>
+            {% endif %}
+
+            {% for tables in iba_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for css_charts in visuals.css|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Climate Site Sensitivity
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/d1aba81719dc465594ed9a8d64e6b2a7">
+                    Access on Data Basin: databasin.org/datasets/d1aba81719dc465594ed9a8d64e6b2a7
+                </a>
+            {% endif %}
+
+            {% for charts in css_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for cce_charts in visuals.cce|sort_by:'label'|item_breaker:'4' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Climate Change exposure
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/15e8a1a8ad604c2681590dc68d4ec1cf">
+                    Access on Data Basin: databasin.org/datasets/15e8a1a8ad604c2681590dc68d4ec1cf
+                </a>
+            {% endif %}
+
+            {% for charts in cce_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for drecp_cv_charts in visuals.drecp_cv|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Conservation Value (DRECP)
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/2862ce3beeee406c991da2fb53ada5ab">
+                    Access on Data Basin: databasin.org/datasets/
+                </a>
+            {% endif %}
+
+            {% for charts in drecp_cv_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for drecp_eca_charts in visuals.drecp_eca|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Essential Connectivity Areas (DRECP)
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/2862ce3beeee406c991da2fb53ada5ab">
+                    Access on Data Basin: databasin.org/datasets/2862ce3beeee406c991da2fb53ada5ab
+                </a>
+            {% endif %}
+
+            {% for charts in drecp_eca_charts|item_breaker:'2' %}
+                <div class="row">
+                    {% for chart in charts %}
+                        <div class="column">
+                            <h5>Shape {{ chart.label }}</h5>
+                            {{ chart.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for drecp_ss_tables in visuals.drecp_ss|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Species Stack (DRECP)
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/dc899a5edfdf4276899321489c39b01d">
+                    Access on Data Basin: databasin.org/datasets/dc899a5edfdf4276899321489c39b01d
+                </a>
+            {% endif %}
+
+            {% for tables in drecp_ss_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for sjv_lca_tables in visuals.sjv_lca|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Least Conflict Areas (SJV)
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/b64959db3e694254818d97e51e2e6f42">
+                    Access on Data Basin: databasin.org/datasets/b64959db3e694254818d97e51e2e6f42
+                </a>
+            {% endif %}
+
+            {% for tables in sjv_lca_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for solar_tables in visuals.solar|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Solar Footprints
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/f5c2c15925b74fc4bbd2a8a22fbf4ad0">
+                    Access on Data Basin: databasin.org/datasets/f5c2c15925b74fc4bbd2a8a22fbf4ad0
+                </a>
+            {% endif %}
+
+            {% for tables in solar_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for subs_tables in visuals.subs|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Substations
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/5d64ae72d0e44eaeb41e2102992ea787">
+                    Access on Data Basin: databasin.org/datasets/5d64ae72d0e44eaeb41e2102992ea787
+                </a>
+            {% endif %}
+
+            {% for tables in subs_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for trans_tables in visuals.trans|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Transmission Lines
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/af900b6db9cf480cb44695799fbbfff3">
+                    Access on Data Basin: databasin.org/datasets/af900b6db9cf480cb44695799fbbfff3
+                </a>
+            {% endif %}
+
+            {% for tables in trans_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for energy_corridors_tables in visuals.energy_corridors|sort_by:'label'|item_breaker:'10' %}
+    <div class="page">
+        <div class="pageHeader">
+            <div>
+                <h3 style="display: inline;">
+                    California Environmental & Land User Reporter
+                </h3>
+            </div>
+            <div class="right">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAC+lBMVEXZwyZ0g2eWhhwEBgoEBgwCAwcBAQAICQ4PzQPNuCUGtQQIvQP+7zL+5zComB23ubeoqadoamORghkKrQcLuAUC1QT//v8IDKIHBpaQkIsECHXcxizjziiunR+fjhogVQkvMQkMoQcEwwMT5gIR3QIFzQIF0AHc39u9vrqipKSVlox4eXtiZmEIR141PlVJSEhBRkMGLkMBAjk9XTW9qSrCsCj96ieyoCO5rCK1oyG9qR+aixwQERh7bxY5jhWGeRVcVg8uRQ8Rgw0oYAgOwgYTZQUL2QMbHgMIiwIV8AEC7AAB4QDX8NPR0tHGx8S727WztbGvsK2u4qMIAqKdnpmYl5WlpJIHAIyV3oeSkoB4kHZyrnAEA28uDWkJFGgDCFySjFkEGVUEB1RcblJruFAJWFBrw06dmE57dkpMUkcsM0KRiDwGezL33zA0UTB+dy774y2OgixLcCvq0CrTvyk9dyjGsifOvSSllSIFjh8tVR9Inh6nkx4kqRwcfBmGhhiMfRc4XxUYLxUKDBUKsRRtYhENqBAPFRAnTg8TlAxKRAwtJgsUjQpAOQccSQYHxgUSmwQQ7AMEnQMDogEA5gAE4gAC2gD1/PXu+O7o7enp7OnJ2cixvLCw4Ky+vaewsqCeoKCpqpyj1pqahJe0sI+d7IqHhIkJGYeLs4aXmIS6toOKioMJC4OUzoCgn399cn6Fhn18hHoJH3qGlniHhnZucHB4o21IX2t5fWpycmpukmd6emV+2llaX1dphVQWNVGTjlCsp05RYE43JU4EUE1v0UxRv0zRvUxOeUhqp0YHIkMUZ0BJYD0ELj1ZuTwyWTpDRjpUpzgeUTg2UjcaPzcKYjY4ODayqDSfkjRMhjQ+QzSwoTJoYzJd1jEAADAuZisxSyrg0SnGtCcoaCYfLSUNnCRFQCSdjSITfCEiIyFc2iC8rCDo0B1SzB1zch2JfBorfBoNXRlVfBMObRMGyhJDsRI0bhJPXww6TQkKfQgA3QIU0wEc+QADGwAs/J1AAAAAA3RSTlP+/v6VFoksAAACYklEQVQozw3JY6zkYACF4W+3nbZj8451bdu2bdu2baxt27Zt27aTnZwfJ3kfAOE0c3BAcTgIMktL/XT56oGkJF5iItAEiVPGPJqxxgW8ApXKn81mZ3LXAghxGsrYHhPAMUDh5KMTctZXInvKv4ALIPfWthjqpmXBs41xgg4/1cjkH0zJ9l8BINe6uncBcxeHzYhET6vUfgQZhnkphg01IDU/f2/v7pmz4tpTf09ho71qlhLzrQXw9/5up0vBy7XDHqKm8gkvIsGHpWT5dgFIUt/jeipQf12ZA2xKkCsUo2rPYeLfMwCGK19/O7byZNlTCE0wnMQ8iB7MX4RrPIDCuKL6rKzKKyiECsJr/XwVXmrCuWgugCEYB7ejbd2aS+BGjzE9MGVmuCANGBntMDJJN8jLS98y7b6Z2ZEvL003Gz7jJYP8PSk371hokUgkoS2CSDv7ncUicQ2FAVYH6W4tLhVXk0nOdghi60KhiKY7Mxgt4ODOXZH6Ofmlbz43WCJ9eHsXqae7p0T6HNgtiNqot5Cec/efDUAo5RKfnuONROwWHwizV/Ej+HT6be9mu0Ebd9lI68fGcdlhbaBltXS+3hoD+j7zZgbjx4B83GeMwJTlcoAW+W2UDlVXL/asBV70c4joNkDsIDzYoKMBsnD9otiU7AuUckdvk14mk9XlZhzKB3hySWHJoxvF5occhX2wSdGTJremXBrtOrC3tKh4XPV+/wmrwk7vbdpz4uPjlkRQLzoCG0tr65qWKpIVmQQQXQ5HhxoSQnuFuABr0YsGCh6Pr8ZXiBH9wCAqLZQ++MHe9j8EDbmzE7WrVgAAAABJRU5ErkJggg=="/>
+            </div>
+
+        </div>
+        <div class="pageContent">
+            <h4>
+                Federal Energy Corridors 368
+            </h4>
+            {% if forloop.first %}
+                <a href="https://databasin.org/datasets/ce64c06e92d24b0c87983bca66e8bc5d">
+                    Access on Data Basin: databasin.org/datasets/ce64c06e92d24b0c87983bca66e8bc5d
+                </a>
+            {% endif %}
+
+            {% for tables in energy_corridors_tables|item_breaker:'2' %}
+                <div class="row">
+                    {% for table in tables %}
+                        <div class="column">
+                            <h5>Shape {{ table.label }}</h5>
+                            {{ table.visual|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageFooter">
+            <div>
+                {{ date_created }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+</body>
+</html>

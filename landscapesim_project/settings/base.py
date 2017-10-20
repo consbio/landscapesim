@@ -117,6 +117,9 @@ NC_INSTALLED_INTERFACES = (
     'landscapesim.tiles'
 )
 
+# pdfkit binary
+WKHTMLTOPDF_BIN = CONFIG.get('WKHTMLTOPDF_BIN', 'wkhtmltopdf')
+
 CELERY_TRACK_STARTED = True
 
 CELERY_ROUTES = {

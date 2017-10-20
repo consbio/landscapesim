@@ -8,6 +8,7 @@ git+https://github.com/TaylorMutch/clover@filename-order
 mercantile
 Shapely==1.5.17
 xarray
+pdfkit==0.6.1
 
 # Server dependencies
 Django==1.8.16

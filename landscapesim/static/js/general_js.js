@@ -9,6 +9,7 @@ var scenario_url = '';
 var current_scenario = {};
 var run_model_url = '/api/jobs/run-model/';
 var download_csv_url = '/api/download-csv/';
+var download_pdf_url = '/api/download-pdf/';
 var result_url = '';
 
 var run;
@@ -1045,7 +1046,9 @@ function downloadModelResults() {
 
     // Identify which model to download
     var modelRun = model_run_cache[$("#model-run-select").val()]
-    reportToDownload = 'stateclass-summary';    // TODO - add selection objects in a dropdown.
+    //reportToDownload = 'stateclass-summary';    // TODO - add selection objects in a dropdown.
+
+    reportToDownload = 'report';
 
     // Configure what data users wants to download
     var configuration = JSON.stringify({
@@ -1057,19 +1060,28 @@ function downloadModelResults() {
 
     $('#download-data').val('Downloading...');
 
+    if (reportToDownload in availableReports) {
+        $.post(download_csv_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
+        .done(function(res) {
+            var node = document.createElement('a')
+            var blob = new Blob(["\ufeff", res]);
+            var url = URL.createObjectURL(blob);
+            node.setAttribute('href', url)
+            node.setAttribute('download', reportToDownload + '.csv')
+            document.body.appendChild(node)
+            node.click()
+            document.body.removeChild(node)
+            $('#download-data').val('Download Data & Results')
+        });
+    } else {
+        $.post(download_pdf_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
+        .done(function(res) {
+            console.log(res);
+            console.log(typeof res);
+        });    
 
-    $.post(download_csv_url, {'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
-    .done(function(res) {
-        var node = document.createElement('a')
-        var blob = new Blob(["\ufeff", res]);
-        var url = URL.createObjectURL(blob);
-        node.setAttribute('href', url)
-        node.setAttribute('download', reportToDownload + '.csv')
-        document.body.appendChild(node)
-        node.click()
-        document.body.removeChild(node)
-        $('#download-data').val('Download Data & Results')
-    });
+    }
+
 }
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/

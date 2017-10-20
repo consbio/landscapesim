@@ -1,5 +1,7 @@
 import os
-from io import StringIO
+import pdfkit
+
+from io import StringIO, BytesIO
 from shutil import copyfileobj
 
 from django.conf import settings
@@ -7,6 +9,19 @@ from django.conf import settings
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.utils import get_random_csv
 from landscapesim.models import Scenario
+
+PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=getattr(settings, 'WKHTMLTOPDF_BIN'))
+PDF_OPTIONS = {
+    'quiet': '',
+    'orientation': 'Portrait',
+    'page-size': 'Letter',
+    'encoding': 'UTF-8',
+    'disable-smart-shrinking': '',
+    'margin-bottom': '0',
+    'margin-left': '0',
+    'margin-top': '0',
+    'margin-right': '0',
+}
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 TEMP_DIR = getattr(settings, 'NC_TEMPORARY_FILE_LOCATION')
@@ -31,4 +46,9 @@ class Report:
         with open(temp_file, 'r') as src:
             copyfileobj(src, result)
         os.remove(temp_file)
+        return result.getvalue()
+
+    def get_pdf_data(self):
+        # TODO - use our map services, etc, and design a PDF report
+        result = pdfkit.from_url('google.com', False, options=PDF_OPTIONS, configuration=PDFKIT_CONFIG)
         return result
