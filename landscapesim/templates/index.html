@@ -94,7 +94,7 @@
                 </div>
                 <div class="collapsible_div" visibility="visible">
                     <div id="intro">
-                        The Landscape Simulator is a web-based state-and-transition modelling framework powered by <a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank">ST-Sim</a>.
+                        The Landscape Simulator is a web-based state-and-transition modelling framework powered by <!--<a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank"-->ST-Sim<!--/a-->.
                         <p>
                         It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
                         <p>
@@ -310,7 +310,7 @@
         <!-- Text for modals -->
         <script type="x-text" id="x-purpose">
         <div class="alertify-step">
-            The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation models (STSM).
+            The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation models (STSMs).
             <br><br>
             Its primary purpose is to <b>help land managers understand</b> how vegetation composition will change over time due to stochastic events (e.g. fire, disease) and land use and management actions (e.g. treatments).
             <br><br>
@@ -324,10 +324,10 @@
             Vegetation cover is described in terms of <b>state classes</b> which are defined as a unique combination of <b>cover type</b> (grass, shrub, tree) and <b>structural stage</b> (i.e. age).
             <br><br>
             STSMs can be run multiple times in a <b>Monte Carlo</b> environment to evaluate the uncertainty across all possible vegetation projections. We use software from the VDDT family, 
-            called <a href="http://www.apexrms.com/state-and-transition-simulation-models/" target="_blank">ST-Sim</a>, and provide in this application 
+            called <!--<a href="http://www.apexrms.com/state-and-transition-simulation-models/" target="_blank">-->ST-Sim<!--/a-->, and provide in this application 
             a visualization and analysis interface to give natural resource managers a way to explore the possible futures of their landscape.
-            <br><br>
-            To learn more about ST-Sim, please contact Leonardo Frid (email) or visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.
+            <!--<br><br>
+            To learn more about ST-Sim, please contact Leonardo Frid (email) or visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.-->
         </div>
         </script>
         <script type="x-text" id="x-instructions">
@@ -338,14 +338,14 @@
                 <div class='alertify-subheader'>2. Review the <b>Initial Vegetation Composition</b>.</div>
                 When the model is run in the spatially explicit mode, the initial vegetation composition cannot be changed. 
                 If you want to experiment with alternative vegetation compositions, you can disable spatial output under <b>Run Control</b>. 
-                This can lead to faster model runs in exchange for fewer visualizations provided by this tool.
+                This can lead to faster model runs in exchange for no geospatial visualizations provided by this tool, including maps.
                 <br><br>
                 <b>Recommendation</b>: If you are not familiar with STSMs or ST-Sim in particular, the model should be run in the spatially explicit mode.
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>3. Adjust the <b>Probabilistic Transition</b> effects.</div>
                 This allows the user to change the probability of events across the landscape. 
-                For example, to increase by 50% the likelihood of an insect or disease outbreakr, the user can adjust the appropriate slider to that number.
+                For example, to increase by 50% the likelihood of an insect or disease outbreak, the user can adjust the appropriate slider to that number.
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>4a. Set the <b>Run Control</b>.</div>
