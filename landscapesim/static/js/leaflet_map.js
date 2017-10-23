@@ -25,7 +25,7 @@ var groupedOverlays = {
 
 var options = {
     position:"topleft",
-    /*exclusiveGroups: ["Reporting Units","Base Maps", "Input Layers"]*/
+    exclusiveGroups: ["Base Maps", "Initial Conditions", "Model Results"]
 };
 
 var layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);

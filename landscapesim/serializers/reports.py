@@ -9,8 +9,8 @@ from landscapesim import models
 
 class GenerateReportSerializer(serializers.Serializer):
     configuration = serializers.JSONField()
-    tile_layers = serializers.JSONField()
-    zoom = serializers.IntegerField()
+    tile_layers = serializers.JSONField(allow_null=True)
+    zoom = serializers.IntegerField(allow_null=True)
 
 
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):

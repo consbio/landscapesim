@@ -51,6 +51,13 @@ $(document).ready(function() {
         // Clear the current transition_spatial_multipliers
         current_scenario.config.transition_spatial_multipliers = [];
 
+        // Set default output options
+        current_scenario.config.output_options.sum_tr = true;
+        current_scenario.config.output_options.sum_tr_t = 1;
+        current_scenario.config.output_options.sum_trsc = true;
+        current_scenario.config.output_options.sum_trsc_t = 1;
+
+        // Repopulate the current transition multipliers
         $.each(action_list, function(index,object){
             if (typeof object != "undefined") {
                 $.each(object.timesteps, function (index, value) {
@@ -1043,36 +1050,13 @@ function updateModelRunSelection(run) {
 // Handle data download functionality
 var reportToDownload = '';
 var reportExtension = '';
-function downloadModelResults() {
 
-    // TODO - add selection objects in a modal.
-
-    // Identify which model to download
-    var modelRun = model_run_cache[$("#model-run-select").val()]
-    reportToDownload = 'stateclass-summary';    
-    reportExtension = '.csv'
-
-    reportToDownload = 'report';
-    reportExtension = '.pdf';
-
-    // Configure what data users wants to download
-    var configuration = {
-        'scenario_id': modelRun.scenario,
-        'report_name': reportToDownload
-    }
-    var tileLayers = {};
-    var zoom = 10;
-
+function downloadReport(url, filename, configuration, tileLayers, zoom) {
+        // Identify which model to download
+    
     $('#download-data').val('Downloading...');
 
-    var reportUrl;
-    if (reportToDownload in availableReports) {
-        reportUrl = download_csv_url;
-    } else {
-        reportUrl = download_pdf_url;
-    }
-
-    fetch(reportUrl, {
+    fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
@@ -1085,7 +1069,7 @@ function downloadModelResults() {
         reader.addEventListener('loadend', function(e) {
             var node = document.createElement('a')
             node.setAttribute('href', e.target.result)
-            node.setAttribute('download', reportToDownload + reportExtension)
+            node.setAttribute('download', filename)
             document.body.appendChild(node)
             node.click()
             document.body.removeChild(node)
@@ -1093,6 +1077,59 @@ function downloadModelResults() {
         })
         reader.readAsDataURL(blob);
     });
+
+}
+
+function downloadModelResults() {
+
+    var modelRun = model_run_cache[$("#model-run-select").val()]
+    var reportInputs = [];
+    for (var report in availableReports) {
+        var id = report;
+        var value = availableReports[report].label
+        reportInputs.push("<input value='" + value + "' type='button' class='my-button download-report' id='" + report + "'>")
+    }
+
+    // TODO - add selection objects in a modal.
+    var text = [
+        "<div class='header'>",
+            "Download Data & Results",
+        "</div>",
+        "<input value='PDF' type='button' class='my-button download-report' id='pdf'>",
+        reportInputs.join('')
+    ].join('')
+    alertify.alert(text);
+    $('.alertify-message').remove();    // Removes the extra div created, which we replace
+
+    $('.download-report').on('click', function() {
+        reportToDownload = this.id;
+        console.log(reportToDownload);
+        // Configure what data users wants to download
+        var configuration = {
+            'scenario_id': modelRun.scenario,
+            'report_name': reportToDownload == "pdf" ? 'report' : reportToDownload
+        }
+        var tileLayers = null;
+        var zoom = null;
+
+        var reportUrl, ext;
+
+        // Download CSV
+        if (reportToDownload in availableReports) {
+            reportUrl = download_csv_url;
+            ext = '.csv'
+        }
+        // Download PDF report
+        else {
+            reportUrl = download_pdf_url;
+            ext = '.pdf'
+            // TODO - get current tile layers
+            // TODO - get current zoom
+        }
+
+        var filename = reportToDownload + ext;
+        downloadReport(reportUrl, filename, configuration, tileLayers, zoom);
+    })
 }
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/

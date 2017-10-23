@@ -39,10 +39,12 @@ var availableReports = {
     'transition-stateclass-summary' : {
         'label': 'Transitions by Stateclass'
     },
+    /*
     'state-attributes' : {
         'label': 'State Attributes'
     },
     'transition-attributes' : {
         'label': 'Transition Attributes'
     },
+    */
 }
