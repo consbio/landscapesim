@@ -2,9 +2,6 @@ var action_list = [];
 var totalCost = 0;
 $("#totalCost").text(totalCost);
 
-// Basemaps
-var topographic = L.esri.basemapLayer("Topographic").addTo(map);
-
 var drawnItems = L.featureGroup().addTo(map);
 
 L.control.button({ position: 'topleft' }).addTo(map);

@@ -1153,7 +1153,14 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 
 .leaflet-left {
 	left: 360px;
+}
+
+.leaflet-top {
 	top: 10px;
+}
+
+.leaflet-bottom {
+	bottom: 50px;
 }
 
 #footer {

@@ -250,6 +250,11 @@ $(document).ready(function() {
 
     $("#start_button").on("click", function(){
 
+        if (!layerControlAdded) {
+            layerControl.addTo(map);
+            layerControlAdded = true;
+        }
+
         $("#welcome_header").addClass("full_border_radius");
         $("#library_header").addClass("full_border_radius");
 

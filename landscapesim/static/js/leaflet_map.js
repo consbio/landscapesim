@@ -5,18 +5,12 @@ var map = L.map('map', {
 ).setView([37,-108], 5);
 
 // Basemaps
-var topographic = L.esri.basemapLayer("Topographic").addTo(map);
+var topographic = L.esri.basemapLayer("Topographic");
 var imagery = L.esri.basemapLayer("Imagery");
 var usa_topo = L.esri.basemapLayer("USATopo");
 var national_geographic = L.esri.basemapLayer("NationalGeographic");
 
 var groupedOverlays = {
-    "Base Maps": {
-        'Topographic': topographic,
-        'USA Topo': usa_topo,
-        'National Geographic': national_geographic,
-        'Imagery': imagery
-    },
     "Initial Conditions": {
     },
     "Model Results": {
@@ -25,10 +19,16 @@ var groupedOverlays = {
 
 var options = {
     position:"topleft",
-    exclusiveGroups: ["Base Maps", "Initial Conditions", "Model Results"]
+    exclusiveGroups: ["Model Results"]
 };
 
-var layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+var basemaps = map.addControl(L.control.basemaps({
+    basemaps: [topographic, usa_topo, national_geographic, imagery],
+    position: 'bottomleft'
+}))
+
+var layerControlAdded = false;
+var layerControl = L.control.groupedLayers("", groupedOverlays, options);
 
 var inputStateClassLayer;
 var inputStratumLayer;

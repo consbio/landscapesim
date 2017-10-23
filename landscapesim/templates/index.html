@@ -32,8 +32,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.9/leaflet.draw.js"></script>
 
     <!-- Leaflet.Range -->
-    <link rel="stylesheet" href="{% static "css/L.Control.Range.css" %}" />
+    <link rel="stylesheet" href="{% static "css/vendor/L.Control.Range.css" %}" />
     <script src="{% static "js/vendor/L.Control.Range-min.js" %}"></script>
+
+    <!-- Leaflet.Basemaps -->
+    <link rel="stylesheet" href="{% static "css/vendor/L.Control.Basemaps.css" %}" />
+    <script src="{% static "js/vendor/L.Control.Basemaps-min.js" %}"></script>
+
 
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -301,7 +306,7 @@
 
         <!-- My leaflet button control -->
         <script src="{%  static 'js/cost_button.js' %}"></script>
-        <link rel="stylesheet" href="{% static 'css/cost_button.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/cost_button.css' %}">
 
         <!-- Management Action Scripts -->
         <script src="{% static 'js/cost.js' %}"></script>
