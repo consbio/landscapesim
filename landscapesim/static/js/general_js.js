@@ -11,8 +11,7 @@ var run_model_url = '/api/jobs/run-model/';
 var download_csv_url = '/api/download-csv/';
 var download_pdf_url = '/api/download-pdf/';
 var result_url = '';
-
-var run;
+var runs = [];
 var settings;
 var bounding_box_layer;
 
@@ -37,8 +36,6 @@ $(document).ready(function() {
     });
 
     /************************************************* Run Model  ****************************************************/
-    run = 0;
-
     // Send the scenario and initial conditions to ST-Sim.
     settings = [];
     settings["spatial"] = false;
@@ -82,9 +79,6 @@ $(document).ready(function() {
 
         settings["library"] = current_library.name;
         settings["spatial"] = $("#spatial_button").hasClass('selected')
-
-        //iterations = current_scenario.config.run_control.max_iteration;
-        //timesteps = current_scenario.config.run_control.max_timestep;
 
         $(".slider_bars").slider( "option", "disabled", true );
         $('input:submit').attr("disabled", true);
@@ -148,7 +142,6 @@ $(document).ready(function() {
                                 var results_scenario_configuration_url = window.location.href + "api/scenarios/" + results_model_id + "/config/";
 
                                 // Increment the number of runs the user has done.
-                                run += 1;
 
                                 // Get the list of reports
                                 $.getJSON(reports_url).done(function (res) {
@@ -160,25 +153,22 @@ $(document).ready(function() {
                                     // Get the output data
                                     $.getJSON(stateclass_summary_report_url).done(function (res) {
                                         // Restructure the results to create the results_data_json object.
-                                        results_scenario_report =  res;
-                                        processStateClassSummaryReport(results_scenario_report);
-                                        $('#progressbar-container').hide();
-                                        progressbar.css('width', '0%');
-                                        progressbarlabel.text("Waiting for worker...")
+                                        var results_scenario_report =  res;
+
+                                        // Get the result scenario object for output services
+                                        $.getJSON(results_scenario_configuration_url).done(function (config) {
+                                            var results_scenario_configuration = config;
+                                            runs.push(config);
+                                            loadOutputLayers(results_scenario_configuration, runs.length + 1);
+                                            processStateClassSummaryReport(results_scenario_report, config);
+                                            $('#progressbar-container').hide();
+                                            progressbar.css('width', '0%');
+                                            progressbarlabel.text("Waiting for worker...")
+                                            var results_header = $("#model_results_header");
+                                            if (!results_header.hasClass('full_border_radius')) results_header.click();
+                                        });
                                     });
-
                                 });
-
-                                // Get the result scenario object for output services
-                                $.getJSON(results_scenario_configuration_url).done(function (res) {
-
-                                    results_scenario_configuration =  res;
-                                    loadOutputLayers(results_scenario_configuration, run);
-
-                                    var results_header = $("#model_results_header");
-                                    if (!results_header.hasClass('full_border_radius')) results_header.click();
-                                });
-
 
                                 $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
@@ -1055,9 +1045,8 @@ function updateModelRunSelection(run) {
 // Handle data download functionality
 var reportToDownload = '';
 var reportExtension = '';
-
 function downloadReport(url, filename, configuration, tileLayers, zoom) {
-        // Identify which model to download
+    // Identify which model to download
     
     $('#download-data').val('Downloading...');
 
@@ -1143,9 +1132,10 @@ var model_run_cache = {};   // Cache the results from every model run we perform
 var results_data_json_cache = {};
 
 // Process Web API Results. Restructure data, and create the charts.
-function processStateClassSummaryReport(res){
+function processStateClassSummaryReport(res, config){
+    var run = runs.length + 1;
     model_run_cache[run] = res;
-    model_run_cache[run].config = copy(current_scenario.config);
+    model_run_cache[run].config = copy(config);
     var data = res["results"];
     var results_data_json = {};
     

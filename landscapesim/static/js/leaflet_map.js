@@ -9,23 +9,17 @@ var topographic = L.esri.basemapLayer("Topographic");
 var imagery = L.esri.basemapLayer("Imagery");
 var terrain = L.esri.basemapLayer("Terrain");
 var national_geographic = L.esri.basemapLayer("NationalGeographic");
+var basemaps = map.addControl(L.control.basemaps({
+    basemaps: [topographic, terrain, national_geographic, imagery],
+    position: 'bottomleft'
+}))
 
-var groupedOverlays = {
-    "Initial Conditions": {
-    },
-    "Model Results": {
-    }
-};
-
+var groupedOverlays = {"Initial Conditions": {}, "Model Results": {}};
 var options = {
     position:"topleft",
     exclusiveGroups: ["Model Results"]
 };
 
-var basemaps = map.addControl(L.control.basemaps({
-    basemaps: [topographic, terrain, national_geographic, imagery],
-    position: 'bottomleft'
-}))
 
 var layerControlAdded = false;
 var layerControl = L.control.groupedLayers("", groupedOverlays, options);
@@ -33,15 +27,11 @@ var layerControl = L.control.groupedLayers("", groupedOverlays, options);
 var inputStateClassLayer;
 var inputStratumLayer;
 function loadLayers(scenario_input_services){
-
     inputStateClassLayer = L.tileLayer(scenario_input_services.stateclass);
     inputStratumLayer = L.tileLayer(scenario_input_services.stratum);
-
     layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
     layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Initial Conditions");
-
     inputStratumLayer.addTo(map)
-
 }
 
 map.on('overlayadd', overlayAdd);
@@ -63,7 +53,7 @@ var outputStateClassLayers={};
 var outputTimestepSliders={};
 var outputRunSettings={};
 
-function loadOutputLayers(results_scenario_configuration){
+function loadOutputLayers(results_scenario_configuration, new_run){
 
     if( $("#spatial_switch")[0].checked) {
 
@@ -73,19 +63,19 @@ function loadOutputLayers(results_scenario_configuration){
         if (typeof results_scenario_configuration.scenario_output_services.stateclass != "undefined") {
 
             // Store the service for the model run
-            outputStateClassServices[run] = results_scenario_configuration.scenario_output_services.stateclass;
+            outputStateClassServices[new_run] = results_scenario_configuration.scenario_output_services.stateclass;
 
             // Store the run setting for this run (max timestep needed).
             var runControl = {'t': current_scenario.config.run_control.max_timestep, 'it': 1};
 
             // Create a layer from the run service. Show last timestep and first iteration by default.
-            outputStateClassLayers[run] = L.tileLayer(outputStateClassServices[run], runControl);
+            outputStateClassLayers[new_run] = L.tileLayer(outputStateClassServices[run], runControl);
 
             // Add layer control
             layerControl.addOverlay(outputStateClassLayers[run], "State Classes, Run " + run, "Model Results");
-
+            console.log(results_scenario_configuration.run_control)
             // Create an output time step slider.
-            outputTimestepSliders[run] = L.control.range({
+            outputTimestepSliders[new_run] = L.control.range({
                 position: 'bottomright',
                 min: results_scenario_configuration.run_control.min_timestep,
                 max: results_scenario_configuration.run_control.max_timestep,
@@ -107,10 +97,7 @@ function loadOutputLayers(results_scenario_configuration){
 }
 
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
-var activeRun, globalTimestep;
 function changeOutputStateClass(run) {
-
-    activeRun = run;
 
     // Remove other state class layers.
     $.each(outputStateClassLayers, function(index, stateClassLayer){
@@ -156,8 +143,8 @@ function changeOutputStateClass(run) {
     outputStateClassLayers[run].addTo(map);
 
     // Set the initial timestep map layer in 3D
-    var mapTimestep = !globalTimestepSet ? results_scenario_configuration.run_control.max_timestep : globalTimestep;
-    update3DLayer(outputStateClassLayers[run]._url.replace('{t}', mapTimestep).replace('{it}', 1))
+    //var mapTimestep = !globalTimestepSet ? results_scenario_configuration.run_control.max_timestep : globalTimestep;
+    //update3DLayer(outputStateClassLayers[run]._url.replace('{t}', mapTimestep).replace('{it}', 1))
 }
 
 // Zoom control
