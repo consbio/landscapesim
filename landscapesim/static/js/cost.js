@@ -1,54 +1,54 @@
-function openCostTable(){
-    var count_transition_groups = current_project.definitions.transition_groups.length;
+function openCostTable() {
+    var count_transition_groups = currentProject.definitions.transition_groups.length;
 
-    var cost_table_html = "<div id='cost_table_div'><table id='cost_table'></table></div>";
+    var costTable = "<div id='cost_table_div'><table id='cost_table'></table></div>";
 
     // If there's already one entry per transition group, don't show the add entry button.
-    var remaining_entries = current_project.definitions.transition_groups.length - current_scenario.config.transition_attribute_values.length;
-    var button_visibility;
-    if (remaining_entries > 0) {
-        button_visibility = "block";
+    var remaining = currentProject.definitions.transition_groups.length - currentScenario.config.transition_attribute_values.length;
+    var buttonVisibility;
+    if (remaining > 0) {
+        buttonVisibility = "block";
     }
     else {
-        button_visibility = "none";
+        buttonVisibility = "none";
     }
 
-    var add_entry_button_html = "<img src='static/img/add.png' id='add_entry_button' style='display:"+ button_visibility + "'>";
+    var addEntryButton = "<img src='static/img/add.png' id='add_entry_button' style='display:"+ buttonVisibility + "'>";
 
-    alertify.confirm(cost_table_html + add_entry_button_html, function(e){
+    alertify.confirm(costTable + addEntryButton, function(e){
 
         if (e){
             // Update existing values (Cost)
-            $.each(current_scenario.config.transition_attribute_values, function (index, obj) {
+            $.each(currentScenario.config.transition_attribute_values, function (index, obj) {
                 obj.value = parseInt($("#cost_" + obj.id).val());
             });
 
-            // Go through each of the records_to_delete and remove them from the main dictionary.
-            $.each(records_to_delete, function (index, id) {
-                current_scenario.config.transition_attribute_values = $.grep(current_scenario.config.transition_attribute_values, function (e) {
+            // Go through each of the costRecordsToDelete and remove them from the main dictionary.
+            $.each(costRecordsToDelete, function (index, id) {
+                currentScenario.config.transition_attribute_values = $.grep(currentScenario.config.transition_attribute_values, function (e) {
                     return e.id != id;
                 });
             });
 
-            records_to_delete = [];
+            costRecordsToDelete = [];
 
             // Add new values
             $.each($(".new_row"), function () {
                 test = this
-                var transition_group_id = parseInt($(this).find('td:nth-child(1) select').val());
-                var transition_attribute_type_id = parseInt($(this).find('td:nth-child(2) select').val());
-                var transition_group_value = parseInt($(this).find('td:nth-child(3) input[type=number]').val());
-                var random_id = 1 + Math.floor(Math.random() * 9999999);
-                current_scenario.config.transition_attribute_values.push({
-                    'id': random_id,
+                var transitionGroupID = parseInt($(this).find('td:nth-child(1) select').val());
+                var transitionAttributeTypeID = parseInt($(this).find('td:nth-child(2) select').val());
+                var transitionGroupValue = parseInt($(this).find('td:nth-child(3) input[type=number]').val());
+                var randomID = 1 + Math.floor(Math.random() * 9999999);
+                currentScenario.config.transition_attribute_values.push({
+                    'id': randomID,
                     'iteration': null,
                     'secondary_stratum': null,
                     'stateclass': null,
                     'stratum': null,
                     'timestep': null,
-                    'transition_attribute_type': transition_attribute_type_id,
-                    'transition_group': transition_group_id,
-                    'value': transition_group_value
+                    'transition_attribute_type': transitionAttributeTypeID,
+                    'transition_group': transitionGroupID,
+                    'value': transitionGroupValue
                 });
             });
         }
@@ -58,25 +58,25 @@ function openCostTable(){
     $("#cost_table").append("<tr><th>Management Action</th><th>Type</th><th>Value</th><th>Delete</th></tr>");
 
     // Write current values out to the cost table
-    $.each(current_scenario.config.transition_attribute_values, function(index,transition_attribute_values_dict){
+    $.each(currentScenario.config.transition_attribute_values, function(index, transitionAttributeValues) {
 
-        $.each(current_project.definitions.transition_groups, function(index, transition_group_dict) {
+        $.each(currentProject.definitions.transition_groups, function(index, transitionGroup) {
 
-            if (transition_attribute_values_dict.transition_group == transition_group_dict.id){
-                var transition_group_name = transition_group_dict.name;
+            if (transitionAttributeValues.transition_group == transitionGroup.id){
+                var transitionGroupName = transitionGroup.name;
 
-                    var transition_attribute_value = transition_attribute_values_dict.value;
+                    var transitionAttributeValue = transitionAttributeValues.value;
 
-                    $.each(current_project.definitions.transition_attributes, function (index, transition_attributes_dict) {
-                        if (transition_attributes_dict.id == transition_attribute_values_dict.transition_attribute_type) {
-                            var transition_attributes_name = transition_attributes_dict.name;
-                            var transition_attributes_id = transition_attribute_values_dict.id;
-                            var transition_attributes_units = transition_attributes_dict.units;
+                    $.each(currentProject.definitions.transition_attributes, function (index, transitionAttribute) {
+                        if (transitionAttribute.id == transitionAttributeValues.transition_attribute_type) {
+                            var name = transitionAttribute.name;
+                            var id = transitionAttributeValues.id;
+                            var units = transitionAttribute.units;
                             $("#cost_table").append(
-                                "<tr><td>" + transition_group_name +
-                                "</td><td>" + transition_attributes_name +
-                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + transition_attributes_id + "' type=number value='" + transition_attribute_value + "'> " + transition_attributes_units + "/acre" +
-                                "</td><td>" + "<img record_to_delete=" + transition_attributes_id + " src='static/img/delete.png' class='delete_entry_button'>" +
+                                "<tr><td>" + transitionGroupName +
+                                "</td><td>" + name +
+                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + id + "' type=number value='" + transitionAttributeValue + "'> " + units + "/acre" +
+                                "</td><td>" + "<img record_to_delete=" + id + " src='static/img/delete.png' class='delete_entry_button'>" +
                                 "</td></tr>"
                             );
                         }
@@ -98,36 +98,36 @@ function openCostTable(){
             "</td></tr>"
         );
 
-        var last_row = $("#cost_table").find("tr").last();
+        var lastCostRow = $("#cost_table").find("tr").last();
 
         // Populate new row dropdowns with available options
 
         // First dropdown (Transition Groups)
-        var current_transition_group_entries  = [];
-        $.each(current_scenario.config.transition_attribute_values, function(index,current_transition_group_dict){
-            current_transition_group_entries.push(current_transition_group_dict.transition_group)
+        var transitionGroupEntries  = [];
+        $.each(currentScenario.config.transition_attribute_values, function(index, transitionGroup) {
+            transitionGroupEntries.push(transitionGroup.transition_group)
         });
 
-        var management_actions_filter_keys=[];
-        $.each(library_config[current_library.id].management_actions_filter, function(key,value){
-            management_actions_filter_keys.push(key)
+        var managementActionsKeys=[];
+        $.each(store[currentLibrary.id].management_actions_filter, function(key, value) {
+            managementActionsKeys.push(key)
         });
 
-        $.each(current_project.definitions.transition_groups, function(index, transition_group_dict) {
-            if(jQuery.inArray(transition_group_dict.id, current_transition_group_entries) == -1){
-                if(jQuery.inArray(transition_group_dict.name, management_actions_filter_keys) != -1)  {
-                    $(last_row).find('td:nth-child(1) select').append("<option value='" + transition_group_dict.id + "'>" + library_config[current_library.id].management_actions_filter[transition_group_dict.name] + "</option>");
+        $.each(currentProject.definitions.transition_groups, function(index, transitionGroup) {
+            if(jQuery.inArray(transitionGroup.id, transitionGroupEntries) == -1){
+                if(jQuery.inArray(transitionGroup.name, managementActionsKeys) != -1)  {
+                    $(lastCostRow).find('td:nth-child(1) select').append("<option value='" + transitionGroup.id + "'>" + store[currentLibrary.id].management_actions_filter[transitionGroup.name] + "</option>");
                 }
             }
         });
 
         // Second dropdown (Transition Attribute Name (e.g., Cost))
-        $.each(current_project.definitions.transition_attributes, function(index, transition_attributes_dict) {
-            $(last_row).find('td:nth-child(2) select').append("<option value='" + transition_attributes_dict.id + "'>" + transition_attributes_dict.name + "</option>");
+        $.each(currentProject.definitions.transition_attributes, function(index, transitionAttribute) {
+            $(lastCostRow).find('td:nth-child(2) select').append("<option value='" + transitionAttribute.id + "'>" + transitionAttribute.name + "</option>");
         });
 
-        var remaining_entries = current_project.definitions.transition_groups.length - current_scenario.config.transition_attribute_values.length - 1;
-        if (remaining_entries > 0) {
+        var remaining = currentProject.definitions.transition_groups.length - currentScenario.config.transition_attribute_values.length - 1;
+        if (remaining > 0) {
              $("#add_entry_button").show();
         }
         else{
@@ -140,9 +140,9 @@ function openCostTable(){
 
 // Array of records to delete. When the user pushes the "X" button, the id for that record gets added to the array.
 // And the row is removed from the table.
-var records_to_delete = [];
+var costRecordsToDelete = [];
 $(document).on("click", ".delete_entry_button", function(){
-    records_to_delete.push($(this).attr('record_to_delete'));
+    costRecordsToDelete.push($(this).attr('record_to_delete'));
     $(this).closest("tr").remove()
 });
 

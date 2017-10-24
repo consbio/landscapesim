@@ -1,5 +1,4 @@
 /* Sets up a simple 3D viewer behind the map */
-
 var container = document.getElementById('scene');
 var topographicBasemapUrl = L.esri.BasemapLayer.TILES.Imagery.urlTemplate.replace('{s}', 'services');
 var heightDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
@@ -7,7 +6,6 @@ var normalDataUrl = 'https://s3.amazonaws.com/elevation-tiles-prod/normal/{z}/{x
 var blankDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==";
 var tileSize = 128;
 var numRequests = 0;
-
 var vertexShader = [
     "attribute vec3 position;",
     "attribute vec2 uv;",
@@ -203,7 +201,7 @@ function updateSceneTiles() {
 }
 
 function sceneConfig() {
-    var libInfo = library_config[$(".model_selection").val()];
+    var libInfo = store[$(".model_selection").val()];
     var e = libInfo.extent;
     var bounds = [[e[0][1], e[0][0]], [e[1][1], e[1][0]]];
     var zoom = libInfo.zoom;

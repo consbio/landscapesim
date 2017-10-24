@@ -53,18 +53,18 @@ $(document).ready(function() {
         currentScenario.config.output_options.sum_trsc_t = 1;
 
         // Repopulate the current transition multipliers
-        $.each(action_list, function(index,object){
-            if (typeof object != "undefined") {
-                $.each(object.timesteps, function (index, value) {
+        $.each(managementActionsList, function(index, action){
+            if (typeof action != "undefined") {
+                $.each(action.timesteps, function (index, value) {
                     if (value == 1) {
                         currentScenario.config.transition_spatial_multipliers.push(
                             {
-                                transition_group: object.action_id,
+                                transition_group: action.action_id,
                                 timestep: index + 1,
                                 iteration: null,
                                 transition_multiplier_type: null,
                                 transition_multiplier_file_name: null,
-                                geojson: object.geoJSON,
+                                geojson: action.geoJSON,
                             }
                         )
                     }
@@ -181,7 +181,7 @@ $(document).ready(function() {
 
     // Also called on page load.
     function showLibraryInfo() {
-        var library_info = library_config[$(".model_selection").val()];
+        var library_info = store[$(".model_selection").val()];
         var extent = library_info.extent;
 
         // Create a layer from the extent

@@ -1,6 +1,6 @@
-var library_config = {};
+var store = {};
 
-library_config[1] = {
+store[1] = {
         name: "Castle Creek",
         description : "A sample ST-Sim library developed for a semi-arid shrub-steppe ecosystem in southwest Idaho (Castle Creek).",
         author: "Michael S. O'Donnell",
@@ -39,12 +39,4 @@ var availableReports = {
     'transition-stateclass-summary' : {
         'label': 'Transitions by Stateclass'
     },
-    /*
-    'state-attributes' : {
-        'label': 'State Attributes'
-    },
-    'transition-attributes' : {
-        'label': 'Transition Attributes'
-    },
-    */
 }
