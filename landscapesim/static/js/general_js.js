@@ -1146,6 +1146,7 @@ var results_data_json_cache = {};
 function processStateClassSummaryReport(res){
 
     model_run_cache[run] = res;
+    model_run_cache[run]['config'] = current_scenario.config;   // Capture run configuration
     var data = res["results"];
     var results_data_json = {};
 
