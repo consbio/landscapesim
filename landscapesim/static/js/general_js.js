@@ -1,19 +1,17 @@
 // where all the magic happens (i.e. the data store)
-var available_libraries = [];
-var current_library = {};
-var project_url = '';
+var availableLibraries = [];
+var currentLibrary = {};
+var projectURL = '';
 var available_projects = [];
-var current_project = {};
+var currentProject = {};
 var available_scenarios = [];
-var scenario_url = '';
-var current_scenario = {};
-var run_model_url = '/api/jobs/run-model/';
-var download_csv_url = '/api/download-csv/';
-var download_pdf_url = '/api/download-pdf/';
-var result_url = '';
-var runs = [];
+var scenarioURL = '';
+var currentScenario = {};
+var runModelURL = '/api/jobs/run-model/';
+var downloadCsvURL = '/api/download-csv/';
+var downloadPdfURL = '/api/download-pdf/';
 var settings;
-var bounding_box_layer;
+var boundingBoxLayer;
 
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -23,11 +21,11 @@ $(document).ready(function() {
     // Top-level endpoint, get list of available libraries
     $.getJSON('/api/libraries/').done(function (res) {
 
-        available_libraries = res.results;
+        availableLibraries = res.results;
 
         // Add each library to the library selection dropdown.
-        $.each(available_libraries, function(index,library_array){
-            $(".model_selection").append("<option value ='" + library_array.id + "'>" + library_array.name)
+        $.each(availableLibraries, function(index, library){
+            $(".model_selection").append("<option value ='" + library.id + "'>" + library.name)
         });
 
         $("select").prop("selectedIndex",0);
@@ -46,20 +44,20 @@ $(document).ready(function() {
     $('#run_button').on('click', function() {
 
         // Clear the current transition_spatial_multipliers
-        current_scenario.config.transition_spatial_multipliers = [];
+        currentScenario.config.transition_spatial_multipliers = [];
 
         // Set default output options
-        current_scenario.config.output_options.sum_tr = true;
-        current_scenario.config.output_options.sum_tr_t = 1;
-        current_scenario.config.output_options.sum_trsc = true;
-        current_scenario.config.output_options.sum_trsc_t = 1;
+        currentScenario.config.output_options.sum_tr = true;
+        currentScenario.config.output_options.sum_tr_t = 1;
+        currentScenario.config.output_options.sum_trsc = true;
+        currentScenario.config.output_options.sum_trsc_t = 1;
 
         // Repopulate the current transition multipliers
         $.each(action_list, function(index,object){
             if (typeof object != "undefined") {
                 $.each(object.timesteps, function (index, value) {
                     if (value == 1) {
-                        current_scenario.config.transition_spatial_multipliers.push(
+                        currentScenario.config.transition_spatial_multipliers.push(
                             {
                                 transition_group: object.action_id,
                                 timestep: index + 1,
@@ -77,7 +75,7 @@ $(document).ready(function() {
         $("#start_button").attr("disabled", true);
         $("#start_button").addClass('disabled');
 
-        settings["library"] = current_library.name;
+        settings["library"] = currentLibrary.name;
         settings["spatial"] = $("#spatial_button").hasClass('selected')
 
         $(".slider_bars").slider( "option", "disabled", true );
@@ -114,62 +112,40 @@ $(document).ready(function() {
         }
 
         var inputs = {
-            'sid': current_scenario.sid,
-            'pid': current_project.pid,
-            'library_name': current_library.name,
-            'config': current_scenario.config
+            'sid': currentScenario.sid,
+            'pid': currentProject.pid,
+            'library_name': currentLibrary.name,
+            'config': currentScenario.config
         };
 
-        $.post(run_model_url, {'inputs': JSON.stringify(inputs)})
-            .done(function (res) {
-
-                var job = res;
-
+        $.post(runModelURL, {'inputs': JSON.stringify(inputs)})
+            .done(function (job) {
                 (function poll() {
                     setTimeout(function() {
-                        $.getJSON(run_model_url + job.uuid + '/').done(function (update) {
-
+                        $.getJSON(runModelURL + job.uuid + '/').done(function (update) {
                             updateProgress(update.progress, update.status, update.model_status);
-
                             if (update.status === 'success' || update.model_status === 'complete') {
-
                                 $("#output").show();
-                                result_url = update.result_scenario;
-
-                                // Determine the reports URL
                                 var results_model_id = String(update.result_scenario);
                                 var reports_url = window.location.href + "api/scenarios/" + results_model_id + "/reports/";
                                 var results_scenario_configuration_url = window.location.href + "api/scenarios/" + results_model_id + "/config/";
-
-                                // Increment the number of runs the user has done.
-
-                                // Get the list of reports
-                                $.getJSON(reports_url).done(function (res) {
-
-                                    // Get the state class summary report url
-                                    stateclass_summary_report_url = res['stateclass_summary_report'];
-
+                                $.getJSON(reports_url).done(function (reportURLs) {
+                                    var stateclassReportURL = reportURLs['stateclass_summary_report'];
                                     $("#results_loading").empty();
-                                    // Get the output data
-                                    $.getJSON(stateclass_summary_report_url).done(function (res) {
-                                        // Restructure the results to create the results_data_json object.
-                                        var results_scenario_report =  res;
-
-                                        // Get the result scenario object for output services
+                                    $.getJSON(stateclassReportURL).done(function (reportData) {
                                         $.getJSON(results_scenario_configuration_url).done(function (config) {
-                                            var results_scenario_configuration = config;
-                                            runs.push(config);
-                                            loadOutputLayers(results_scenario_configuration, runs.length + 1);
-                                            processStateClassSummaryReport(results_scenario_report, config);
+                                            loadOutputLayers(config);
+                                            processStateClassSummaryReport(reportData, config);
+                                            updateModelRunSelection(runs.length - 1);
+                                            updateResultsViewer(run.length - 1);
                                             $('#progressbar-container').hide();
                                             progressbar.css('width', '0%');
                                             progressbarlabel.text("Waiting for worker...")
-                                            var results_header = $("#model_results_header");
-                                            if (!results_header.hasClass('full_border_radius')) results_header.click();
+                                            var resultsHeader = $("#model_results_header");
+                                            if (!resultsHeader.hasClass('full_border_radius')) resultsHeader.click();
                                         });
                                     });
                                 });
-
                                 $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
                                 $('input:submit').attr("disabled", false);
@@ -178,16 +154,12 @@ $(document).ready(function() {
                                 $("#legend_header").nextAll(".collapsible_div:first").slideUp(400, function(){});
                                 $("#legend_header").children(".collapse_icon").addClass("rotate90");
                                 $("#legend_container").css("width", "100%")
-
-
                             } else if (update.status === 'failure') {
                                 alert('An error occurred. Please try again.')
-
                                 $("#run_button").html('Run Model');
                                 $("#run_button").removeClass('disabled');
                                 $('input:submit').attr("disabled", false);
                                 $('#button_container').attr("disabled", false);
-
                             } else {
                                 poll();
                             }
@@ -226,8 +198,8 @@ $(document).ready(function() {
         }];
 
         // Show the layer
-        bounding_box_layer = L.geoJSON(bounding_box).addTo(map);
-        bounding_box_layer.bindPopup(library_info.name + " Extent").openPopup();
+        boundingBoxLayer = L.geoJSON(bounding_box).addTo(map);
+        boundingBoxLayer.bindPopup(library_info.name + " Extent").openPopup();
 
         // Upate the values in the library_info table
         $("#library_author").html(library_info.author);
@@ -248,38 +220,38 @@ $(document).ready(function() {
         $("#welcome_header").addClass("full_border_radius");
         $("#library_header").addClass("full_border_radius");
 
-        current_library = $.grep(available_libraries, function(e) {return e.id == $(".model_selection").val()})[0];
-        available_projects = current_library.projects;
-        project_url = available_projects[0];
+        currentLibrary = $.grep(availableLibraries, function(e) {return e.id == $(".model_selection").val()})[0];
+        available_projects = currentLibrary.projects;
+        projectURL = available_projects[0];
 
         // Get Stuff from the Web API
-        $.getJSON(project_url).done(function (project) {
-            current_project = project;
-            available_scenarios = current_project.scenarios;
+        $.getJSON(projectURL).done(function (project) {
+            currentProject = project;
+            available_scenarios = currentProject.scenarios;
 
             // Get project definitions
-            $.getJSON(project_url + 'definitions').done(function (definitions) {
-                current_project.definitions = definitions;
-                createColorMap(current_project.definitions)
+            $.getJSON(projectURL + 'definitions').done(function (definitions) {
+                currentProject.definitions = definitions;
+                createColorMap(currentProject.definitions)
             });
 
             // Select scenario from list; here we are just taking the top one
-            scenario_url = available_scenarios[0];
+            scenarioURL = available_scenarios[0];
 
             // Get scenario information
-            $.getJSON(scenario_url).done(function (scenario) {
-                current_scenario = scenario;
+            $.getJSON(scenarioURL).done(function (scenario) {
+                currentScenario = scenario;
 
 
                 // Scenario configuration (at import)
-                $.getJSON(scenario_url + 'config').done(function (config) {
-                    current_scenario.config = config;
+                $.getJSON(scenarioURL + 'config').done(function (config) {
+                    currentScenario.config = config;
 
                     // Spatial by default:
                     setSpatialOutputOptions(true);
 
                     // Store the original transition values to reference when adjusting probabilistic transition sliders.
-                    $.each(current_scenario.config.transitions, function(index, object){
+                    $.each(currentScenario.config.transitions, function(index, object){
                         object.original_probability = object.probability;
                     });
 
@@ -290,7 +262,7 @@ $(document).ready(function() {
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
                     setInitialConditionsSidebar(veg_initial_conditions);
 
-                    loadLayers(current_scenario.config.scenario_input_services);
+                    loadInputLayers(currentScenario.config.scenario_input_services);
                     init3DScenario(inputStratumLayer._url);
 
                     $(".veg_slider_bars").slider("disable");
@@ -298,15 +270,15 @@ $(document).ready(function() {
                     $(".veg_state_class_entry").addClass("disabled");
                     $(".veg_state_class_entry").prop("disabled", true);
 
-                    $("#settings_timesteps").val(current_scenario.config.run_control.max_timestep);
+                    $("#settings_timesteps").val(currentScenario.config.run_control.max_timestep);
                     $("#timesteps_div").text(["Timesteps (", unitConfig[$(".model_selection").val()].timesteps, "):"].join(''));
                 })
 
             });
 
-            //map.fitBounds(bounding_box_layer.getBounds(),{"paddingTopLeft":[0,1]});
-            map.fitBounds(bounding_box_layer.getBounds());
-            map.removeLayer(bounding_box_layer);
+            //map.fitBounds(boundingBoxLayer.getBounds(),{"paddingTopLeft":[0,1]});
+            map.fitBounds(boundingBoxLayer.getBounds());
+            map.removeLayer(boundingBoxLayer);
 
             // Collapse the Welcome and Library divs.
             $("#welcome_header").siblings(".collapsible_div").slideUp(400, function(){});
@@ -509,8 +481,8 @@ $(document).ready(function() {
 
         var raster_frequency;
 
-        current_scenario.config.run_control.is_spatial = setting;
-        current_scenario.config.output_options.raster_sc = setting;
+        currentScenario.config.run_control.is_spatial = setting;
+        currentScenario.config.output_options.raster_sc = setting;
 
         if(setting == true){
 
@@ -533,23 +505,23 @@ $(document).ready(function() {
             $(".leaflet-draw").hide();
         }
 
-        current_scenario.config.output_options.raster_sc_t = raster_frequency;
+        currentScenario.config.output_options.raster_sc_t = raster_frequency;
 
         /* Taylor's suggestion for temporarily fixing the 20 timestep error */
-        current_scenario.config.output_options.raster_tr = false;
-        current_scenario.config.output_options.raster_tr_t = -1;
+        currentScenario.config.output_options.raster_tr = false;
+        currentScenario.config.output_options.raster_tr_t = -1;
 
         /* Other setting don't currently work
 
-        $.each(current_scenario.config.output_options, function (key, value) {
+        $.each(currentScenario.config.output_options, function (key, value) {
 
             if (key.indexOf("raster") > -1) {
 
                 if ((key).split("_").pop() == "t") {
-                    current_scenario.config.output_options[key] = timesteps;
+                    currentScenario.config.output_options[key] = timesteps;
                 }
                 else {
-                    current_scenario.config.output_options[key] = setting;
+                    currentScenario.config.output_options[key] = setting;
                 }
 
             }
@@ -581,9 +553,9 @@ $(document).ready(function() {
             state_class_value = 0;
         }
 
-        $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, veg_type_state_class_object) {
-            if (veg_type_state_class_object.stratum == parseInt(veg_type_id) && veg_type_state_class_object.stateclass == parseInt(state_class_id)) {
-                veg_type_state_class_object.relative_amount = state_class_value;
+        $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function (index, vegtypeStateclassObj) {
+            if (vegtypeStateclassObj.stratum == parseInt(veg_type_id) && vegtypeStateclassObj.stateclass == parseInt(state_class_id)) {
+                vegtypeStateclassObj.relative_amount = state_class_value;
             }
         });
 
@@ -650,7 +622,7 @@ $(document).ready(function() {
             $(this).val(1)
         }
 
-        current_scenario.config.run_control.max_timestep = parseInt($(this).val())
+        currentScenario.config.run_control.max_timestep = parseInt($(this).val())
     });
 
     /********************************************* Iteration Changes **************************************************/
@@ -666,7 +638,7 @@ $(document).ready(function() {
             alert("Please enter a value greater than 0");
             $(this).val(1)
         }
-        current_scenario.config.run_control.max_iteration = parseInt($(this).val());
+        currentScenario.config.run_control.max_iteration = parseInt($(this).val());
     });
 
 });
@@ -682,26 +654,26 @@ function createVegInitialConditionsDict(){
 
    // current_proejct.definitions can be slow to initialize. Keep trying until it's defined.
 
-   if (typeof current_project.definitions != "undefined") {
+   if (typeof currentProject.definitions != "undefined") {
 
        var veg_initial_conditions = {};
        veg_initial_conditions["veg_sc_pct"] = {};
 
-       $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
-           var strata_object = $.grep(current_project.definitions.strata, function (e) {
+       $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
+           var strataObj = $.grep(currentProject.definitions.strata, function (e) {
                return e.id == object.stratum;
            });
-           var strata_name = strata_object[0].name;
-           if (!(strata_name in veg_initial_conditions["veg_sc_pct"])) {
-               veg_initial_conditions["veg_sc_pct"][strata_name] = {};
+           var strataName = strataObj[0].name;
+           if (!(strataName in veg_initial_conditions["veg_sc_pct"])) {
+               veg_initial_conditions["veg_sc_pct"][strataName] = {};
            }
 
-           var state_class_object = $.grep(current_project.definitions.stateclasses, function (e) {
+           var state_class_object = $.grep(currentProject.definitions.stateclasses, function (e) {
                return e.id == object.stateclass;
            });
            var state_class_name = state_class_object[0].name;
            if (object.relative_amount != 0) {
-               veg_initial_conditions["veg_sc_pct"][strata_name][state_class_name] = object.relative_amount
+               veg_initial_conditions["veg_sc_pct"][strataName][state_class_name] = object.relative_amount
            }
        });
 
@@ -770,7 +742,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
         }
 
         // Get the Veg ID for this veg type from the Web API current project definitions
-        var veg_match = $.grep(current_project.definitions.strata, function(e){ return e.name == veg_type; });
+        var veg_match = $.grep(currentProject.definitions.strata, function(e){ return e.name == veg_type; });
         var veg_id = veg_match[0].id;
 
         // Count the number of state classes in this veg type.
@@ -820,7 +792,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
         // Make a row in the state class table for each state class.
         $.each(state_class_object, function (state_class, pct_cover) {
 
-            var state_class_match = $.grep(current_project.definitions.stateclasses, function(e){ return e.name == state_class; });
+            var state_class_match = $.grep(currentProject.definitions.stateclasses, function(e){ return e.name == state_class; });
             var state_class_id = state_class_match[0].id;
 
             $("#" + veg_id).append("<tr><td><div class='scene_legend_color_initial_vegetation_cover' style='border-radius: 3px; background-color:" + colorMap["State Classes"][state_class] +  "'></div></td>"+
@@ -889,9 +861,9 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 
                     /* New Web API version */
                     // Modify the values in the initial conditions for this veg type.
-                    $.each(current_scenario.config.initial_conditions_nonspatial_distributions, function(index, veg_type_state_class_object){
-                        if (veg_type_state_class_object.stratum ==  veg_id){
-                            veg_type_state_class_object.relative_amount =  veg_proportion[veg_id];
+                    $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function(index, vegtypeStateclassObj){
+                        if (vegtypeStateclassObj.stratum ==  veg_id){
+                            vegtypeStateclassObj.relative_amount =  veg_proportion[veg_id];
                         }
                     });
                 },
@@ -909,7 +881,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
     probabilistic_transitions_json = {};
     probabilistic_transitions_slider_values = {};
 
-    $.each(current_project.definitions.transition_groups, function(index, object){
+    $.each(currentProject.definitions.transition_groups, function(index, object){
         probabilistic_transitions_json[object.name] = 0;
     });
 
@@ -977,10 +949,10 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
 function  updateProbabilisticTransitionValues(transition_type, slider_value){
 
     // Get the transition type id associated with this slider
-    var transition_type_id = $.grep(current_project.definitions.transition_groups, function(e){ return e.name == transition_type} )[0].id;
+    var transition_type_id = $.grep(currentProject.definitions.transition_groups, function(e){ return e.name == transition_type} )[0].id;
 
     // Go through each of the transitions and if the transition type matches, update the value
-    $.each(current_scenario.config.transitions, function(index, object){
+    $.each(currentScenario.config.transitions, function(index, object){
         if (object.transition_type ==  transition_type_id){
             // updated value is the original value + the current slider value.
             this.probability = this.original_probability + slider_value
@@ -1026,10 +998,10 @@ function updateModelRunSelection(run) {
     modelRunSelect.unbind('change')
     modelRunSelect.empty();
 
-    for (var model_run in model_run_cache) {
+    for (var modelRun in modelRunCache) {
         modelRunSelect.append([
-            "<option value=" + model_run + ">",
-            current_project.name + " (#" + model_run + ")",
+            "<option value=" + modelRun + ">",
+            currentProject.name + " (#" + modelRun + ")",
             "</option>"
         ].join(''))
     }
@@ -1076,7 +1048,7 @@ function downloadReport(url, filename, configuration, tileLayers, zoom) {
 
 function downloadModelResults() {
 
-    var modelRun = model_run_cache[$("#model-run-select").val()]
+    var modelRun = modelRunCache[$("#model-run-select").val()]
     var reportInputs = [];
     for (var report in availableReports) {
         var id = report;
@@ -1110,12 +1082,12 @@ function downloadModelResults() {
 
         // Download CSV
         if (reportToDownload in availableReports) {
-            reportUrl = download_csv_url;
+            reportUrl = downloadCsvURL;
             ext = '.csv'
         }
         // Download PDF report
         else {
-            reportUrl = download_pdf_url;
+            reportUrl = downloadPdfURL;
             ext = '.pdf'
             // TODO - get current tile layers
             // TODO - get current zoom
@@ -1128,65 +1100,57 @@ function downloadModelResults() {
 
 /***************************** Restructure Web API Results  & Create Charts *******************************************/
 
-var model_run_cache = {};   // Cache the results from every model run we perform on the client.
-var results_data_json_cache = {};
+var modelRunCache = [];   // Cache the results from every model run we perform on the client.
+var reportCache = [];
 
 // Process Web API Results. Restructure data, and create the charts.
-function processStateClassSummaryReport(res, config){
-    var run = runs.length + 1;
-    model_run_cache[run] = res;
-    model_run_cache[run].config = copy(config);
-    var data = res["results"];
-    var results_data_json = {};
-    
-    var cached_config = model_run_cache[run].config;
-    var iterations = cached_config.run_control.max_iteration;
-    var timesteps = cached_config.run_control.max_timestep;
-
+function processStateClassSummaryReport(reportData, config){
+    modelRunCache.push(reportData);
+    var data = reportData["results"];
+    var cache = {};  
+    var iterations = config.run_control.max_iteration;
+    var timesteps = config.run_control.max_timestep;
     for (var i = 1; i <= iterations; i++) {
-        results_data_json[i] = {};
-        var this_iteration_object_list = $.grep(data, function(e){ return e.iteration == i; });
+        cache[i] = {};
+        var iterationObjectList = $.grep(data, function(e){ return e.iteration == i; });
         for (var j = 0; j <= timesteps; j++){
-            var this_timestep_object_list = $.grep(this_iteration_object_list, function(e){ return e.timestep == j; });
-            results_data_json[i][j] = {};
-            $.each(this_timestep_object_list, function(index, object) {
-                var strata_object = $.grep(current_project.definitions.strata, function(e){ return e.id == object.stratum; });
-                var strata_name = strata_object[0].name;
-                if (!(strata_name in results_data_json[i][j])) {
-                    results_data_json[i][j][strata_name] = {}
+            var timestepObjectList = $.grep(iterationObjectList, function(e){ return e.timestep == j; });
+            cache[i][j] = {};
+            $.each(timestepObjectList, function(index, object) {
+                var strataObj = $.grep(currentProject.definitions.strata, function(e){ return e.id == object.stratum; });
+                var strataName = strataObj[0].name;
+                if (!(strataName in cache[i][j])) {
+                    cache[i][j][strataName] = {}
                 }
-                var state_class_object = $.grep(current_project.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
-                var state_class_name = state_class_object[0].name;
-                results_data_json[i][j][strata_name][state_class_name] = object.proportion_of_landscape
+                var stateclassObj = $.grep(currentProject.definitions.stateclasses, function(e){ return e.id == object.stateclass; });
+                var state_class_name = stateclassObj[0].name;
+                cache[i][j][strataName][state_class_name] = object.proportion_of_landscape
             });
         }
     }
 
-    results_data_json_cache[run] = results_data_json;
-    updateModelRunSelection(run);
-    updateResultsViewer(run)    
+    reportCache.push(cache);  
 }
 
 // Change the currently visible results in the results sidebar.
 function updateResultsViewer(run) {
-    var results_data_json = results_data_json_cache[run];
-    update_results_table(results_data_json, run);
-    create_area_charts(results_data_json, run);
-    create_column_charts(results_data_json, run);
-    changeOutputStateClass(run);
+    var cache = reportCache[run];
+    update_results_table(cache, run);
+    create_area_charts(cache, run);
+    create_column_charts(cache, run);
+    updateOutputLayers(run);
 }
 
 
 /****************************************  Results Table & Output Charts **********************************************/
 
 // Create the Results Table
-//function update_results_table(timestep,run) { // see TODO below
-function update_results_table(results_data_json, run) {
+function update_results_table(cache, run) {
 
     $("#results_table").html([
         "<tr class='location_tr'>", 
         "<td class='location_th' colspan='1'>Library</td>",
-        "<td colspan='2'>" + current_library.name + "</td>", 
+        "<td colspan='2'>" + currentLibrary.name + "</td>", 
         "</tr>"
     ].join(''));
     
@@ -1267,7 +1231,7 @@ function update_results_table(results_data_json, run) {
         $("#column_charts").show()
         //$("#iteration_tr_" + run).hide()
         $("#area_charts").hide()
-        $("#veg_output_th").html("Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
+        $("#veg_output_th").html("Vegetation Cover in " + currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
     });
 
     // Chart button click functions
@@ -1279,7 +1243,7 @@ function update_results_table(results_data_json, run) {
         $("#column_charts").hide()
         //$("#iteration_tr_" + run).show()
         $("#area_charts").show()
-        $("#veg_output_th").html("Vegetation Cover over " + current_scenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
+        $("#veg_output_th").html("Vegetation Cover over " + currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
     });
 
 
@@ -1291,7 +1255,7 @@ function update_results_table(results_data_json, run) {
     $("#iteration_to_plot_" + run).on('keyup', function () {
         if (this.value != '') {
             $("#area_charts_" + run).empty();
-            create_area_charts(results_data_json, run, this.value);
+            create_area_charts(cache, run, this.value);
 
             // Redraw the map and show the new iteration
             outputStateClassLayers[run].options.it=parseInt(this.value);
@@ -1303,7 +1267,7 @@ function update_results_table(results_data_json, run) {
     $("#results_table").append([
         "<tr class='veg_output_tr'>",
         "<td class='veg_output_th' id='veg_output_th' colspan='3'>",
-        "Vegetation Cover in " + current_scenario.config.run_control.max_timestep + " Years",
+        "Vegetation Cover in " + currentScenario.config.run_control.max_timestep + " Years",
         "</td>",
         "</tr>"
     ].join(''));
