@@ -14,6 +14,9 @@ import subprocess
 # The standard installation location for SyncroSim (subject to change, also not valid for linux...)
 DEFAULT_EXE = "C:\\Program Files\\SyncroSim\\1\\SyncroSim.Console.Exe"
 
+# Niceness level to apply to all SyncroSim processes
+NICENESS = 20
+NICE_CMD = ['nice', '-n', '{}'.format(NICENESS)]
 
 class ConsoleMeta(type):
     """  Metaclass for handling the different console names, enforcing each console to specify a name """
@@ -122,6 +125,8 @@ class Console:
             raise KeyError("Command ignored - importing into original library will corrupt data.")
         input_args = list()
         if len(self.prefix) > 0:
+            # Running under linux
+            input_args += NICE_CMD
             input_args.append(self.prefix)
         input_args += self.exe_orig_lib if orig else self.exe_lib
         input_args += args
