@@ -1,3 +1,4 @@
+// The map
 var map = L.map('map', {
         zoomControl: false,
         attributionControl: false
@@ -19,14 +20,19 @@ var options = {
     position:"topleft",
     exclusiveGroups: ["Model Results"]
 };
+var layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
 
+// Zoom control
+L.control.zoom({
+    position:'topleft'
+}).addTo(map);
 
-var layerControlAdded = false;
-var layerControl = L.control.groupedLayers("", groupedOverlays, options);
+// Hide layer control until items have been added
+var layerControlHidden = true;
+layerControl.getContainer().style.display = 'none';
 
 var inputStateClassLayer;
 var inputStratumLayer;
-
 function loadInputLayers(inputServices){
     inputStateClassLayer = L.tileLayer(inputServices.stateclass);
     inputStratumLayer = L.tileLayer(inputServices.stratum);
@@ -48,20 +54,27 @@ function overlayAdd(e){
     updateLegend(e.name);
 }
 
-var timestepSlider = L.control.range({
-    position: 'bottomright',
+var opacity = L.control.range({
+    position: 'topleft',
     min: 0,
     max: 1,
+    step: 0.01,
     value: 1,
-    step: 1,
-    orient: 'horizontal',
+    orient: 'vertical',
     iconClass: 'leaflet-range-icon'
 }).addTo(map);
 
- // Reparent the time slider so it is visible in 3D viewer
- document.getElementById('time-slider').appendChild(timestepSlider.getContainer());
- $('#time-slider').hide();
+opacity.getContainer().style.display = 'none';    // Hide until input layers are loaded
 
+opacity.on('input change', function(e) {
+    if (typeof inputStateClassLayer != 'undefined') {
+        inputStateClassLayer.setOpacity(e.value);
+        inputStratumLayer.setOpacity(e.value);    
+    }
+    if (typeof currentOutputLayer != 'undefined') {
+        currentOutputLayer.setOpacity(e.value);
+    }
+})
 
 function loadOutputLayers(config) {
     if( $("#spatial_switch")[0].checked) {
@@ -82,20 +95,43 @@ function loadOutputLayers(config) {
 }
 
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
+var currentOutputLayer;
+var timestepSlider;
 function updateOutputLayers(run) {
     var config = modelRunCache[run].config;
+    var layer = config.stateclassLayer;
+    var step = config.run_control.max_timestep;
+
+    // Remove output layer if set
+    if (typeof timestepSlider != 'undefined') {
+        map.removeControl(timestepSlider);
+        map.removeLayer(currentOutputLayer);
+    }
+
+    currentOutputLayer = layer;
+    currentOutputLayer.addTo(map);
+    currentOutputLayer.setOpacity(Number(opacity.getContainer().children[1].value));
+
+    timestepSlider = L.control.range({
+        position: 'bottomright',
+        min: 0,
+        max: step,
+        value: step,
+        step: 1,
+        orient: 'horizontal',
+        iconClass: 'leaflet-range-icon'
+    }).addTo(map);
+
     timestepSlider.on('input change', function (e) {
-        var layer = config.stateclasslayer;
         layer.options.t = Number(e.value);
         layer.redraw();
         layer.bringToFront();
-        update3DLayer(layer._url.replace('{t}', globalTimestep).replace('{it}', 1))
+        update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
     });
-    $('#time-slider').show();
-    update3DLayer(config.stateclassLayer._url.replace('{t}', mapTimestep).replace('{it}', 1))
-}
 
-// Zoom control
-L.control.zoom({
-    position:'topleft'
-}).addTo(map);
+    // Reparent the time slider so it is visible in 3D viewer
+    document.getElementById('time-slider').appendChild(timestepSlider.getContainer());
+    
+    // Always update the layer after a layer change.
+    update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
+}

@@ -1,6 +1,3 @@
-// context_help.js
-
-
 // Tab info
 $(document).on({
     click: function(e) {

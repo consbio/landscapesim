@@ -134,10 +134,11 @@ $(document).ready(function() {
                                     $("#results_loading").empty();
                                     $.getJSON(stateclassReportURL).done(function (reportData) {
                                         $.getJSON(results_scenario_configuration_url).done(function (config) {
-                                            loadOutputLayers(config);
-                                            processStateClassSummaryReport(reportData, config);
-                                            updateModelRunSelection(runs.length - 1);
-                                            updateResultsViewer(run.length - 1);
+                                            reportData.config = copy(config);
+                                            loadOutputLayers(reportData.config);
+                                            processStateClassSummaryReport(reportData);
+                                            updateModelRunSelection(modelRunCache.length - 1);
+                                            updateResultsViewer(modelRunCache.length - 1);
                                             $('#progressbar-container').hide();
                                             progressbar.css('width', '0%');
                                             progressbarlabel.text("Waiting for worker...")
@@ -164,7 +165,7 @@ $(document).ready(function() {
                                 poll();
                             }
                         })
-                    }, 1500)
+                   }, 1500)
                 })();
             });
     });
@@ -212,9 +213,10 @@ $(document).ready(function() {
 
     $("#start_button").on("click", function(){
 
-        if (!layerControlAdded) {
-            layerControl.addTo(map);
-            layerControlAdded = true;
+        if (layerControlHidden) {
+            layerControl.getContainer().style.display = '';
+            opacity.getContainer().style.display = '';
+            layerControlHidden = false;
         }
 
         $("#welcome_header").addClass("full_border_radius");
@@ -256,11 +258,11 @@ $(document).ready(function() {
                     });
 
                     // Create objects from Web API data
-                    veg_initial_conditions = createVegInitialConditionsDict();
-                    createVegTypeStateClassesJSON(veg_initial_conditions);
+                    vegInitialConditions = createVegInitialConditionsDict();
+                    createVegTypeStateClassesJSON(vegInitialConditions);
 
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
-                    setInitialConditionsSidebar(veg_initial_conditions);
+                    setInitialConditionsSidebar(vegInitialConditions);
 
                     loadInputLayers(currentScenario.config.scenario_input_services);
                     init3DScenario(inputStratumLayer._url);
@@ -647,25 +649,25 @@ $(document).ready(function() {
 
 // Takes the data returned from the web api and restructure it to create the the objects below
 // which are then used to create the sliders
-// veg_initial_conditions
-// veg_type_state_classes_json
+// vegInitialConditions
+// vegtypeStateclassesDictionary
 
-function createVegInitialConditionsDict(){
+function createVegInitialConditionsDict() {
 
    // current_proejct.definitions can be slow to initialize. Keep trying until it's defined.
 
    if (typeof currentProject.definitions != "undefined") {
 
-       var veg_initial_conditions = {};
-       veg_initial_conditions["veg_sc_pct"] = {};
+       var vegInitialConditions = {};
+       vegInitialConditions["veg_sc_pct"] = {};
 
        $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
            var strataObj = $.grep(currentProject.definitions.strata, function (e) {
                return e.id == object.stratum;
            });
            var strataName = strataObj[0].name;
-           if (!(strataName in veg_initial_conditions["veg_sc_pct"])) {
-               veg_initial_conditions["veg_sc_pct"][strataName] = {};
+           if (!(strataName in vegInitialConditions["veg_sc_pct"])) {
+               vegInitialConditions["veg_sc_pct"][strataName] = {};
            }
 
            var state_class_object = $.grep(currentProject.definitions.stateclasses, function (e) {
@@ -673,11 +675,11 @@ function createVegInitialConditionsDict(){
            });
            var state_class_name = state_class_object[0].name;
            if (object.relative_amount != 0) {
-               veg_initial_conditions["veg_sc_pct"][strataName][state_class_name] = object.relative_amount
+               vegInitialConditions["veg_sc_pct"][strataName][state_class_name] = object.relative_amount
            }
        });
 
-       return veg_initial_conditions
+       return vegInitialConditions
 
    } else {
 
@@ -685,15 +687,15 @@ function createVegInitialConditionsDict(){
    }
 }
 
-var veg_type_state_classes_json;
-function createVegTypeStateClassesJSON(veg_initial_conditions){
-    veg_type_state_classes_json = {};
+var vegtypeStateclassesDictionary;
+function createVegTypeStateClassesJSON(vegInitialConditions){
+    vegtypeStateclassesDictionary = {};
 
-    $.each(veg_initial_conditions["veg_sc_pct"], function(veg_type,state_class_object){
+    $.each(vegInitialConditions["veg_sc_pct"], function(veg_type,state_class_object){
         var count=0;
-        veg_type_state_classes_json[veg_type] = [];
+        vegtypeStateclassesDictionary[veg_type] = [];
         $.each(state_class_object, function(state_class, relative_amount){
-            veg_type_state_classes_json[veg_type][count] = state_class;
+            vegtypeStateclassesDictionary[veg_type][count] = state_class;
             count+=1;
         });
 
@@ -720,7 +722,7 @@ var probabilistic_transitions_json;
 var probabilistic_transitions_slider_values;
 var veg_slider_values_state_class;
 
-function setInitialConditionsSidebar(veg_initial_conditions) {
+function setInitialConditionsSidebar(vegInitialConditions) {
 
     total_input_percent = 100;
 
@@ -735,9 +737,9 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
     });
 
     // Iterate over each of the veg types. Access the state class object for each
-    $.each(veg_initial_conditions["veg_sc_pct"], function (veg_type, state_class_object) {
+    $.each(vegInitialConditions["veg_sc_pct"], function (veg_type, state_class_object) {
 
-        if (!(veg_type in veg_initial_conditions.veg_sc_pct)) {
+        if (!(veg_type in vegInitialConditions.veg_sc_pct)) {
             return true;    // skips this entry
         }
 
@@ -784,7 +786,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
         );
 
         // Set the initial slider values equal to initial conditions defined in the library (REQUIRED).
-        veg_slider_values_state_class = veg_initial_conditions["veg_sc_pct"];
+        veg_slider_values_state_class = vegInitialConditions["veg_sc_pct"];
 
         // Create a slider bar
         create_slider(veg_id, veg_type, state_class_count);
@@ -814,7 +816,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
     });
 
     function create_slider(veg_id, veg_type, state_class_count) {
-        // veg_id is currently based on the order in which the veg types occur in the veg_type_state_classes_json
+        // veg_id is currently based on the order in which the veg types occur in the vegtypeStateclassesDictionary
         // This happens to be mappable to the id in curent_project.definitions.strata. Will this always be true?
 
         $(function () {
@@ -822,7 +824,7 @@ function setInitialConditionsSidebar(veg_initial_conditions) {
             var initial_slider_value = 0;
 
             // Loop through all the state class pct cover values and sum them up to set the initial veg slider bar value.
-            $.each(veg_initial_conditions['veg_sc_pct'][veg_type], function (key, value) {
+            $.each(vegInitialConditions['veg_sc_pct'][veg_type], function (key, value) {
                 initial_slider_value += value
 
             });
@@ -1001,7 +1003,7 @@ function updateModelRunSelection(run) {
     for (var modelRun in modelRunCache) {
         modelRunSelect.append([
             "<option value=" + modelRun + ">",
-            currentProject.name + " (#" + modelRun + ")",
+            currentProject.name + " (#" + (Number(modelRun) + 1) + ")",
             "</option>"
         ].join(''))
     }
@@ -1104,7 +1106,8 @@ var modelRunCache = [];   // Cache the results from every model run we perform o
 var reportCache = [];
 
 // Process Web API Results. Restructure data, and create the charts.
-function processStateClassSummaryReport(reportData, config){
+function processStateClassSummaryReport(reportData) {
+    var config = reportData.config;
     modelRunCache.push(reportData);
     var data = reportData["results"];
     var cache = {};  
@@ -1136,8 +1139,8 @@ function processStateClassSummaryReport(reportData, config){
 function updateResultsViewer(run) {
     var cache = reportCache[run];
     update_results_table(cache, run);
-    create_area_charts(cache, run);
-    create_column_charts(cache, run);
+    createAreaCharts(cache, run);
+    createColumnCharts(cache, run);
     updateOutputLayers(run);
 }
 
@@ -1300,26 +1303,21 @@ function update_results_table(cache, run) {
 }
 
 var colorMap;
-var state_class_color_map;
-var veg_type_color_map;
-function createColorMap(project_definitions){
-    colorMap={};
-    colorMap["State Classes"]={};
-    colorMap["Vegetation Types"]={};
-    state_class_color_map={};
-    veg_type_color_map={};
+var rgbString = function(color) {
+    var rgb = (color.split(","))
+    rgb.shift();
+    return rgb.join();
+}
 
-    $.each(project_definitions.stateclasses, function(index,object){
-        var rgb = (object.color).split(",");
-        rgb.shift();
-        var rgb_string = rgb.join();
-        colorMap["State Classes"][object.name] = "rgb(" + rgb_string + ")";
+function createColorMap(defs){
+    colorMap = {
+        'State Classes': {},
+        'Vegetation Types': {}
+    };
+    $.each(defs.stateclasses, function(index, object){
+        colorMap["State Classes"][object.name] = "rgb(" + rgbString(object.color) + ")";
     });
-
-    $.each(project_definitions.strata, function(index,object){
-        var rgb = (object.color).split(",");
-        rgb.shift();
-        var rgb_string = rgb.join();
-        colorMap["Vegetation Types"][object.name] = "rgb(" + rgb_string + ")";
+    $.each(defs.strata, function(index, object){
+        colorMap["Vegetation Types"][object.name] = "rgb(" + rgbString(object.color) + ")";
     });
 }

@@ -1,9 +1,9 @@
 // stacked_area.js
 
-function create_area_chart(veg_type, chart_div_id) {
+function createAreaChart(vegtype, chartDivID) {
 
     $(function () {
-        $('#' + chart_div_id).highcharts({
+        $('#' + chartDivID).highcharts({
             chart: {
                 type: 'areaspline',
                 width: 308,
@@ -15,7 +15,7 @@ function create_area_chart(veg_type, chart_div_id) {
             },
             title: {
                 enabled: false,
-                text: "", //veg_type,
+                text: "",
                 margin: 5,
                 x: 15,
                 style: {
@@ -62,13 +62,13 @@ function create_area_chart(veg_type, chart_div_id) {
                     var tooltipMarkup = '<div id="areaChartTooltipContainer">';
                     tooltipMarkup += pointsLength ? '<span style="font-size: 12px">Year: ' + points[0].key + '</span><br/>' : '';
                     var index;
-                    var y_value;
+                    var y;
 
                     for (index = 0; index < pointsLength; index += 1) {
-                        y_value = (points[index].y).toFixed(1)
+                        y = (points[index].y).toFixed(1)
 
-                        if (y_value > 0) {
-                            tooltipMarkup += '<span style="color:' + points[index].series.color + '">\u25CF</span> ' + points[index].series.name + ': <b>' + y_value + '%</b><br/>';
+                        if (y > 0) {
+                            tooltipMarkup += '<span style="color:' + points[index].series.color + '">\u25CF</span> ' + points[index].series.name + ': <b>' + y + '%</b><br/>';
                         }
                     }
                     tooltipMarkup += '</div>';
@@ -106,57 +106,56 @@ function create_area_chart(veg_type, chart_div_id) {
 
 }
 
-function create_area_charts(results_data_json, run, iteration) {
+function createAreaCharts(data, run, iteration) {
 
     // Remove existing area charts
     $("#area_charts").empty();
-
     if (typeof iteration == "undefined") iteration = 1;
 
     //Restructure Dictionary
-    var chart_dict = {};
-    $.each(results_data_json[iteration], function (timestep, results_dict) {
-        $.each(results_dict, function (veg_type, value) {
-            if (typeof chart_dict[veg_type] == "undefined") {
-                chart_dict[veg_type] = {}
+    var chartDict = {};
+    $.each(data[iteration], function (timestep, results) {
+        $.each(results, function (vegtype, value) {
+            if (typeof chartDict[vegtype] == "undefined") {
+                chartDict[vegtype] = {}
             }
-            $.each(veg_type_state_classes_json[veg_type], function (index, state_class) {
-                if (typeof chart_dict[veg_type][state_class] == "undefined") {
-                    chart_dict[veg_type][state_class] = []
+            $.each(vegtypeStateclassesDictionary[vegtype], function (index, stateclass) {
+                if (typeof chartDict[vegtype][stateclass] == "undefined") {
+                    chartDict[vegtype][stateclass] = []
                 }
-                if (state_class in results_dict[veg_type]) {
-                    value = results_dict[veg_type][state_class];
-                    chart_dict[veg_type][state_class].push((parseFloat(value) * 100))
+                if (stateclass in results[vegtype]) {
+                    value = results[vegtype][stateclass];
+                    chartDict[vegtype][stateclass].push((parseFloat(value) * 100))
                 }
                 else {
-                    chart_dict[veg_type][state_class].push(0);
+                    chartDict[vegtype][stateclass].push(0);
                 }
             })
         })
     });
 
     // Go through each veg type in the results and make a chart out of the state class values
-    var chart_count=1;
-    $.each(chart_dict, function(veg_type, value) {
-        var chart_div_id = "chart_" + run + "_" + chart_count;
-        var chart_container = $("#area_charts");
-        chart_container.append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count + "'>" + veg_type +
-            "<span class='show_chart_link' id='show_stacked_area_chart_link_" + chart_count + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
+    var chartCount = 1;
+    $.each(chartDict, function(vegtype, value) {
+        var chartDivID = "chart_" + run + "_" + chartCount;
+        var container = $("#area_charts");
+        container.append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chartCount + "'>" + vegtype +
+            "<span class='show_chart_link' id='show_stacked_area_chart_link_" + chartCount + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 
         //add a new chart div
-        chart_container.append("<div id='" + chart_div_id + "'></div>");
+        container.append("<div id='" + chartDivID + "'></div>");
 
         // Create the chart
-        create_area_chart(veg_type, chart_div_id);
+        createAreaChart(vegtype, chartDivID);
 
-        var ac = $('#' + chart_div_id).highcharts();
+        var ac = $('#' + chartDivID).highcharts();
 
         // Add a series for each state class
-        $.each(chart_dict[veg_type], function (state_class_name, values_array) {
+        $.each(chartDict[vegtype], function (name, values) {
             ac.addSeries({
-                name: state_class_name,
-                color: colorMap["State Classes"][state_class_name],
-                data: values_array,
+                name: name,
+                color: colorMap["State Classes"][name],
+                data: values,
                 lineWidth: 0,
                 stacking: 'normal',
                 point: {
@@ -168,21 +167,17 @@ function create_area_charts(results_data_json, run, iteration) {
             })
         });
 
-        bind_click_to_collapse(chart_div_id, run, chart_count);
-        chart_count++;
-    });
-}
-
-function bind_click_to_collapse(chart_div_id, run, chart_count) {
-    $("#show_stacked_area_chart_link_" + chart_count + "_" + run).click(function () {
-        var div = $("#" + chart_div_id);
-        if (div.is(":visible")) {
-            $(this).html(" <img class='dropdown_arrows' src='/static/img/down_arrow.png'>");
-            div.hide()
-        }
-        else {
-            $(this).html(" <img class='dropdown_arrows' src='/static/img/up_arrow.png'>");
-            div.show()
-        }
+        $("#show_stacked_area_chart_link_" + chartCount + "_" + run).click(function () {
+            var div = $("#" + chartDivID);
+            if (div.is(":visible")) {
+                $(this).html(" <img class='dropdown_arrows' src='/static/img/down_arrow.png'>");
+                div.hide()
+            }
+            else {
+                $(this).html(" <img class='dropdown_arrows' src='/static/img/up_arrow.png'>");
+                div.show()
+            }
+        });
+        chartCount++;
     });
 }

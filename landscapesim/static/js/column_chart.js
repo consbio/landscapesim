@@ -1,6 +1,6 @@
-function create_column_chart(veg_type, chart_div_id, x_axis_categories) {
+function createColumnChart(vegtype, chartDivID, xAxisCategories) {
     $(function () {
-        $('#'+chart_div_id).highcharts({
+        $('#'+chartDivID).highcharts({
             chart: {
                 type: 'column',
                 width:308,
@@ -27,7 +27,7 @@ function create_column_chart(veg_type, chart_div_id, x_axis_categories) {
             legend: {
             },
             xAxis: {
-                categories:x_axis_categories,
+                categories:xAxisCategories,
                 crosshair: true
             },
             yAxis: {
@@ -50,113 +50,99 @@ function create_column_chart(veg_type, chart_div_id, x_axis_categories) {
     });
 }
 
-function create_column_charts(results_data_json, run) {
+function createColumnCharts(data, run) {
 
     //$("#iteration_tr_" + run).hide();
     $("#column_charts").empty();
-    var cached_config = model_run_cache[run].config;
+    var cached_config = modelRunCache[run].config;
     var iterations = cached_config.run_control.max_iteration;
     var timesteps = cached_config.run_control.max_timestep;
 
     //Restructure Dictionary
-    //Creates a dictionary of all the final timestep values by veg_type/state class.
-    var column_chart_dict = {};
-
+    //Creates a dictionary of all the final timestep values by vegtype/state class.
+    var columnChartDictionary = {};
     for (var iteration = 1; iteration <= iterations; iteration++) {
-        // Each iteration
-        $.each(results_data_json[iteration][timesteps], function (veg_type, state_class_dict) {
-            if (typeof column_chart_dict[veg_type] == "undefined") {
-                column_chart_dict[veg_type] = {}
-            }
-            $.each(state_class_dict, function (state_class, value) {
-                if (typeof column_chart_dict[veg_type][state_class] == "undefined") {
-                    column_chart_dict[veg_type][state_class] = []
-                }
-                column_chart_dict[veg_type][state_class].push(parseFloat(value) * 100)
+        $.each(data[iteration][timesteps], function (vegtype, stateclassDictionary) {
+            if (typeof columnChartDictionary[vegtype] == "undefined") columnChartDictionary[vegtype] = {}
+            $.each(stateclassDictionary, function (stateclass, value) {
+                if (typeof columnChartDictionary[vegtype][stateclass] == "undefined") columnChartDictionary[vegtype][stateclass] = []
+                columnChartDictionary[vegtype][stateclass].push(parseFloat(value) * 100)
             })
         })
     }
 
     //Get the min/median/max from the dictionary above. Store in a new dictionary.
-    var column_chart_dict_final = {};
-    $.each(column_chart_dict, function (veg_type, state_class_list) {
-        column_chart_dict_final[veg_type] = {};
-        $.each(state_class_list, function (state_class, array_of_values) {
-            var min_val = Math.min.apply(Math, array_of_values);
-            var max_val = Math.max.apply(Math, array_of_values);
-            var sorted_array = array_of_values.sort();
-            //var length_of_array = sorted_array.length;
-            var low_middle_index = Math.floor((sorted_array.length - 1) / 2);
-            var high_middle_index = Math.ceil((sorted_array.length - 1) / 2);
-            var median_val = (sorted_array[low_middle_index] + sorted_array[high_middle_index]) / 2;
-            column_chart_dict_final[veg_type][state_class] = [];
-            column_chart_dict_final[veg_type][state_class].push(min_val);
-            column_chart_dict_final[veg_type][state_class].push(median_val);
-            column_chart_dict_final[veg_type][state_class].push(max_val);
+    var columnChartDictionaryFinal = {};
+    $.each(columnChartDictionary, function (vegtype, stateclasses) {
+        columnChartDictionaryFinal[vegtype] = {};
+        $.each(stateclasses, function (stateclass, values) {
+            var min = Math.min.apply(Math, values);
+            var max = Math.max.apply(Math, values);
+            var sorted = values.sort();
+            //var length_of_array = sorted.length;
+            var low = Math.floor((sorted.length - 1) / 2);
+            var high = Math.ceil((sorted.length - 1) / 2);
+            var median = (sorted[low] + sorted[high]) / 2;
+            columnChartDictionaryFinal[vegtype][stateclass] = [];
+            columnChartDictionaryFinal[vegtype][stateclass].push(min);
+            columnChartDictionaryFinal[vegtype][stateclass].push(median);
+            columnChartDictionaryFinal[vegtype][stateclass].push(max);
         })
     });
 
     // Go through each veg type in the min/median/max dictionary and make a chart out of the state class values
-    var chart_count = 1;
-    $.each(column_chart_dict_final, function (veg_type, state_classes) {
+    var chartCount = 1;
+    $.each(columnChartDictionaryFinal, function (vegtype, stateclasses) {
 
-        var chart_div_id = "column_chart_" + run + "_" + chart_count;
+        var chartDivID = "column_chart_" + run + "_" + chartCount;
 
-        $("#column_charts").append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chart_count + "'>" + veg_type +
+        $("#column_charts").append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chartCount + "'>" + vegtype +
 
-            "<span class='show_chart_link' id='show_column_chart_link_" + chart_count + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
+            "<span class='show_chart_link' id='show_column_chart_link_" + chartCount + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 
         //add a new chart div
-        $("#column_charts").append("<div id='" + chart_div_id + "'></div>");
+        $("#column_charts").append("<div id='" + chartDivID + "'></div>");
 
-        var median_vals = [];
-        var min_max_vals = [];
-        var state_class_names = [];
+        var medians = [];
+        var minMaxValues = [];
+        var stateClassNames = [];
 
-        $.each(state_classes, function (state_class_name, value) {
-            state_class_names.push([state_class_name]);
-            var rounded_median = parseFloat(value[1].toFixed(1));
-            var rounded_min = parseFloat(value[0].toFixed(1));
-            var rounded_max = parseFloat(value[2].toFixed(1));
-            median_vals.push({y: rounded_median, color: colorMap["State Classes"][state_class_name]});
-            min_max_vals.push([rounded_min, rounded_max])
+        $.each(stateclasses, function (name, value) {
+            stateClassNames.push([name]);
+            var median = parseFloat(value[1].toFixed(1));
+            var min = parseFloat(value[0].toFixed(1));
+            var max = parseFloat(value[2].toFixed(1));
+            medians.push({y: median, color: colorMap["State Classes"][name]});
+            minMaxValues.push([min, max])
         });
 
         // Create the chart
-        create_column_chart(veg_type, chart_div_id, state_class_names);
-
-        var cc = $('#' + chart_div_id).highcharts();
+        createColumnChart(vegtype, chartDivID, stateClassNames);
+        var cc = $('#' + chartDivID).highcharts();
 
         // Add a series for each of the median values
         cc.addSeries({
             name: 'Percent Cover',
-            //color: state_class_color_map[state_class_name],
-            data: median_vals,
+            data: medians,
             showInLegend: false,
         })
         cc.addSeries({
             name: 'Error Bars',
             type: 'errorbar',
-            data: min_max_vals,
+            data: minMaxValues,
         })
 
-        bind_click_to_collapse_column(chart_div_id, run, chart_count);
-        chart_count++;
-
+        $("#show_column_chart_link_" + chartCount + "_" + run).click(function () {
+            var div = $("#" + chartDivID);
+            if (div.is(":visible")) {
+                $(this).html(" <img class='dropdown_arrows' src='/static/img/down_arrow.png'>")
+                div.hide()
+            }
+            else {
+                $(this).html(" <img class='dropdown_arrows' src='/static/img/up_arrow.png'>")
+                div.show()
+            }
+        });
+        chartCount++;
     });
 }
-
-function bind_click_to_collapse_column(chart_div_id, run, chart_count) {
-    $("#show_column_chart_link_" + chart_count + "_" + run).click(function () {
-        var div = $("#" + chart_div_id);
-        if (div.is(":visible")) {
-            $(this).html(" <img class='dropdown_arrows' src='/static/img/down_arrow.png'>")
-            div.hide()
-        }
-        else {
-            $(this).html(" <img class='dropdown_arrows' src='/static/img/up_arrow.png'>")
-            div.show()
-        }
-    });
-}
-
