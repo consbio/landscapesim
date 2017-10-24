@@ -7,7 +7,7 @@ var map = L.map('map', {
 // Basemaps
 var topographic = L.esri.basemapLayer("Topographic");
 var imagery = L.esri.basemapLayer("Imagery");
-var usa_topo = L.esri.basemapLayer("USATopo");
+var terrain = L.esri.basemapLayer("Terrain");
 var national_geographic = L.esri.basemapLayer("NationalGeographic");
 
 var groupedOverlays = {
@@ -23,7 +23,7 @@ var options = {
 };
 
 var basemaps = map.addControl(L.control.basemaps({
-    basemaps: [topographic, usa_topo, national_geographic, imagery],
+    basemaps: [topographic, terrain, national_geographic, imagery],
     position: 'bottomleft'
 }))
 
