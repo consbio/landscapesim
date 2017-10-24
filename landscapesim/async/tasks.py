@@ -150,7 +150,16 @@ def run_model(self, library_name, pid, sid):
     job.model_status = 'complete'
     job.save()
 
-    # Post-processing for later usage
+    # Start post-processing task for later usage and free worker.
+    post_process_results.delay(job.id)
+
+
+@task(bind=True)
+def post_process_results(self, run_id):
+    run = RunScenarioModel.objects.get(id=run_id)
+    scenario = run.result_scenario
+    lib = scenario.project.library
+    console = STSimConsole(lib_path=lib.file, orig_path=lib.orig_file, exe=EXE)
     t = time.time()
     process_scenario_inputs(console, scenario, create_input_services=False)
     print("Scenario imported in {} seconds".format(time.time() - t))

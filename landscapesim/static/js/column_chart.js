@@ -54,7 +54,9 @@ function create_column_charts(results_data_json, run) {
 
     //$("#iteration_tr_" + run).hide();
     $("#column_charts").empty();
-
+    var cached_config = model_run_cache[run].config;
+    var iterations = cached_config.run_control.max_iteration;
+    var timesteps = cached_config.run_control.max_timestep;
 
     //Restructure Dictionary
     //Creates a dictionary of all the final timestep values by veg_type/state class.

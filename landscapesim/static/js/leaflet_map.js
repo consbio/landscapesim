@@ -131,7 +131,9 @@ function changeOutputStateClass(run) {
 
         // Store a global time step variable to use in displaying the layer and setting the slider value when a model run tab is clicked.
         globalTimestep = Number(e.value);
-
+        var maxTimesteps = model_run_cache[run].config.run_control.max_timesteps;
+        if (maxTimesteps > globalTimestep) globalTimestep = maxTimesteps;
+        console.log(run);
         outputStateClassLayers[run].options.t = Number(e.value);
         outputStateClassLayers[run].redraw();
         outputStateClassLayers[run].bringToFront();

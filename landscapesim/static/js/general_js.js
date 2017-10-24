@@ -13,9 +13,11 @@ var download_pdf_url = '/api/download-pdf/';
 var result_url = '';
 
 var run;
-var iteration, iterations, timestep, timesteps;
 var settings;
 var bounding_box_layer;
+
+/* Utility for deep copies on non-prototyped objects. */
+var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 $(document).ready(function() {
 
@@ -35,9 +37,7 @@ $(document).ready(function() {
     });
 
     /************************************************* Run Model  ****************************************************/
-    run=0;
-    iteration=1;
-    timestep=1;
+    run = 0;
 
     // Send the scenario and initial conditions to ST-Sim.
     settings = [];
@@ -83,8 +83,8 @@ $(document).ready(function() {
         settings["library"] = current_library.name;
         settings["spatial"] = $("#spatial_button").hasClass('selected')
 
-        iterations = current_scenario.config.run_control.max_iteration;
-        timesteps = current_scenario.config.run_control.max_timestep;
+        //iterations = current_scenario.config.run_control.max_iteration;
+        //timesteps = current_scenario.config.run_control.max_timestep;
 
         $(".slider_bars").slider( "option", "disabled", true );
         $('input:submit').attr("disabled", true);
@@ -133,7 +133,7 @@ $(document).ready(function() {
 
                 (function poll() {
                     setTimeout(function() {
-                        $.getJSON(run_model_url + job.uuid).done(function (update) {
+                        $.getJSON(run_model_url + job.uuid + '/').done(function (update) {
 
                             updateProgress(update.progress, update.status, update.model_status);
 
@@ -1144,11 +1144,14 @@ var results_data_json_cache = {};
 
 // Process Web API Results. Restructure data, and create the charts.
 function processStateClassSummaryReport(res){
-
     model_run_cache[run] = res;
-    model_run_cache[run]['config'] = current_scenario.config;   // Capture run configuration
+    model_run_cache[run].config = copy(current_scenario.config);
     var data = res["results"];
     var results_data_json = {};
+    
+    var cached_config = model_run_cache[run].config;
+    var iterations = cached_config.run_control.max_iteration;
+    var timesteps = cached_config.run_control.max_timestep;
 
     for (var i = 1; i <= iterations; i++) {
         results_data_json[i] = {};
@@ -1178,8 +1181,8 @@ function processStateClassSummaryReport(res){
 function updateResultsViewer(run) {
     var results_data_json = results_data_json_cache[run];
     update_results_table(results_data_json, run);
-    create_area_charts(results_data_json, run, iteration);
-    create_column_charts(results_data_json, run, iteration);
+    create_area_charts(results_data_json, run);
+    create_column_charts(results_data_json, run);
     changeOutputStateClass(run);
 }
 

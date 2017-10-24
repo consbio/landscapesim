@@ -123,6 +123,7 @@ WKHTMLTOPDF_BIN = CONFIG.get('WKHTMLTOPDF_BIN', 'wkhtmltopdf')
 CELERY_TRACK_STARTED = True
 
 CELERY_ROUTES = {
+    'landscapesim.async.tasks.post_process_results': { 'queue': 'periodic-tasks' },
     'landscapesim.async.tasks.look_for_new_scenario': { 'queue': 'periodic-tasks' },
     'landscapesim.async.tasks.run_model': {'queue': 'run-model'}
 }
