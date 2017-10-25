@@ -1008,7 +1008,6 @@ function updateModelRunSelection(run) {
 
     // Set value to current run
     modelRunSelect.val(run);
-
     modelRunSelect.on('change', function() {
         updateResultsViewer($(this).val());
     })
@@ -1025,10 +1024,7 @@ function downloadReport(url, filename, configuration, basemap, zoom) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
-    }).then(function(res) {
-        return res.blob()
-    }).then(function(blob){
-        console.log(blob)
+    }).then(function(res) { return res.blob() }).then(function(blob){
         var reader = new FileReader()
         reader.addEventListener('loadend', function(e) {
             var node = document.createElement('a')
@@ -1043,7 +1039,6 @@ function downloadReport(url, filename, configuration, basemap, zoom) {
     });
 }
 
-var fantastic;
 function downloadSpatialData(url, filename, configuration, basemap, zoom) {
     fetch(url,  {
         method: 'POST',
@@ -1053,10 +1048,7 @@ function downloadSpatialData(url, filename, configuration, basemap, zoom) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
-    }).then(function(res) {
-        fantastic = res;
-        return res.json();
-    }).then(function(json) {
+    }).then(function(res) { return res.json(); }).then(function(json) {
         window.location = '/downloads/' + json.filename;
         $('#download-data').val('Download Data & Results');
     })
@@ -1088,8 +1080,42 @@ function downloadModelResults() {
         var reportConfig = availableReports[reportToDownload];
         var configuration = {
             'scenario_id': modelRun.scenario,
-            'report_name': reportToDownload
+            'report_name': reportToDownload,
+            'bounding_box': null                // TODO - include bounding box to render the pdf into. Could just be the leaflet bounding box?
         }
+
+        // TODO - include the probability transition percent increases & decreases as part of the report, and include them in the modelRunCache to begin with
+
+        if (reportToDownload == 'overview') {
+
+            // Collect stacked area charts
+            configuration['stacked_charts'] = [];
+            configuration['column_charts'] = [];
+
+            var stackedCharts = document.getElementsByClassName('stacked-chart');
+            for (var i = 0; i < stackedCharts.length; i++) {
+                var chart = stackedCharts[i];
+                var vegtype = chart.getAttribute('vegtype');
+                var svg = chart.children[0].children[0].innerHTML;
+                configuration['stacked_charts'].push({
+                    'svg': svg,
+                    'vegtype': vegtype
+                })
+            }
+
+            // Collect column charts
+            var columnCharts = document.getElementsByClassName('column-chart');
+            for (var i = 0; i < columnCharts.length; i++) {
+                var chart = columnCharts[i];
+                var vegtype = chart.getAttribute('vegtype');
+                var svg = chart.children[0].children[0].innerHTML;
+                configuration['column_charts'].push({
+                    'svg': svg,
+                    'vegtype': vegtype
+                })
+            }
+        }
+
         var zoom = map.getZoom();
         var filename = reportToDownload + reportConfig.ext;
         var url = reportConfig.url;
@@ -1227,6 +1253,9 @@ function update_results_table(cache, run) {
         "</td>"
     ].join(''));
 
+
+    var timestepText = currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps
+
     // Chart button click functions
     $("#column_chart_td_button").click(function () {
         $(this).removeClass("unselected_td_button")
@@ -1237,7 +1266,7 @@ function update_results_table(cache, run) {
         $("#column_charts").show()
         //$("#iteration_tr_" + run).hide()
         $("#area_charts").hide()
-        $("#veg_output_th").html("Vegetation Cover in " + currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
+        $("#veg_output_th").html("Vegetation Cover in " + timestepText)
     });
 
     // Chart button click functions
@@ -1249,7 +1278,7 @@ function update_results_table(cache, run) {
         $("#column_charts").hide()
         //$("#iteration_tr_" + run).show()
         $("#area_charts").show()
-        $("#veg_output_th").html("Vegetation Cover over " + currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps)
+        $("#veg_output_th").html("Vegetation Cover over " + timestepText)
     });
 
 
@@ -1273,7 +1302,7 @@ function update_results_table(cache, run) {
     $("#results_table").append([
         "<tr class='veg_output_tr'>",
         "<td class='veg_output_th' id='veg_output_th' colspan='3'>",
-        "Vegetation Cover in " + currentScenario.config.run_control.max_timestep + " Years",
+        "Vegetation Cover in " + timestepText,
         "</td>",
         "</tr>"
     ].join(''));

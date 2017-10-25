@@ -139,11 +139,11 @@ function createAreaCharts(data, run, iteration) {
     $.each(chartDict, function(vegtype, value) {
         var chartDivID = "chart_" + run + "_" + chartCount;
         var container = $("#area_charts");
-        container.append("<div class='stacked_area_chart_title' id='stacked_area_chart_title_" + chartCount + "'>" + vegtype +
+        container.append("<div class='stacked_area_chart_title'>" + vegtype +
             "<span class='show_chart_link' id='show_stacked_area_chart_link_" + chartCount + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 
         //add a new chart div
-        container.append("<div id='" + chartDivID + "'></div>");
+        container.append("<div id='" + chartDivID + "' vegtype='" + vegtype + "' class='stacked-chart'></div>");
 
         // Create the chart
         createAreaChart(vegtype, chartDivID);

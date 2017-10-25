@@ -101,7 +101,7 @@ function createColumnCharts(data, run) {
             "<span class='show_chart_link' id='show_column_chart_link_" + chartCount + "_" + run + "'> <img class='dropdown_arrows' src='/static/img/up_arrow.png'></span></div>")
 
         //add a new chart div
-        $("#column_charts").append("<div id='" + chartDivID + "'></div>");
+        $("#column_charts").append("<div id='" + chartDivID + "' vegtype='" + vegtype + "' class='column-chart'></div>");
 
         var medians = [];
         var minMaxValues = [];
