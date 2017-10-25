@@ -34,7 +34,21 @@ var requestSpatialDataURL = '/api/request-spatial-data/';
 
 // Available ST-Sim reports to be downloaded.
 var availableReports = {
-    
+       
+    // PDF report
+    'overview': {
+        'label': 'Overview',
+        'ext': '.pdf',
+        'url': downloadPdfURL
+    },
+
+    // Spatial data download
+    'spatial-data': {
+        'label': 'Spatial Data',
+        'ext': '.zip',
+        'url': requestSpatialDataURL
+    },
+
     // CSV reports
     'stateclass-summary' : {
         'label': 'Stateclass',
@@ -51,18 +65,4 @@ var availableReports = {
         'ext': '.csv',
         'url': downloadCsvURL
     },
-    
-    // PDF report
-    'overview': {
-        'label': 'Overview',
-        'ext': '.pdf',
-        'url': downloadPdfURL
-    },
-
-    // Spatial data download
-    'spatial-data': {
-        'label': 'Spatial Data',
-        'ext': '.zip',
-        'url': requestSpatialDataURL
-    }
 }
