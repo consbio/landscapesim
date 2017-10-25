@@ -13,3 +13,9 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+    # In production, we setup DATASET_DOWNLOAD_DIR to point to /tmp and setup the server to direct /downloads/<*.zip> requests locally.
+    from django.views.static import serve
+    urlpatterns += [
+        url(r'^downloads/(?P<path>.*)$', serve, {'document_root': settings.DATASET_DOWNLOAD_DIR})
+    ]

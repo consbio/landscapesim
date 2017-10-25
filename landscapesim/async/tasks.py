@@ -17,6 +17,7 @@ from landscapesim.models import Library, Scenario, RunScenarioModel
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 SCENARIO_SCAN_RATE = 2
+DATASET_DOWNLOAD_DIR = getattr(settings, 'DATASET_DOWNLOAD_DIR')
 
 
 def import_configuration(console, config, sid, tmp_file):
@@ -163,3 +164,18 @@ def post_process_results(self, run_id):
     t = time.time()
     process_scenario_inputs(console, scenario, create_input_services=False)
     print("Scenario imported in {} seconds".format(time.time() - t))
+
+
+@task
+def cleanup_temp_tif_files(age=7200):
+    cutoff = time.time() - age
+    t_files = os.listdir(DATASET_DOWNLOAD_DIR)
+    for t_file in t_files:
+        if re.search('.zip$', t_file):
+            path = os.path.join(DATASET_DOWNLOAD_DIR, t_file)
+            if os.path.getctime(path) < cutoff:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+

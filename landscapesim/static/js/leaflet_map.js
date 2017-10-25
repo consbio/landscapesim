@@ -15,6 +15,11 @@ var basemaps = map.addControl(L.control.basemaps({
     position: 'bottomleft'
 }))
 
+var currentBasemap = topographic._url;
+map.on('baselayerchange', function(basemap) {
+    currentBasemap = basemap._url;
+})
+
 var groupedOverlays = {"Initial Conditions": {}, "Model Results": {}};
 var options = {
     position:"topleft",

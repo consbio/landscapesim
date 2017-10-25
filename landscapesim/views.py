@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
@@ -248,8 +248,8 @@ class ReportViewBase(GenericAPIView):
         data = serializer.validated_data
         config = data['configuration']
         zoom = data.get('zoom', None)
-        layers = data.get('tile_layers', None)
-        return self._response(Report(config, zoom, layers))
+        basemap = data.get('basemap', None)
+        return self._response(Report(config, zoom, basemap))
 
 
 class GenerateCSVReportView(ReportViewBase):
@@ -266,3 +266,7 @@ class GeneratePDFReportView(ReportViewBase):
         response = HttpResponse(content=pdf_data, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename={}.pdf'.format(report.report_name)
         return response
+
+class RequestSpatialDataView(ReportViewBase):
+    def _response(self, report):
+        return JsonResponse(report.request_zip_data())

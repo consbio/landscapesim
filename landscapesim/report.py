@@ -1,5 +1,7 @@
 import os
 import pdfkit
+import zipfile
+import tempfile
 
 from io import StringIO, BytesIO
 from shutil import copyfileobj
@@ -25,16 +27,17 @@ PDF_OPTIONS = {
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 TEMP_DIR = getattr(settings, 'NC_TEMPORARY_FILE_LOCATION')
+DATASET_DOWNLOAD_DIR = getattr(settings, 'DATASET_DOWNLOAD_DIR')
 
 
 class Report:
     """ A class for handling report generation for landscapesim. """
 
-    def __init__(self, configuration, zoom=None, tile_layers=None):
+    def __init__(self, configuration, zoom=None, basemap=None):
         self.configuration = configuration
         self.report_name = self.configuration['report_name']
         self.zoom = zoom
-        self.tile_layers = tile_layers
+        self.basemap = basemap
 
     def get_csv_data(self):
         scenario = Scenario.objects.get(pk=self.configuration['scenario_id'])
@@ -52,3 +55,18 @@ class Report:
         # TODO - use our map services, etc, and design a PDF report
         result = pdfkit.from_url('google.com', False, options=PDF_OPTIONS, configuration=PDFKIT_CONFIG)
         return result
+
+    def request_zip_data(self):
+        s = Scenario.objects.get(pk=self.configuration['scenario_id'])
+        result = BytesIO()
+
+        fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.zip')
+        os.close(fd)
+        
+        with zipfile.ZipFile(filename, 'w') as zf:
+            tif_files = [x for x in os.listdir(s.output_directory) if '.tif' in x]
+            for f in tif_files:
+                full_path = os.path.join(s.output_directory, f)
+                zf.write(full_path, f)
+
+        return {'filename': os.path.basename(filename)}

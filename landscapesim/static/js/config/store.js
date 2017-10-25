@@ -28,15 +28,41 @@ store[1] = {
         }
 };
 
+var downloadCsvURL = '/api/download-csv/';
+var downloadPdfURL = '/api/download-pdf/';
+var requestSpatialDataURL = '/api/request-spatial-data/';
+
 // Available ST-Sim reports to be downloaded.
 var availableReports = {
+    
+    // CSV reports
     'stateclass-summary' : {
-        'label': 'Stateclass'
+        'label': 'Stateclass',
+        'ext': '.csv',
+        'url': downloadCsvURL
     },
     'transition-summary' : {
-        'label': 'Transitions'
+        'label': 'Transitions',
+        'ext': '.csv',
+        'url': downloadCsvURL
     },
     'transition-stateclass-summary' : {
-        'label': 'Transitions by Stateclass'
+        'label': 'Transitions by Stateclass',
+        'ext': '.csv',
+        'url': downloadCsvURL
     },
+    
+    // PDF report
+    'overview': {
+        'label': 'Overview',
+        'ext': '.pdf',
+        'url': downloadPdfURL
+    },
+
+    // Spatial data download
+    'spatial-data': {
+        'label': 'Spatial Data',
+        'ext': '.zip',
+        'url': requestSpatialDataURL
+    }
 }

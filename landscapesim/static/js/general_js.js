@@ -8,8 +8,6 @@ var available_scenarios = [];
 var scenarioURL = '';
 var currentScenario = {};
 var runModelURL = '/api/jobs/run-model/';
-var downloadCsvURL = '/api/download-csv/';
-var downloadPdfURL = '/api/download-pdf/';
 var settings;
 var boundingBoxLayer;
 
@@ -1017,22 +1015,20 @@ function updateModelRunSelection(run) {
 }
 
 // Handle data download functionality
-var reportToDownload = '';
-var reportExtension = '';
-function downloadReport(url, filename, configuration, tileLayers, zoom) {
-    // Identify which model to download
-    
+function downloadReport(url, filename, configuration, basemap, zoom) {
     $('#download-data').val('Downloading...');
-
     fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
-            'Accept': 'application/json, text/plain, */*',
+            'Accept': 'application/json, text/plain, application/zip, */*',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'configuration': configuration, 'tile_layers': tileLayers, 'zoom': zoom})
-    }).then(function(res){ return res.blob()}).then(function(blob){
+        body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
+    }).then(function(res) {
+        return res.blob()
+    }).then(function(blob){
+        console.log(blob)
         var reader = new FileReader()
         reader.addEventListener('loadend', function(e) {
             var node = document.createElement('a')
@@ -1045,7 +1041,25 @@ function downloadReport(url, filename, configuration, tileLayers, zoom) {
         })
         reader.readAsDataURL(blob);
     });
+}
 
+var fantastic;
+function downloadSpatialData(url, filename, configuration, basemap, zoom) {
+    fetch(url,  {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json, text/plain, application/zip, */*',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
+    }).then(function(res) {
+        fantastic = res;
+        return res.json();
+    }).then(function(json) {
+        window.location = '/downloads/' + json.filename;
+        $('#download-data').val('Download Data & Results');
+    })
 }
 
 function downloadModelResults() {
@@ -1061,42 +1075,31 @@ function downloadModelResults() {
     // TODO - add selection objects in a modal.
     var text = [
         "<div class='header'>",
-            "Download Data & Results",
+        "Download Data & Results",
         "</div>",
-        "<input value='PDF' type='button' class='my-button download-report' id='pdf'>",
         reportInputs.join('')
     ].join('')
     alertify.alert(text);
     $('.alertify-message').remove();    // Removes the extra div created, which we replace
 
+    // Setup the events to respond to.
     $('.download-report').on('click', function() {
         reportToDownload = this.id;
-        console.log(reportToDownload);
-        // Configure what data users wants to download
+        var reportConfig = availableReports[reportToDownload];
         var configuration = {
             'scenario_id': modelRun.scenario,
-            'report_name': reportToDownload == "pdf" ? 'report' : reportToDownload
+            'report_name': reportToDownload
         }
-        var tileLayers = null;
-        var zoom = null;
+        var zoom = map.getZoom();
+        var filename = reportToDownload + reportConfig.ext;
+        var url = reportConfig.url;
 
-        var reportUrl, ext;
-
-        // Download CSV
-        if (reportToDownload in availableReports) {
-            reportUrl = downloadCsvURL;
-            ext = '.csv'
+        if (url != requestSpatialDataURL) {
+            downloadReport(reportConfig.url, filename, configuration, currentBasemap, zoom);
         }
-        // Download PDF report
         else {
-            reportUrl = downloadPdfURL;
-            ext = '.pdf'
-            // TODO - get current tile layers
-            // TODO - get current zoom
+            downloadSpatialData(reportConfig.url, filename, configuration, currentBasemap, zoom);
         }
-
-        var filename = reportToDownload + ext;
-        downloadReport(reportUrl, filename, configuration, tileLayers, zoom);
     })
 }
 
