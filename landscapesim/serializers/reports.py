@@ -9,8 +9,6 @@ from landscapesim import models
 
 class GenerateReportSerializer(serializers.Serializer):
     configuration = serializers.JSONField()
-    basemap = serializers.CharField()
-    zoom = serializers.IntegerField()
 
 
 class StateClassSummaryReportRowSerializer(serializers.ModelSerializer):

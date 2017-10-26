@@ -247,9 +247,8 @@ class ReportViewBase(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         config = data['configuration']
-        zoom = data.get('zoom', None)
-        basemap = data.get('basemap', None)
-        return self._response(Report(config, zoom, basemap))
+        name = config.pop('report_name')
+        return self._response(Report(name, config))
 
 
 class GenerateCSVReportView(ReportViewBase):
@@ -266,6 +265,7 @@ class GeneratePDFReportView(ReportViewBase):
         response = HttpResponse(content=pdf_data, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename={}.pdf'.format(report.report_name)
         return response
+
 
 class RequestSpatialDataView(ReportViewBase):
     def _response(self, report):

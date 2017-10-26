@@ -3,9 +3,9 @@
     These models take a snapshot of the library when imported so we don't have to
     extract them out each time.
 """
+import json
 import os
 import uuid
-import json
 
 from celery.result import AsyncResult
 from django.db import models

@@ -1014,7 +1014,7 @@ function updateModelRunSelection(run) {
 }
 
 // Handle data download functionality
-function downloadReport(url, filename, configuration, basemap, zoom) {
+function downloadReport(url, filename, configuration) {
     $('#download-data').val('Downloading...');
     fetch(url, {
         method: 'POST',
@@ -1023,7 +1023,7 @@ function downloadReport(url, filename, configuration, basemap, zoom) {
             'Accept': 'application/json, text/plain, application/zip, */*',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
+        body: JSON.stringify({'configuration': configuration})
     }).then(function(res) { return res.blob() }).then(function(blob){
         var reader = new FileReader()
         reader.addEventListener('loadend', function(e) {
@@ -1039,7 +1039,7 @@ function downloadReport(url, filename, configuration, basemap, zoom) {
     });
 }
 
-function downloadSpatialData(url, filename, configuration, basemap, zoom) {
+function downloadSpatialData(url, filename, configuration) {
     fetch(url,  {
         method: 'POST',
         credentials: 'same-origin',
@@ -1047,7 +1047,7 @@ function downloadSpatialData(url, filename, configuration, basemap, zoom) {
             'Accept': 'application/json, text/plain, application/zip, */*',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'configuration': configuration, 'basemap': basemap, 'zoom': zoom})
+        body: JSON.stringify({'configuration': configuration})
     }).then(function(res) { return res.json(); }).then(function(json) {
         window.location = '/downloads/' + json.filename;
         $('#download-data').val('Download Data & Results');
@@ -1078,15 +1078,24 @@ function downloadModelResults() {
     $('.download-report').on('click', function() {
         reportToDownload = this.id;
         var reportConfig = availableReports[reportToDownload];
+        var center = map.getCenter();
         var configuration = {
             'scenario_id': modelRun.scenario,
             'report_name': reportToDownload,
-            'bounding_box': null                // TODO - include bounding box to render the pdf into. Could just be the leaflet bounding box?
         }
 
         // TODO - include the probability transition percent increases & decreases as part of the report, and include them in the modelRunCache to begin with
 
         if (reportToDownload == 'overview') {
+
+            // Get information about the map
+            configuration['center'] = {
+                'lat': center.lat,
+                'lng': center.lng
+            }
+            configuration['opacity'] =  Number(opacity.getContainer().children[1].value);
+            configuration['basemap'] = currentBasemap;
+            configuration['zoom'] = map.getZoom();
 
             // Collect stacked area charts
             configuration['stacked_charts'] = [];
@@ -1116,15 +1125,13 @@ function downloadModelResults() {
             }
         }
 
-        var zoom = map.getZoom();
         var filename = reportToDownload + reportConfig.ext;
         var url = reportConfig.url;
-
         if (url != requestSpatialDataURL) {
-            downloadReport(reportConfig.url, filename, configuration, currentBasemap, zoom);
+            downloadReport(reportConfig.url, filename, configuration);
         }
         else {
-            downloadSpatialData(reportConfig.url, filename, configuration, currentBasemap, zoom);
+            downloadSpatialData(reportConfig.url, filename, configuration);
         }
     })
 }

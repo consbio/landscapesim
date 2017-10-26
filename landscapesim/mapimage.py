@@ -1,11 +1,15 @@
 import asyncio
-import mercantile
-import aiohttp
-from PIL import Image, ImageMath, ImageDraw
-from pyproj import Proj
-from django.conf import settings
-from clover.geometry.bbox import BBox
+import math
+import sys
+from io import BytesIO
 
+import aiohttp
+import mercantile
+from PIL import Image, ImageDraw
+from clover.geometry.bbox import BBox
+from django.conf import settings
+from ncdjango.geoimage import world_to_image, image_to_world
+from pyproj import Proj, transform
 
 ALLOWED_HOSTS = getattr(settings, 'ALLOWED_HOSTS')
 PORT = getattr(settings, 'PORT', 80)
@@ -15,8 +19,13 @@ IMAGE_SIZE = (645, 430)
 
 
 class MapImage(object):
-    def __init__(self, size, point, zoom, tile_layers, region, zone_id, opacity):
+    def __init__(self, center, zoom, basemap, opacity, size=None):
+
         self._configure_event_loop()
+
+        point = (center['lng'], center['lat'])
+        if size is None:
+            size = IMAGE_SIZE
 
         self.num_tiles = [math.ceil(size[x] / TILE_SIZE[x]) + 1 for x in (0, 1)]
         center_tile = mercantile.tile(point[0], point[1], zoom)
@@ -55,9 +64,8 @@ class MapImage(object):
         self.target_size = size
         self.point = point
         self.zoom = zoom
-        self.tile_layers = tile_layers
-        self.region = region
-        self.zone_id = zone_id
+        self.basemap = basemap
+        self._basemap_image = None
         self.opacity = opacity
 
     def _configure_event_loop(self):
@@ -66,10 +74,9 @@ class MapImage(object):
         else:
             asyncio.set_event_loop(asyncio.SelectorEventLoop())
 
-    def get_layer_images(self):
+    def get_layer_images(self, service_url):
         async def fetch_tile(client, layer_url, tile, im):
             headers = {}
-
             layer_url = layer_url.format(x=tile.x, y=tile.y, z=tile.z, s='server')
             if layer_url.startswith('//'):
                 layer_url = 'https:{}'.format(layer_url)
@@ -82,71 +89,39 @@ class MapImage(object):
                 tile_im = Image.open(BytesIO(await r.read()))
                 im.paste(tile_im, ((tile.x - self.ul_tile.x) * 256, (tile.y - self.ul_tile.y) * 256))
 
-        layer_images = [Image.new('RGBA', self.image_size) for _ in self.tile_layers]
+        # Basemap caching to reduce requests
+        basemap_cached = self._basemap_image is not None
+        if basemap_cached:
+            tile_layers = [service_url]
+        else:
+            tile_layers = [self.basemap, service_url]
 
+        layer_images = [Image.new('RGBA', self.image_size) for _ in tile_layers]
         with aiohttp.ClientSession() as client:
             requests = []
-
-            for i in range(self.num_tiles[0] * self.num_tiles[1]):
+            for i in range(int(self.num_tiles[0] * self.num_tiles[1])):
                 tile = mercantile.Tile(
                     x=self.ul_tile.x + i % self.num_tiles[0],
                     y=self.ul_tile.y + i // self.num_tiles[0],
                     z=self.zoom
                 )
-
-                for j, layer_url in enumerate(self.tile_layers):
+                for j, layer_url in enumerate(tile_layers):
                     requests.append(fetch_tile(client, layer_url, tile, layer_images[j]))
-
             asyncio.get_event_loop().run_until_complete(asyncio.gather(*requests))
+
+        # If basemap is not cached, capture it
+        if basemap_cached:
+            layer_images.insert(0, self._basemap_image)
+        else:
+            self._basemap_image = layer_images[0]
 
         return layer_images
 
     def draw_geometry(self, im, geometry, color, width):
         canvas = ImageDraw.Draw(im)
-
         canvas.line(
             [tuple(round(x) for x in self.to_image(*mercantile.xy(*p))) for p in geometry], fill=color, width=width
         )
-
-    def draw_zone_geometry(self, im):
-        if self.zone_id is not None:
-            polygon = SeedZone.objects.get(pk=self.zone_id).polygon
-
-            if polygon.geom_type == 'MultiPolygon':
-                geometries = polygon.coords
-            else:
-                geometries = [polygon.coords]
-
-            for geometry in geometries:
-                self.draw_geometry(im, geometry[0], (0, 255, 0), 3)
-
-    def draw_region_geometry(self, im):
-        try:
-            region = Region.objects.filter(name=self.region).get()
-        except Region.DoesNotExist:
-            return
-
-        for geometry in region.polygons.coords:
-            self.draw_geometry(im, geometry[0], (0, 0, 102), 1)
-
-    '''
-    def get_marker_image(self):
-        leaflet_images_dir = os.path.join(BASE_DIR, 'seedsource', 'static', 'leaflet', 'images')
-        marker = Image.open(os.path.join(leaflet_images_dir, 'marker-icon.png'))
-        shadow = Image.open(os.path.join(leaflet_images_dir, 'marker-shadow.png'))
-
-        # Raise the shadow opacity
-        shadow.putalpha(ImageMath.eval('a * 2', a=shadow.convert('RGBA').split()[3]).convert('L'))
-
-        im = Image.new('RGBA', self.image_size)
-        im.paste(shadow, (self.point_px[0] - 12, self.point_px[1] - shadow.size[1]))
-
-        marker_im = Image.new('RGBA', im.size)
-        marker_im.paste(marker, (self.point_px[0] - marker.size[0] // 2, self.point_px[1] - marker.size[1]))
-        im.paste(marker_im, (0, 0), marker_im)
-
-        return im
-    '''
 
     def crop_image(self, im):
         im_ul = (self.point_px[0] - self.target_size[0] // 2, self.point_px[1] - self.target_size[1] // 2)
@@ -156,16 +131,13 @@ class MapImage(object):
             (self.to_world(box[0], box[3])) + self.to_world(box[2], box[1]), projection=Proj(init='epsg:3857')
         )
 
-    def get_image(self) -> (Image, BBox):
+    def get_image(self, service_url) -> (Image, BBox):
         im = Image.new('RGBA', self.image_size)
 
-        for i, layer_im in enumerate(self.get_layer_images()):
+        for i, layer_im in enumerate(self.get_layer_images(service_url)):
             im.paste(Image.blend(im, layer_im, 1 if i == 0 else self.opacity), (0, 0), layer_im)
 
-        #self.draw_zone_geometry(im)
-        #self.draw_region_geometry(im)
-
-        #marker_im = self.get_marker_image()
-        im.paste(marker_im, (0, 0), marker_im)
+        # TODO - draw management actions onto landscape
+        #self.draw_geometry(<some_geom_object_here>)
 
         return self.crop_image(im)
