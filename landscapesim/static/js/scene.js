@@ -201,11 +201,13 @@ function updateSceneTiles() {
 }
 
 function sceneConfig() {
-    var libInfo = store[$(".model_selection").val()];
+    var libInfo = getCurrentInfo();
     var e = libInfo.extent;
-    var bounds = [[e[0][1], e[0][0]], [e[1][1], e[1][0]]];
+    var bbox = turf.bbox(e);
+    var l = bbox[0], b = bbox[1], r = bbox[2], t = bbox[3];
+    var bounds = [[l, b], [r, t]];  // TODO - get actual bounding box from coords
     var zoom = libInfo.zoom;
-    return {tiles: xyz(bounds, zoom), zoom: zoom, lat: e[1][0]};
+    return {tiles: xyz(bounds, zoom), zoom: zoom, lat: t};
 }
 
 var sceneEnabled = function() { return $('#scene-switch')[0].checked; }

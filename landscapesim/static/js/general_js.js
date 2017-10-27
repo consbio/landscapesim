@@ -14,6 +14,10 @@ var boundingBoxLayer;
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
 
+var getCurrentInfo = function() {
+    return store[$(".model_selection").val()];
+}
+
 $(document).ready(function() {
 
     // Top-level endpoint, get list of available libraries
@@ -179,31 +183,16 @@ $(document).ready(function() {
 
     // Also called on page load.
     function showLibraryInfo() {
-        var library_info = store[$(".model_selection").val()];
-        var extent = library_info.extent;
-
-        // Create a layer from the extent
-        var bounding_box = [{
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[
-                [extent[0][1],extent[1][0]],
-                [extent[1][1], extent[1][0]],
-                [extent[1][1], extent[0][0]],
-                [extent[0][1], extent[0][0]]
-                ]]
-            }
-        }];
+        var info = getCurrentInfo();
 
         // Show the layer
-        boundingBoxLayer = L.geoJSON(bounding_box).addTo(map);
-        boundingBoxLayer.bindPopup(library_info.name + " Extent").openPopup();
+        boundingBoxLayer = L.geoJSON(info.extent).addTo(map);
+        boundingBoxLayer.bindPopup(info.name + " Extent").openPopup();
 
-        // Upate the values in the library_info table
-        $("#library_author").html(library_info.author);
-        $("#library_date").html(library_info.date);
-        $("#library_description").html(library_info.description);
+        // Uppate the values in the library_info table
+        $("#library_author").html(info.author);
+        $("#library_date").html(info.date);
+        $("#library_description").html(info.description);
 
     };
 
@@ -1078,6 +1067,7 @@ function downloadModelResults() {
     $('.download-report').on('click', function() {
         reportToDownload = this.id;
         var reportConfig = availableReports[reportToDownload];
+        var info = getCurrentInfo();
         var center = map.getCenter();
         var configuration = {
             'scenario_id': modelRun.scenario,
