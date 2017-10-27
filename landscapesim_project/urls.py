@@ -19,3 +19,8 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^downloads/(?P<path>.*)$', serve, {'document_root': settings.DATASET_DOWNLOAD_DIR})
     ]
+
+    from landscapesim.views import DebugPDFView
+    urlpatterns += [
+        url(r'^debugpdf/', DebugPDFView.as_view())
+    ]

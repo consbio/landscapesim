@@ -206,7 +206,7 @@ function sceneConfig() {
     var bbox = turf.bbox(e);
     var l = bbox[0], b = bbox[1], r = bbox[2], t = bbox[3];
     var bounds = [[l, b], [r, t]];  // TODO - get actual bounding box from coords
-    var zoom = libInfo.zoom;
+    var zoom = libInfo.zoom + 1;
     return {tiles: xyz(bounds, zoom), zoom: zoom, lat: t};
 }
 

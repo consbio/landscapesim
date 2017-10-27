@@ -17,7 +17,7 @@ store[1] = {
                 ]]
             }
         },
-        zoom: 12,
+        zoom: 11,
         // Actual Library Name: Alias
         management_actions_filter: {
             "Thin-Mech-Chem": "Thin-Mech-Chem",
@@ -74,5 +74,5 @@ var availableReports = {
         'label': 'Transitions by Stateclass',
         'ext': '.csv',
         'url': downloadCsvURL
-    },
-}
+    }
+};

@@ -78,6 +78,19 @@ class Report:
                     ), 3)
             } for stratum in strata]
 
+        initial_veg_composition = []
+        for stratum in strata:
+            name = stratum.name
+            stateclasses = nonspatial_distributions.filter(stratum=stratum).values('stateclass__name', 'relative_amount')
+            proportion_of_landscape = round(sum(x['relative_amount'] for x in stateclasses), 2)
+            for stateclass in stateclasses:
+                stateclass['relative_amount'] = "{}%".format(round(stateclass['relative_amount'], 2))
+            initial_veg_composition.append({
+                'name': name,
+                'stateclasses': stateclasses,
+                'proportion_of_landscape': proportion_of_landscape
+            })
+
         # Map context info
         with open(os.path.join(BASE_DIR, 'landscapesim', 'static', 'img', 'report', 'scale.png'), 'rb') as f:
             scale_image_data = b64encode(f.read())
@@ -87,6 +100,7 @@ class Report:
 
         map_maker = MapImage(
             self.configuration['center'],
+            self.configuration['bbox'],
             self.configuration['zoom'],
             self.configuration['basemap'],
             self.configuration['opacity']
@@ -133,6 +147,7 @@ class Report:
 
         num_iterations = self.scenario.run_control.max_iteration
         num_timesteps = self.scenario.run_control.max_timestep
+        timestep_units = 'Years'  # TODO - use JSON configuration from frontend?
 
         # Output images
         output_services = ScenarioOutputServicesSerializer(self.scenario.scenario_output_services).data
@@ -143,26 +158,31 @@ class Report:
             for it in range(1, num_iterations + 1):
                 iteration = []
                 for ts in range(1, num_timesteps + 1):
-                    label = 'Iteration {} - Timestep {}'.format(it, ts)
+                    label = 'Iteration {ts} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
                     url = output_services['stateclass'].replace('{it}', str(it)).replace('{t}', str(ts))
                     iteration.append(get_image_data(label, url))
                 spatial_outputs.append(iteration)
 
         # Results (charts - SVG, output maps)
-        # TODO - do something with this
         column_charts = self.configuration.get('column_charts')
         stacked_charts = self.configuration.get('stacked_charts')
+        charts = []
+        for i, column in enumerate(column_charts):
+            stacked = stacked_charts[i]
+            charts.append({'name': column['vegtype'], 'column': column['svg'], 'stacked': stacked['svg']})
+
+        # Detailed analysis breakdown from StateClass Summary Report
         stateclass_summary = StateClassSummaryReportSerializer(
             self.scenario.stateclass_summary_report
         ).data.get('results')
+
 
         return {
             'today': datetime.today(),
             'initial_veg_composition': initial_veg_composition,
             'initial_conditions_spatial': initial_conditions_spatial,
             'spatial_outputs': spatial_outputs,
-            'column_charts': column_charts,
-            'stacked_charts': stacked_charts,
+            'charts': charts,
             'is_spatial': is_spatial,
             'library_name': self.scenario.project.library.name,
             'scale_image_data': scale_image_data,
@@ -170,7 +190,7 @@ class Report:
             'scenario_name': self.scenario.name,
             'num_iterations': num_iterations,
             'num_timesteps': num_timesteps,
-            'timestep_units': 'Years',  # TODO - use JSON configuration from frontend?
+            'timestep_units': timestep_units
         }
 
     def get_pdf_data(self):

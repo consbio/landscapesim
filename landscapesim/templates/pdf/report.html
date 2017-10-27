@@ -72,7 +72,9 @@
         .map-table .north div {
             white-space: nowrap;
             transform: rotate(-90deg);
+            -webkit-transform: rotate(-90deg);
             transform-origin: bottom right;
+            -webkit-transform-origin: bottom right;
         }
 
         .map-table .image {
@@ -94,7 +96,9 @@
         .map-table .south div {
             white-space: nowrap;
             transform: rotate(-90deg);
+            -webkit-transform: rotate(-90deg);
             transform-origin: top left;
+            -webkit-transform-origin: top left;
             margin-bottom: -8px;
         }
 
@@ -110,16 +114,16 @@
             text-align: center;
         }
 
-        table.variables {
+        table.composition {
             width: 100%;
             border-spacing: 0px;
         }
 
-        table.variables th {
+        table.composition th {
             color: #555;
         }
 
-        table.variables td {
+        table.composition td {
             border-top: 1px solid #ddd;
             padding: 8px;
             max-width: 4in;
@@ -131,7 +135,13 @@
 
         img.legend {
             transform: rotate(180deg);
+            -webkit-transform: rotate(180deg);
         }
+
+        span.summation {
+            float: right;
+        }
+
     </style>
 </head>
 <body>
@@ -149,8 +159,8 @@
 <div>
     {% for veg in initial_veg_composition %}
         <div class="prevent-internal-break">
-            <h4>{{ veg.name }} - {{ veg.proportion_of_landscape }}%</h4>
-            <table class="variables">
+            <h4>{{ veg.name }}<span class="summation">Total Proportion of Landscape - {{ veg.proportion_of_landscape }}%</span></h4>
+            <table class="composition">
                 <thead>
                     <tr>
                         <th>State Class</th>
@@ -241,12 +251,35 @@
 {% endif %}
 
 <div class="new-page"></div>
+<h3>Model Results - Vegetation Change Over Time</h3>
 <div>
-    {% for chart in column_charts %}
-        <div>{{ chart.vegtype }}</div>
-        <div>{{ chart.svg|safe }}</div>
+    {% for pair in charts %}
+        <div class="prevent-internal-break">
+            <h4>{{ pair.name }}</h4>
+            <table class="charts-table composition">
+                <thead>
+                    <tr>
+                        <th>Vegetation Cover over {{ num_timesteps }} {{ timestep_units }}</th>
+                        <th>Vegetation Cover in {{ num_timesteps }} {{ timestep_units }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <div>{{ pair.stacked|safe }}</div>
+                    </td>
+                    <td>
+                        <div>{{ pair.column|safe }}</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     {% endfor %}
 </div>
+
+<div class="new-page"></div>
+<h3>Model Results - Vegetation Change Breakdown</h3>
 
 </body>
 </html>

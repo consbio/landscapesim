@@ -15,15 +15,14 @@ ALLOWED_HOSTS = getattr(settings, 'ALLOWED_HOSTS')
 PORT = getattr(settings, 'PORT', 80)
 
 TILE_SIZE = (256, 256)
-IMAGE_SIZE = (645, 430)
+IMAGE_SIZE = (750, 500)
 
 
 class MapImage(object):
-    def __init__(self, center, zoom, basemap, opacity, size=None):
+    def __init__(self, center, bbox, zoom, basemap, opacity, size=None):
 
         self._configure_event_loop()
-
-        point = (center['lng'], center['lat'])
+        point = center['geometry']['coordinates']
         if size is None:
             size = IMAGE_SIZE
 

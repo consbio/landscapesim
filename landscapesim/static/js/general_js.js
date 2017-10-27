@@ -15,6 +15,9 @@ var boundingBoxLayer;
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 var getCurrentInfo = function() {
+
+    // TODO - include a way to determine the proper extent for the given area.
+    // TODO - handle non-hardcoded extents? i.e. landfire
     return store[$(".model_selection").val()];
 }
 
@@ -1068,7 +1071,6 @@ function downloadModelResults() {
         reportToDownload = this.id;
         var reportConfig = availableReports[reportToDownload];
         var info = getCurrentInfo();
-        var center = map.getCenter();
         var configuration = {
             'scenario_id': modelRun.scenario,
             'report_name': reportToDownload,
@@ -1077,15 +1079,12 @@ function downloadModelResults() {
         // TODO - include the probability transition percent increases & decreases as part of the report, and include them in the modelRunCache to begin with
 
         if (reportToDownload == 'overview') {
-
             // Get information about the map
-            configuration['center'] = {
-                'lat': center.lat,
-                'lng': center.lng
-            }
+            configuration['center'] = turf.center(info.extent);
+            configuration['bbox'] = turf.bbox(info.extent);
             configuration['opacity'] =  Number(opacity.getContainer().children[1].value);
             configuration['basemap'] = currentBasemap;
-            configuration['zoom'] = map.getZoom();
+            configuration['zoom'] = info.zoom;
 
             // Collect stacked area charts
             configuration['stacked_charts'] = [];
@@ -1095,7 +1094,7 @@ function downloadModelResults() {
             for (var i = 0; i < stackedCharts.length; i++) {
                 var chart = stackedCharts[i];
                 var vegtype = chart.getAttribute('vegtype');
-                var svg = chart.children[0].children[0].innerHTML;
+                var svg = chart.children[0].innerHTML;
                 configuration['stacked_charts'].push({
                     'svg': svg,
                     'vegtype': vegtype
@@ -1107,7 +1106,7 @@ function downloadModelResults() {
             for (var i = 0; i < columnCharts.length; i++) {
                 var chart = columnCharts[i];
                 var vegtype = chart.getAttribute('vegtype');
-                var svg = chart.children[0].children[0].innerHTML;
+                var svg = chart.children[0].innerHTML;
                 configuration['column_charts'].push({
                     'svg': svg,
                     'vegtype': vegtype
