@@ -73,9 +73,10 @@ def generate_unique_renderer(values, randomize_colors=False):
         r = random.randint(0, 255)
         g = random.randint(0, 255)
         b = random.randint(0, 255)
-        return UniqueValuesRenderer([(v[0], Color(r, g, b)) for v in values])
+        return UniqueValuesRenderer([(v[0], Color(r, g, b)) for v in values], labels=[v[1] for v in values])
     else:
-        return UniqueValuesRenderer([(v[1], Color(*[int(c) for c in v[0].split(',')[1:]])) for v in values])
+        return UniqueValuesRenderer([(v[1], Color(*[int(c) for c in v[0].split(',')[1:]])) for v in values],
+                                    labels=[v[2] for v in values])
 
 
 def generate_stretched_renderer(info):
@@ -263,10 +264,10 @@ def generate_service(scenario, filename_or_pattern, variable_name, unique=True, 
             unique_id_lookup = model_id_lookup or NAME_HASH[variable_name] + '_id'
             try:
                 if has_colormap:
-                    queryset = model.values_list('color', unique_id_lookup)
+                    queryset = model.values_list('color', unique_id_lookup, 'name')
                     renderer = generate_unique_renderer(queryset)
                 else:
-                    queryset = model.values_list(unique_id_lookup)
+                    queryset = model.values_list(unique_id_lookup, 'name')
                     renderer = generate_unique_renderer(queryset, randomize_colors=True)
             except:
                 raise AssertionError(CREATE_RENDERER_ERROR_MSG.format(vname=variable_name))
