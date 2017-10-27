@@ -1,8 +1,10 @@
+import json
+
 import mercantile
 from clover.geometry.bbox import BBox
 from clover.utilities.color import Color
-from ncdjango.config import RenderConfiguration, ImageConfiguration
-from ncdjango.views import GetImageViewBase
+from ncdjango.config import RenderConfiguration, ImageConfiguration, LegendConfiguration
+from ncdjango.views import GetImageViewBase, LegendViewBase
 from pyproj import Proj
 
 TILE_SIZE = (256, 256)
@@ -66,4 +68,32 @@ class GetTimeSeriesImageView(GetImageViewBase):
             size=TILE_SIZE,
             image_format='png',
             time_index=t
+        )]
+
+
+class GetLegendView(LegendViewBase):
+
+    def get_service_name(self, request, *args, **kwargs):
+        return kwargs['service_name']
+
+    def serialize_data(self, data):
+        variable = list(data.keys())[0]
+        elements = data[variable]
+        output = {
+            'name': variable.name,
+            'legend': [
+                {
+                    'label': element.labels[0],
+                    'image_data': element.image_base64,
+                    'content_type': 'image/png',
+                    'height': element.image.size[1] if element.image else None,
+                    'width': element.image.size[0] if element.image else None
+                } for element in elements
+            ]
+        }
+        return json.dumps(output), 'application/json'
+
+    def get_legend_configurations(self, request, **kwargs):
+        return [LegendConfiguration(
+            variable=self.service.variable_set.filter(name__exact=self.kwargs['layer_name']).first()
         )]
