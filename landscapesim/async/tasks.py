@@ -167,7 +167,7 @@ def post_process_results(self, run_id):
 
 
 @task
-def cleanup_temp_tif_files(age=7200):
+def cleanup_temp_files(age=7200):
     cutoff = time.time() - age
     t_files = os.listdir(DATASET_DOWNLOAD_DIR)
     for t_file in t_files:
@@ -178,4 +178,10 @@ def cleanup_temp_tif_files(age=7200):
                     os.remove(path)
                 except OSError:
                     pass
-
+        if re.search('.pdf$', t_file):
+            path = os.path.join(DATASET_DOWNLOAD_DIR, t_file)
+            if os.path.getctime(path) < cutoff:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass

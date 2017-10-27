@@ -113,7 +113,6 @@ class Report:
             return '{}&deg; S'.format(round(abs(y), 2)) if y < 0 else '{}&deg; N'.format(round(y, 2))
 
         def get_image_data(label, service_url):
-
             image_data, bbox = map_maker.get_image(service_url)
             to_world = image_to_world(bbox, image_data.size)
             bbox = bbox.project(WGS84, edge_points=0)
@@ -158,7 +157,7 @@ class Report:
             for it in range(1, num_iterations + 1):
                 iteration = []
                 for ts in range(1, num_timesteps + 1):
-                    label = 'Iteration {ts} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
+                    label = 'Iteration {it} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
                     url = output_services['stateclass'].replace('{it}', str(it)).replace('{t}', str(ts))
                     iteration.append(get_image_data(label, url))
                 spatial_outputs.append(iteration)
@@ -176,7 +175,6 @@ class Report:
             self.scenario.stateclass_summary_report
         ).data.get('results')
 
-
         return {
             'today': datetime.today(),
             'initial_veg_composition': initial_veg_composition,
@@ -193,10 +191,12 @@ class Report:
             'timestep_units': timestep_units
         }
 
-    def get_pdf_data(self):
+    def request_pdf_data(self):
         template = render_to_string('pdf/report.html', self.get_context())
-        result = pdfkit.from_string(template, False, options=PDF_OPTIONS, configuration=PDFKIT_CONFIG)
-        return result
+        fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.pdf')
+        os.close(fd)
+        pdfkit.from_string(template, filename, options=PDF_OPTIONS, configuration=PDFKIT_CONFIG)
+        return {'filename': os.path.basename(filename)}
 
     def request_zip_data(self):
         fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.zip')
@@ -206,5 +206,4 @@ class Report:
             for f in tif_files:
                 full_path = os.path.join(self.scenario.output_directory, f)
                 zf.write(full_path, f)
-
         return {'filename': os.path.basename(filename)}

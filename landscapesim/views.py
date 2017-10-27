@@ -259,17 +259,14 @@ class GenerateCSVReportView(ReportViewBase):
         return response
 
 
-class GeneratePDFReportView(ReportViewBase):
-    def _response(self, report):
-        pdf_data = report.get_pdf_data()
-        response = HttpResponse(content=pdf_data, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename={}.pdf'.format(report.report_name)
-        return response
-
-
 class RequestSpatialDataView(ReportViewBase):
     def _response(self, report):
         return JsonResponse(report.request_zip_data())
+
+
+class RequestPDFReportView(ReportViewBase):
+    def _response(self, report):
+        return JsonResponse(report.request_pdf_data())
 
 
 # Debugging report and css

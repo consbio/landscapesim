@@ -39,7 +39,7 @@ store[1] = {
 };
 
 var downloadCsvURL = '/api/download-csv/';
-var downloadPdfURL = '/api/download-pdf/';
+var requestPDFDataURL = '/api/request-pdf/';
 var requestSpatialDataURL = '/api/request-spatial-data/';
 
 // Available ST-Sim reports to be downloaded.
@@ -49,7 +49,7 @@ var availableReports = {
     'overview': {
         'label': 'Overview',
         'ext': '.pdf',
-        'url': downloadPdfURL
+        'url': requestPDFDataURL
     },
 
     // Spatial data download

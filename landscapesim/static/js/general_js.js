@@ -10,6 +10,7 @@ var currentScenario = {};
 var runModelURL = '/api/jobs/run-model/';
 var settings;
 var boundingBoxLayer;
+var librarySelected = false;
 
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -291,7 +292,7 @@ $(document).ready(function() {
             $(".leaflet-left")[0].style.top = '60px';
             $("#scene-toggle").show();
             document.getElementById('scene-toggle').style.display = 'inline-block';
-            library_selected = true
+            librarySelected = true
         })
     });
 
@@ -322,7 +323,7 @@ $(document).ready(function() {
         var this_collapsible_div = $(this).siblings(".collapsible_div");
 
         // If a library has been loaded, collapse other divs on header click.
-        if (typeof library_selected != "undefined" && library_selected == true){
+        if (librarySelected){
             collapseOtherDivs(this)
         }
 
@@ -1007,7 +1008,6 @@ function updateModelRunSelection(run) {
 
 // Handle data download functionality
 function downloadReport(url, filename, configuration) {
-    $('#download-data').val('Downloading...');
     fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
@@ -1031,17 +1031,21 @@ function downloadReport(url, filename, configuration) {
     });
 }
 
-function downloadSpatialData(url, filename, configuration) {
+function downloadSpatialData(url, filename, ext, configuration) {
     fetch(url,  {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
-            'Accept': 'application/json, text/plain, application/zip, */*',
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({'configuration': configuration})
     }).then(function(res) { return res.json(); }).then(function(json) {
-        window.location = '/downloads/' + json.filename;
+        if (ext == '.zip') {
+            window.location = '/downloads/' + json.filename;
+        } else {
+            window.open('/downloads/' + json.filename, '_blank');
+        }
         $('#download-data').val('Download Data & Results');
     })
 }
@@ -1114,13 +1118,14 @@ function downloadModelResults() {
             }
         }
 
+        $('#download-data').val('Downloading...');
         var filename = reportToDownload + reportConfig.ext;
         var url = reportConfig.url;
-        if (url != requestSpatialDataURL) {
+        if (url != requestSpatialDataURL && url != requestPDFDataURL) {
             downloadReport(reportConfig.url, filename, configuration);
         }
         else {
-            downloadSpatialData(reportConfig.url, filename, configuration);
+            downloadSpatialData(reportConfig.url, filename, reportConfig.ext, configuration);
         }
     })
 }
