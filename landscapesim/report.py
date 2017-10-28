@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import zipfile
@@ -62,22 +63,9 @@ class Report:
         strata = self.scenario.project.strata.all()
         stateclasses = self.scenario.project.stateclasses.all()
         terms = self.scenario.project.terminology
-        nonspatial_distributions = self.scenario.initial_conditions_nonspatial_distributions
-        initial_veg_composition = [
-            {
-                'name': stratum.name,
-                'stateclasses': nonspatial_distributions.filter(stratum=stratum).values(
-                    'stateclass__name',
-                    'relative_amount'
-                ),
-                'proportion_of_landscape':
-                    round(sum(
-                        x['relative_amount'] for x in nonspatial_distributions.filter(
-                            stratum=stratum
-                        ).values('relative_amount')
-                    ), 3)
-            } for stratum in strata]
 
+        # Initial vegetation tables
+        nonspatial_distributions = self.scenario.initial_conditions_nonspatial_distributions
         initial_veg_composition = []
         for stratum in strata:
             name = stratum.name
@@ -112,7 +100,17 @@ class Report:
         def format_y_coord(y):
             return '{}&deg; S'.format(round(abs(y), 2)) if y < 0 else '{}&deg; N'.format(round(y, 2))
 
-        def get_image_data(label, service_url):
+        def get_legend(service_url, is_output=False):
+            split_idx = 5 if is_output else 4
+            legend_url = '/'.join(service_url.split('/')[:split_idx] + ['legend'])
+            return map_maker.get_legend(legend_url)
+
+        def get_image_data(label, name, service, is_output=False, iteration=None, timestep=None):
+
+            service_url = service[name]
+            if is_output:
+                service_url = service_url.replace('{it}', str(iteration)).replace('{t}', str(timestep))
+
             image_data, bbox = map_maker.get_image(service_url)
             to_world = image_to_world(bbox, image_data.size)
             bbox = bbox.project(WGS84, edge_points=0)
@@ -126,6 +124,8 @@ class Report:
             scale_bar_end = transform(MERCATOR, WGS84, *to_world(scale_bar_x + 96, scale_bar_y))
             scale = '{} mi'.format(round(vincenty(scale_bar_start, scale_bar_end).miles, 1))
 
+            legend_data = get_legend(service_url, is_output)
+
             return {
                 'label': label,
                 'image_data': b64encode(image_handle.getvalue()),
@@ -134,14 +134,14 @@ class Report:
                 'west': format_x_coord(bbox.xmin),
                 'south': format_y_coord(bbox.ymin),
                 'scale': scale,
-                # TODO - add legend information for a given service
+                'legend': json.loads(legend_data[0].decode())
             }
 
         # Input images
         input_services = ScenarioInputServicesSerializer(self.scenario.parent.scenario_input_services).data
         initial_conditions_spatial = [
-            get_image_data('State Classes', input_services['stateclass']),
-            get_image_data('Stratum', input_services['stratum'])
+            get_image_data('State Classes', 'stateclass', input_services),
+            get_image_data('Stratum', 'stratum', input_services)
         ]
 
         num_iterations = self.scenario.run_control.max_iteration
@@ -158,8 +158,9 @@ class Report:
                 iteration = []
                 for ts in range(1, num_timesteps + 1):
                     label = 'Iteration {it} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
-                    url = output_services['stateclass'].replace('{it}', str(it)).replace('{t}', str(ts))
-                    iteration.append(get_image_data(label, url))
+                    iteration.append(get_image_data(
+                        label, 'stateclass', output_services, is_output=True, iteration=it, timestep=ts)
+                    )
                 spatial_outputs.append(iteration)
 
         # Results (charts - SVG, output maps)

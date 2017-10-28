@@ -79,21 +79,17 @@ class GetLegendView(LegendViewBase):
     def serialize_data(self, data):
         variable = list(data.keys())[0]
         elements = data[variable]
-        output = {
-            'name': variable.name,
-            'legend': [
-                {
-                    'label': element.labels[0],
-                    'image_data': element.image_base64,
-                    'content_type': 'image/png',
-                    'height': element.image.size[1] if element.image else None,
-                    'width': element.image.size[0] if element.image else None
-                } for element in elements
-            ]
-        }
+        output = [
+            {
+                'label': element.labels[0],
+                'image_data': element.image_base64,
+                'content_type': 'image/png',
+                'height': element.image.size[1] if element.image else None,
+                'width': element.image.size[0] if element.image else None
+            } for element in elements
+        ]
+
         return json.dumps(output), 'application/json'
 
     def get_legend_configurations(self, request, **kwargs):
-        return [LegendConfiguration(
-            variable=self.service.variable_set.filter(name__exact=self.kwargs['layer_name']).first()
-        )]
+        return [LegendConfiguration(variable=self.service.variable_set.first())]

@@ -19,7 +19,12 @@ urlpatterns = [
         name='timeseries_tiles_get_image'
     ),
     url(
-        r'^tiles/' + SERVICE_REGEX + '/' + LAYER_REGEX + '/legend.png',
+        r'^tiles/' + SERVICE_REGEX + '/legend',
+        views.GetLegendView.as_view(),
+        name='legend_image'
+    ),
+    url(
+        r'^tiles/' + SERVICE_REGEX + '/' + LAYER_REGEX + '/legend',
         views.GetLegendView.as_view(),
         name='legend_image'
     )

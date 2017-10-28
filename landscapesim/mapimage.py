@@ -140,3 +140,23 @@ class MapImage(object):
         #self.draw_geometry(<some_geom_object_here>)
 
         return self.crop_image(im)
+
+    def get_legend(self, legend_url):
+        async def fetch_legend(client, url):
+            headers = {}
+            if url.startswith('//'):
+                url = 'https:{}'.format(url)
+            elif url.startswith('/'):
+                url = 'http://127.0.0.1:{}{}'.format(PORT, url)
+                if ALLOWED_HOSTS:
+                    headers['Host'] = ALLOWED_HOSTS[0]
+
+            async with client.get(url, headers=headers) as r:
+                return await r.read()
+
+        with aiohttp.ClientSession() as client:
+            task = asyncio.ensure_future(fetch_legend(client, legend_url))
+            response = asyncio.gather(task)
+            asyncio.get_event_loop().run_until_complete(task)
+
+        return response.result()
