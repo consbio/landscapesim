@@ -1062,7 +1062,7 @@ function downloadModelResults() {
 
     // TODO - add selection objects in a modal.
     var text = [
-        "<div class='header'>",
+        "<div class='alertify-header'>",
         "Download Data & Results",
         "</div>",
         reportInputs.join('')

@@ -127,8 +127,7 @@ canvas {
 	position: absolute
 }
 
-.header, .right_header {
-	cursor: pointer;
+.header, .right_header, .alertify-header {
 	background-color: #0092D1;
 	height: 22px;
 	color: #FFF;
@@ -142,6 +141,10 @@ canvas {
 	border: 1px solid #0092D1;
 	left: -1px;
 	position: relative;
+}
+
+.header, .right_header {
+	cursor:pointer
 }
 
 .header:hover, .header:focus {

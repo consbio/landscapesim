@@ -7,7 +7,7 @@ $(document).on({
             "</div>"
         ].join('');
         var title = this.text;
-        var text = ["<div class='header'>", this.text, "</div>", text].join('')
+        var text = ["<div class='alertify-header'>", this.text, "</div>", text].join('')
         alertify.alert(text);
         $('.alertify-message').remove();    // Removes the extra div created, which we replace
     },
