@@ -118,11 +118,13 @@
 
         table.composition {
             /* width: 100%; */
-            border-spacing: 0px;
+            border-spacing: 0;
         }
 
         table.composition th {
             color: #555;
+            text-align: left;
+            padding: 0 15px 0 10px
         }
 
         table.composition td {
@@ -171,33 +173,93 @@
     </style>
 </head>
 <body>
-    <h2>Landscape Simulator Report - {{ today|date:"m/d/Y" }}</h2>
+    <h1>Landscape Simulator Report - {{ today|date:"m/d/Y" }}</h1>
     <div>&nbsp;</div>
-    <div><strong>ST-Sim Library:</strong> {{ library_name }}</div>
+    <h2>ST-Sim Library</h2>
+    <div><strong>Name:</strong> {{ library_name }}</div>
     <div>&nbsp;</div>
-    <div><strong>Iterations:</strong> {{ num_iterations }}</div>
+    <div><strong>Author:</strong> {{ library_author }}</div>
     <div>&nbsp;</div>
-    <div><strong>Timesteps ({{ timestep_units }}) Per Iteration:</strong> {{ num_timesteps }}</div>
+    <div><strong>Description:</strong> {{ library_description }}</div>
     <div>&nbsp;</div>
-    <div><strong>Timestep Output Interval:</strong> {{ timestep_interval }}</div>
-    <div>&nbsp;</div>    
-    <h3>Initial Vegetation Composition</h3>
+    <div><strong>Date:</strong> {{ library_date }}</div>
+    <div>&nbsp;</div>
+
+    <h2>Run Control</h2>
+    <ul>
+        <li>The model was run for {{ num_iterations }} iterations.</li>
+        <li>The model was run for {{ num_timesteps }} timesteps per iteration.</li>
+        <li>Model results were created for every {{ timestep_interval }} timesteps.</li>
+        {% if is_spatial %}
+            <li>
+                Spatial outputs were enabled for this model run. Results are based off of spatially-explicit input data provided
+                by the model creator.
+            </li>
+            <li>
+                {% if has_management_actions %}
+                    Management actions were applied to this landscape for each iteration.
+                {% else %}
+                    No management actions were applied.
+                {% endif %}
+            </li>
+        {% else %}
+            <li>
+                Spatial outputs were disabled for this model run. Results are based off of user-defined initial conditions
+                distributions and are not representative of ground
+            </li>
+            <li>
+                Management actions were not enabled for this model run.
+            </li>
+        {% endif %}
+    </ul>
+
+    <div class="new-page"></div>
+    <h2>Initial Conditions</h2>
+    <div class="prevent-internal-break">
+        <h3>Vegetation Composition - Summary</h3>
+        <table class="composition">
+            <thead>
+                <tr>
+                    <th>Acres</th>
+                    <th>Vegetation Type</th>
+                    <th>% of Landscape</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for veg in initial_veg_composition %}
+                <tr>
+                    <!-- TODO: convert the proportion to acreage before submitting to context -->
+                    <td>{{ veg.proportion_of_landscape }}</td>
+                    <td>{{ veg.name }}</td>
+                    <td>{{ veg.proportion_of_landscape }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <div>
+        <h3>State Classes by Vegetation Type</h3>
         {% for veg in initial_veg_composition %}
             <div class="prevent-internal-break">
-                <h4>{{ veg.name }}<span class="summation">Total Proportion of Landscape - {{ veg.proportion_of_landscape }}%</span></h4>
+                <h4>{{ veg.name }} - {{ veg.proportion_of_landscape }} %</h4>
                 <table class="composition">
                     <thead>
                         <tr>
                             <th>State Class</th>
-                            <th>Proportion of Landscape</th>
+                            <th>Acres</th>
+                            <th>% of Landscape</th>
+                            <th>% of Vegetation Type</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for stateclass in veg.stateclasses %}
                         <tr>
                             <td>{{ stateclass.stateclass__name }}</td>
+                            <!-- TODO: convert the proportion to acreage before submitting to context -->
                             <td>{{ stateclass.relative_amount }}</td>
+                            <td>{{ stateclass.relative_amount }}</td>
+                            <td>{{ stateclass.proportion_of_stratum }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -337,7 +399,7 @@
                                             <tr>
                                                 <td>{{ sc.name }}</td>
                                                     {% for row in sc.values %}
-                                                        <td>{{ row.proportion_of_landscape }}</td>
+                                                        <td>{{ row.percent }} %</td>
                                                     {% endfor %}
                                             </tr>
                                         {% endfor %}
@@ -352,7 +414,7 @@
                                         <tr>
                                             <th>State Class</th>
                                                 {% if iteration_is_one %}
-                                                    <th>Proportion of Landscape</th>
+                                                    <th>% of Landscape</th>
                                                 {% else %}
                                                     <th>Median</th>
                                                     <th>Minimum</th>

@@ -63,19 +63,26 @@ class Report:
         strata = self.scenario.project.strata.all()
         terms = self.scenario.project.terminology       # TODO - use terminology to specify units for timesteps!
 
+        # TODO - Get author and description from a model description table, and use it in the frontend
+        library_author = self.configuration.get('author', "Mike O'Donnell")
+        library_description = self.configuration.get('description', "A sample ST-Sim library developed for a semi-arid shrub-steppe ecosystem in southwest Idaho (Castle Creek).")
+        library_date = self.configuration.get('date', 2015)
+
         # Initial vegetation tables
         nonspatial_distributions = self.scenario.initial_conditions_nonspatial_distributions
         initial_veg_composition = []
         for stratum in strata:
             name = stratum.name
             stateclasses = nonspatial_distributions.filter(stratum=stratum).values('stateclass__name', 'relative_amount')
-            proportion_of_landscape = round(nonspatial_distributions.filter(stratum=stratum).aggregate(sum=Sum('relative_amount'))['sum'], 2)
+            proportion_of_landscape = nonspatial_distributions.filter(stratum=stratum).aggregate(sum=Sum('relative_amount'))['sum']
             for stateclass in stateclasses:
-                stateclass['relative_amount'] = "{}%".format(round(stateclass['relative_amount'], 2))
+                relative_amount = stateclass['relative_amount']
+                stateclass['proportion_of_stratum'] = round(100 * relative_amount / proportion_of_landscape, 2)
+                stateclass['relative_amount'] = round(relative_amount, 2)
             initial_veg_composition.append({
                 'name': name,
                 'stateclasses': stateclasses,
-                'proportion_of_landscape': proportion_of_landscape
+                'proportion_of_landscape': round(proportion_of_landscape, 2)
             })
 
         # Map context info
@@ -166,6 +173,9 @@ class Report:
                     )
                 spatial_outputs.append(iteration)
 
+        # TODO - create management action maps!
+        has_management_actions = False
+
         # Results (charts - SVG, output maps)
         column_charts = self.configuration.get('column_charts')
         stacked_charts = self.configuration.get('stacked_charts')
@@ -190,11 +200,13 @@ class Report:
 
                     # Get column chart context
                     column_rows = rows.filter(timestep=num_timesteps)
-                    column_output_context.append({
+                    column_data = {
                         'name': stateclass.name,
-                        **column_rows.aggregate(min=Min('proportion_of_landscape'), max=Max('proportion_of_landscape')),
-                        'median': median(x[0] for x in column_rows.values_list('proportion_of_landscape'))
-                    })
+                        'max': round(100 * column_rows.aggregate(max=Max('proportion_of_landscape'))['max'], 2),
+                        'min': round(100 * column_rows.aggregate(min=Min('proportion_of_landscape'))['min'], 2),
+                        'median': round(100 * median(x[0] for x in column_rows.values_list('proportion_of_landscape')), 2)
+                    }
+                    column_output_context.append(column_data)
             
             # TODO - how to show this for each iteration? Just use a separate chart for now?
             stacked_output_context = []
@@ -203,22 +215,15 @@ class Report:
                 stateclass_data = veg_output_data.filter(iteration=1, stateclass=stateclass)
                 if stateclass_data:
                     row_values = [x for i, x in enumerate(stateclass_data.order_by('timestep').values('proportion_of_landscape', 'timestep')) if i in filtered_timesteps]
-                    print(row_values)
+                    for i, x in enumerate(row_values):
+                        value = row_values[i]['proportion_of_landscape']
+                        row_values[i]['percent'] = round(value * 100, 2) if value > 0.0 else '--'
 
                     # Handle case where no measureable value was found at a given timestep, and fill that timestep with 0.0
                     if len(row_values) != len(filtered_timesteps):
-                        """
-                        found_timesteps = [x['timestep'] for x in row_values]
-                        for i, ts in enumerate(filtered_timesteps):
-                            if ts != row_values[i]['timestep']:
-                                row_values.insert(i, {'timestep': i, 'proportion_of_landscape': 0.0})
-                        """
-
                         # TODO - solve the more general case, for now the below line is a temporary fix
-                        row_values.insert(0, {'timestep': 0, 'proportion_of_landscape': 0.0})
+                        row_values.insert(0, {'timestep': 0, 'proportion_of_landscape': 0.0, 'percent': '--'})
 
-                    #stacked_table_row = [stateclass_data.filter(timestep=timestep).values('proportion_of_landscape')
-                    #    for timestep in filtered_timesteps]
                     stacked_output_context.append({
                         'name': stateclass.name,
                         'values': row_values
@@ -242,7 +247,11 @@ class Report:
             'charts': charts,
             'is_spatial': is_spatial,
             'iteration_is_one': num_iterations == 1,
+            'has_management_actions': has_management_actions,
             'library_name': self.scenario.project.library.name,
+            'library_author': library_author,
+            'library_description': library_description,
+            'library_date': library_date,
             'scale_image_data': scale_image_data,
             'north_image_data': north_image_data,
             'scenario_name': self.scenario.name,
