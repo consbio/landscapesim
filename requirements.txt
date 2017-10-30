@@ -11,10 +11,11 @@ xarray
 pdfkit==0.6.1
 
 # Server dependencies
-Django==1.8.16
+Django==1.11.6
+geopy
 celery==3.1.25
 django-celery==3.2.1
-djangorestframework==3.5.4
+djangorestframework==3.7.1
 psycopg2
-ncdjango==0.4.3
+ncdjango==0.5.0
 aiohttp
