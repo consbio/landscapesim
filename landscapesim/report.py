@@ -6,6 +6,7 @@ from base64 import b64encode
 from datetime import datetime
 from io import StringIO, BytesIO
 from shutil import copyfileobj
+from statistics import median
 
 import pdfkit
 from django.conf import settings
@@ -17,9 +18,9 @@ from pyproj import Proj, transform
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.utils import get_random_csv
 from landscapesim.mapimage import MapImage
-from landscapesim.models import Scenario
-from landscapesim.serializers.reports import StateClassSummaryReportSerializer
+from landscapesim.models import Scenario, StateClassSummaryReportRow
 from landscapesim.serializers.scenarios import ScenarioInputServicesSerializer, ScenarioOutputServicesSerializer
+from django.db.models import Min, Max, Sum
 
 PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=getattr(settings, 'WKHTMLTOPDF_BIN'))
 PDF_OPTIONS = {
@@ -57,12 +58,10 @@ class Report:
         return result.getvalue()
 
     def get_context(self):
-        # TODO - use our map services, etc, and design a PDF report
 
         # Query all related data to this model run
         strata = self.scenario.project.strata.all()
-        stateclasses = self.scenario.project.stateclasses.all()
-        terms = self.scenario.project.terminology
+        terms = self.scenario.project.terminology       # TODO - use terminology to specify units for timesteps!
 
         # Initial vegetation tables
         nonspatial_distributions = self.scenario.initial_conditions_nonspatial_distributions
@@ -70,7 +69,7 @@ class Report:
         for stratum in strata:
             name = stratum.name
             stateclasses = nonspatial_distributions.filter(stratum=stratum).values('stateclass__name', 'relative_amount')
-            proportion_of_landscape = round(sum(x['relative_amount'] for x in stateclasses), 2)
+            proportion_of_landscape = round(nonspatial_distributions.filter(stratum=stratum).aggregate(sum=Sum('relative_amount'))['sum'], 2)
             for stateclass in stateclasses:
                 stateclass['relative_amount'] = "{}%".format(round(stateclass['relative_amount'], 2))
             initial_veg_composition.append({
@@ -105,7 +104,7 @@ class Report:
             legend_url = '/'.join(service_url.split('/')[:split_idx] + ['legend'])
             return map_maker.get_legend(legend_url)
 
-        def get_image_data(label, name, service, is_output=False, iteration=None, timestep=None):
+        def get_map_context(label, name, service, is_output=False, iteration=None, timestep=None):
 
             service_url = service[name]
             if is_output:
@@ -140,25 +139,29 @@ class Report:
         # Input images
         input_services = ScenarioInputServicesSerializer(self.scenario.parent.scenario_input_services).data
         initial_conditions_spatial = [
-            get_image_data('State Classes', 'stateclass', input_services),
-            get_image_data('Stratum', 'stratum', input_services)
+            get_map_context('Stratum', 'stratum', input_services),
+            get_map_context('State Classes', 'stateclass', input_services)
         ]
 
         num_iterations = self.scenario.run_control.max_iteration
         num_timesteps = self.scenario.run_control.max_timestep
         timestep_units = 'Years'  # TODO - use JSON configuration from frontend?
+        timestep_interval = self.configuration.get('timestep_interval', 5)      # TODO - let this be user specified
 
         # Output images
         output_services = ScenarioOutputServicesSerializer(self.scenario.scenario_output_services).data
         spatial_outputs = []
         is_spatial = self.scenario.run_control.is_spatial
-
         if is_spatial:
             for it in range(1, num_iterations + 1):
                 iteration = []
                 for ts in range(1, num_timesteps + 1):
+                    
+                    if ts % timestep_interval != 0:
+                        continue
+
                     label = 'Iteration {it} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
-                    iteration.append(get_image_data(
+                    iteration.append(get_map_context(
                         label, 'stateclass', output_services, is_output=True, iteration=it, timestep=ts)
                     )
                 spatial_outputs.append(iteration)
@@ -167,22 +170,78 @@ class Report:
         column_charts = self.configuration.get('column_charts')
         stacked_charts = self.configuration.get('stacked_charts')
         charts = []
+        
+        # Detailed analysis breakdown from StateClass Summary Report
+        output_data = StateClassSummaryReportRow.objects.filter(report=self.scenario.stateclass_summary_report)
+        stateclasses = self.scenario.project.stateclasses.all()
+
         for i, column in enumerate(column_charts):
             stacked = stacked_charts[i]
-            charts.append({'name': column['vegtype'], 'column': column['svg'], 'stacked': stacked['svg']})
 
-        # Detailed analysis breakdown from StateClass Summary Report
-        stateclass_summary = StateClassSummaryReportSerializer(
-            self.scenario.stateclass_summary_report
-        ).data.get('results')
+            name = column['vegtype']
+            stratum = strata.get(name=name)
+
+            # All output data for the final timestep and all iterations
+            veg_output_data = output_data.filter(stratum=stratum)
+            column_output_context = []
+            for stateclass in stateclasses:
+                rows = veg_output_data.filter(stateclass=stateclass)
+                if rows:
+
+                    # Get column chart context
+                    column_rows = rows.filter(timestep=num_timesteps)
+                    column_output_context.append({
+                        'name': stateclass.name,
+                        **column_rows.aggregate(min=Min('proportion_of_landscape'), max=Max('proportion_of_landscape')),
+                        'median': median(x[0] for x in column_rows.values_list('proportion_of_landscape'))
+                    })
+            
+            # TODO - how to show this for each iteration? Just use a separate chart for now?
+            stacked_output_context = []
+            filtered_timesteps = [i for i in range(0, num_timesteps + 1) if i % timestep_interval == 0]
+            for stateclass in stateclasses:
+                stateclass_data = veg_output_data.filter(iteration=1, stateclass=stateclass)
+                if stateclass_data:
+                    row_values = [x for i, x in enumerate(stateclass_data.order_by('timestep').values('proportion_of_landscape', 'timestep')) if i in filtered_timesteps]
+                    print(row_values)
+
+                    # Handle case where no measureable value was found at a given timestep, and fill that timestep with 0.0
+                    if len(row_values) != len(filtered_timesteps):
+                        """
+                        found_timesteps = [x['timestep'] for x in row_values]
+                        for i, ts in enumerate(filtered_timesteps):
+                            if ts != row_values[i]['timestep']:
+                                row_values.insert(i, {'timestep': i, 'proportion_of_landscape': 0.0})
+                        """
+
+                        # TODO - solve the more general case, for now the below line is a temporary fix
+                        row_values.insert(0, {'timestep': 0, 'proportion_of_landscape': 0.0})
+
+                    #stacked_table_row = [stateclass_data.filter(timestep=timestep).values('proportion_of_landscape')
+                    #    for timestep in filtered_timesteps]
+                    stacked_output_context.append({
+                        'name': stateclass.name,
+                        'values': row_values
+                    })
+
+            charts.append({
+                'name': name,
+                'column': column['svg'],
+                'stacked': stacked['svg'],
+                'column_values': column_output_context,
+                'stacked_values': stacked_output_context,
+                'filtered_timesteps': filtered_timesteps
+                })
 
         return {
             'today': datetime.today(),
             'initial_veg_composition': initial_veg_composition,
             'initial_conditions_spatial': initial_conditions_spatial,
+            'timestep_interval': timestep_interval,
             'spatial_outputs': spatial_outputs,
             'charts': charts,
             'is_spatial': is_spatial,
+            'iteration_is_one': num_iterations == 1,
             'library_name': self.scenario.project.library.name,
             'scale_image_data': scale_image_data,
             'north_image_data': north_image_data,
