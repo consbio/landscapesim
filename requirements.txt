@@ -19,3 +19,7 @@ djangorestframework==3.7.1
 psycopg2
 ncdjango==0.5.0
 aiohttp
+
+# Out of memory data manipulation
+dask
+toolz
