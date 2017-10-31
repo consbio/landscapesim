@@ -58,25 +58,44 @@ $(document).ready(function() {
         currentScenario.config.output_options.sum_trsc = true;
         currentScenario.config.output_options.sum_trsc_t = 1;
 
-        // Repopulate the current transition multipliers
-        $.each(managementActionsList, function(index, action){
-            if (typeof action != "undefined") {
-                $.each(action.timesteps, function (index, value) {
-                    if (value == 1) {
-                        currentScenario.config.transition_spatial_multipliers.push(
-                            {
-                                transition_group: action.action_id,
-                                timestep: index + 1,
-                                iteration: null,
-                                transition_multiplier_type: null,
-                                transition_multiplier_file_name: null,
-                                geojson: action.geoJSON,
-                            }
-                        )
+        // Now go find the proper geoJSON
+        var timesteps = currentScenario.config.run_control.max_timestep;
+        currentProject.definitions.transition_groups.forEach(function(grp) {
+
+            // Get all actions for this transition_group
+            var groupActions = managementActionsList.filter(function(x) { return x.action_id == grp.id });
+
+            // If actions are to be taken, create transition spatial multipliers
+            if (groupActions.length > 0) {
+                for (var ts = 1; ts <= timesteps; ts+=1) {
+
+                    // Find all actions for this group with the same timestep
+                    var timestepGroup = groupActions.filter(function(x) {
+                        var idx = ts - 1;
+                        if (idx >= x.timesteps.length) return false;
+                        return  x.timesteps[idx] == 1
+                    })
+
+                    if (timestepGroup.length > 0) {
+
+                        // And collect all their geojson
+                        var geojson = timestepGroup.map(function (x) {
+                            return x.geoJSON
+                        })
+
+                        // Submit one raster to be created for this management action type for this timestep
+                        currentScenario.config.transition_spatial_multipliers.push({
+                            transition_group: grp.id,
+                            timestep: ts,
+                            iteration: null,
+                            transition_multiplier_type: null,
+                            transition_multiplier_file_name: null,
+                            geojson: geojson,
+                        })
                     }
-                });
+                }
             }
-        }) ;
+        })
 
         $("#start_button").attr("disabled", true);
         $("#start_button").addClass('disabled');

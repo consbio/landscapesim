@@ -1,7 +1,5 @@
 function openCostTable() {
-    var count_transition_groups = currentProject.definitions.transition_groups.length;
-
-    var costTable = "<div id='cost_table_div'><table id='cost_table'></table></div>";
+    var costTableText = "<div id='cost_table_div'><table id='cost_table'></table></div>";
 
     // If there's already one entry per transition group, don't show the add entry button.
     var remaining = currentProject.definitions.transition_groups.length - currentScenario.config.transition_attribute_values.length;
@@ -14,8 +12,7 @@ function openCostTable() {
     }
 
     var addEntryButton = "<img src='static/img/add.png' id='add_entry_button' style='display:"+ buttonVisibility + "'>";
-
-    alertify.confirm(costTable + addEntryButton, function(e){
+    alertify.confirm(costTableText + addEntryButton, function(e){
 
         if (e){
             // Update existing values (Cost)
@@ -34,7 +31,6 @@ function openCostTable() {
 
             // Add new values
             $.each($(".new_row"), function () {
-                test = this
                 var transitionGroupID = parseInt($(this).find('td:nth-child(1) select').val());
                 var transitionAttributeTypeID = parseInt($(this).find('td:nth-child(2) select').val());
                 var transitionGroupValue = parseInt($(this).find('td:nth-child(3) input[type=number]').val());
@@ -55,32 +51,29 @@ function openCostTable() {
 
     });
 
-    $("#cost_table").append("<tr><th>Management Action</th><th>Type</th><th>Value</th><th>Delete</th></tr>");
+    var costTable = $("#cost_table");
+    costTable.append("<tr><th>Management Action</th><th>Type</th><th>Value</th><th>Delete</th></tr>");
 
     // Write current values out to the cost table
     $.each(currentScenario.config.transition_attribute_values, function(index, transitionAttributeValues) {
-
         $.each(currentProject.definitions.transition_groups, function(index, transitionGroup) {
-
-            if (transitionAttributeValues.transition_group == transitionGroup.id){
+            if (transitionAttributeValues.transition_group == transitionGroup.id) {
                 var transitionGroupName = transitionGroup.name;
-
-                    var transitionAttributeValue = transitionAttributeValues.value;
-
-                    $.each(currentProject.definitions.transition_attributes, function (index, transitionAttribute) {
-                        if (transitionAttribute.id == transitionAttributeValues.transition_attribute_type) {
-                            var name = transitionAttribute.name;
-                            var id = transitionAttributeValues.id;
-                            var units = transitionAttribute.units;
-                            $("#cost_table").append(
-                                "<tr><td>" + transitionGroupName +
-                                "</td><td>" + name +
-                                "</td><td>" + "<input class ='cost_value_input' id='cost_" + id + "' type=number value='" + transitionAttributeValue + "'> " + units + "/acre" +
-                                "</td><td>" + "<img record_to_delete=" + id + " src='static/img/delete.png' class='delete_entry_button'>" +
-                                "</td></tr>"
-                            );
-                        }
-                    });
+                var transitionAttributeValue = transitionAttributeValues.value;
+                $.each(currentProject.definitions.transition_attributes, function (index, transitionAttribute) {
+                    if (transitionAttribute.id == transitionAttributeValues.transition_attribute_type) {
+                        var name = transitionAttribute.name;
+                        var id = transitionAttributeValues.id;
+                        var units = transitionAttribute.units;
+                        $("#cost_table").append(
+                            "<tr><td>" + transitionGroupName +
+                            "</td><td>" + name +
+                            "</td><td>" + "<input class ='cost_value_input' id='cost_" + id + "' type=number value='" + transitionAttributeValue + "'> " + units + "/acre" +
+                            "</td><td>" + "<img record_to_delete=" + id + " src='static/img/delete.png' class='delete_entry_button'>" +
+                            "</td></tr>"
+                        );
+                    }
+                });
             }
         });
     });
@@ -89,7 +82,7 @@ function openCostTable() {
     $("#add_entry_button").on("click", function (){
 
         // Add a new row to the cost table.
-        $("#cost_table").append("<tr class='new_row'>" +
+        costTable.append("<tr class='new_row'>" +
 
             "<td><select></select></td>" +
             "<td><select></select></td>" +
@@ -98,17 +91,17 @@ function openCostTable() {
             "</td></tr>"
         );
 
-        var lastCostRow = $("#cost_table").find("tr").last();
+        var lastCostRow = costTable.find("tr").last();
 
         // Populate new row dropdowns with available options
 
         // First dropdown (Transition Groups)
-        var transitionGroupEntries  = [];
+        var transitionGroupEntries = [];
         $.each(currentScenario.config.transition_attribute_values, function(index, transitionGroup) {
             transitionGroupEntries.push(transitionGroup.transition_group)
         });
 
-        var managementActionsKeys=[];
+        var managementActionsKeys = [];
         $.each(store[currentLibrary.id].management_actions_filter, function(key, value) {
             managementActionsKeys.push(key)
         });
@@ -133,10 +126,8 @@ function openCostTable() {
         else{
              $("#add_entry_button").hide();
         }
-
     });
-
-};
+}
 
 // Array of records to delete. When the user pushes the "X" button, the id for that record gets added to the array.
 // And the row is removed from the table.
