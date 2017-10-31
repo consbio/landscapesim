@@ -698,9 +698,8 @@ function createVegInitialConditionsDict() {
 }
 
 var vegtypeStateclassesDictionary;
-function createVegTypeStateClassesJSON(vegInitialConditions){
+function createVegTypeStateClassesJSON(vegInitialConditions) {
     vegtypeStateclassesDictionary = {};
-
     $.each(vegInitialConditions["veg_sc_pct"], function(veg_type,state_class_object){
         var count=0;
         vegtypeStateclassesDictionary[veg_type] = [];
@@ -708,9 +707,7 @@ function createVegTypeStateClassesJSON(vegInitialConditions){
             vegtypeStateclassesDictionary[veg_type][count] = state_class;
             count+=1;
         });
-
     });
-
 }
 
 /*************************************** Initial Vegetation Cover Inputs **********************************************/

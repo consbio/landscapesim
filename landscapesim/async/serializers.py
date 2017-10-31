@@ -3,6 +3,7 @@
 """
 import json
 import os
+from uuid import uuid4
 
 from rest_framework import serializers
 
@@ -87,26 +88,28 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         proj = Project.objects.get(library=lib, pid=pid)
         scenario = Scenario.objects.get(project=proj, sid=int(sid))
         if scenario.run_control.is_spatial:
-            if os.path.exists(scenario.multiplier_directory):
-                for file in os.listdir(scenario.multiplier_directory):
-                    os.remove(os.path.join(scenario.multiplier_directory, file))
+            #if os.path.exists(scenario.multiplier_directory):
+            #    for file in os.listdir(scenario.multiplier_directory):
+            #        os.remove(os.path.join(scenario.multiplier_directory, file))
+
+            # unique identifier for these spatial multipliers
+            uuid = str(uuid4())
 
             # For each transition spatial multipler, create spatial multiplier files where needed
             for tsm in config['transition_spatial_multipliers']:
                 tg = TransitionGroup.objects.get(id=tsm['transition_group']).name
-                iterations = int(tsm['iteration']) if tsm['iteration'] is not None else 'all'
-                timesteps = int(tsm['timestep']) if tsm['timestep'] is not None else 'all'
-                tsm_file_name = "{tg}_{it}_{ts}.tif".format(tg=tg, it=iterations, ts=timesteps)
+                it = int(tsm['iteration']) if tsm['iteration'] is not None else 'all'
+                ts = int(tsm['timestep']) if tsm['timestep'] is not None else 'all'
+                tsm_file_name = "{uuid}_{tg}_{it}_{ts}.tif".format(uuid=uuid, tg=tg, it=it, ts=ts)
                 tsm['transition_multiplier_file_name'] = tsm_file_name
                 try:
                     geojson = tsm.pop('geojson')    # always remove the geojson entry
                     try:
-                        rasterize_geojson(geojson,
-                                          os.path.join(scenario.input_directory,
-                                                       scenario.initial_conditions_spatial_settings.
-                                                       stratum_file_name),
-                                          os.path.join(scenario.multiplier_directory,
-                                                       tsm_file_name))
+                        template_path = os.path.join(
+                            scenario.input_directory, scenario.initial_conditions_spatial_settings.stratum_file_name
+                        )
+                        out_path = os.path.join(scenario.multiplier_directory, tsm_file_name)
+                        rasterize_geojson(geojson, template_path=template_path, out_path=out_path)
                     except:
                         raise IOError("Error rasterizing geojson.")
                 except KeyError:

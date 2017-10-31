@@ -10,6 +10,7 @@ from statistics import median
 
 import pdfkit
 from django.conf import settings
+from django.db.models import Min, Max, Sum
 from django.template.loader import render_to_string
 from geopy.distance import vincenty
 from ncdjango.geoimage import image_to_world
@@ -20,7 +21,6 @@ from landscapesim.io.utils import get_random_csv
 from landscapesim.mapimage import MapImage
 from landscapesim.models import Scenario, StateClassSummaryReportRow
 from landscapesim.serializers.scenarios import ScenarioInputServicesSerializer, ScenarioOutputServicesSerializer
-from django.db.models import Min, Max, Sum
 
 PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=getattr(settings, 'WKHTMLTOPDF_BIN'))
 PDF_OPTIONS = {
@@ -152,8 +152,8 @@ class Report:
 
         num_iterations = self.scenario.run_control.max_iteration
         num_timesteps = self.scenario.run_control.max_timestep
-        timestep_units = 'Years'  # TODO - use JSON configuration from frontend?
-        timestep_interval = self.configuration.get('timestep_interval', 5)      # TODO - let this be user specified
+        timestep_units = 'Years'                    # TODO - use JSON configuration from frontend?
+        timestep_interval = self.configuration.get('timestep_interval', 1)
 
         # Output images
         output_services = ScenarioOutputServicesSerializer(self.scenario.scenario_output_services).data
@@ -173,8 +173,12 @@ class Report:
                     )
                 spatial_outputs.append(iteration)
 
-        # TODO - create management action maps!
+        # Management actions list
         has_management_actions = False
+        management_actions = []
+        if is_spatial:
+            for ts in range(1, num_timesteps + 1):
+                pass
 
         # Results (charts - SVG, output maps)
         column_charts = self.configuration.get('column_charts')
@@ -249,6 +253,7 @@ class Report:
             'is_spatial': is_spatial,
             'iteration_is_one': num_iterations == 1,
             'has_management_actions': has_management_actions,
+            'management_actions': management_actions,
             'library_name': self.scenario.project.library.name,
             'library_author': library_author,
             'library_description': library_description,

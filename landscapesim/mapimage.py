@@ -8,6 +8,7 @@ import mercantile
 from PIL import Image, ImageDraw
 from clover.geometry.bbox import BBox
 from django.conf import settings
+from django.contrib.gis.geometry.backend import Geometry
 from ncdjango.geoimage import world_to_image, image_to_world
 from pyproj import Proj, transform
 
@@ -136,8 +137,17 @@ class MapImage(object):
         for i, layer_im in enumerate(self.get_layer_images(service_url)):
             im.paste(Image.blend(im, layer_im, 1 if i == 0 else self.opacity), (0, 0), layer_im)
 
-        # TODO - draw management actions onto landscape
-        #self.draw_geometry(<some_geom_object_here>)
+        return self.crop_image(im)
+
+    def get_polygon_image(self, polygons):
+        im = Image.new('RGBA', self.image_size)
+
+        if self._basemap_image is not None:
+            im.paste(Image.blend(im, self._basemap_image, 1), (0, 0), self._basemap_image)
+
+        for p in polygons:
+            geometry = Geometry(str(p['geometry']))
+            self.draw_geometry(im, p.coords, (0, 0, 255), 3)
 
         return self.crop_image(im)
 
