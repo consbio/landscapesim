@@ -195,16 +195,13 @@ class Report:
             veg_output_data = output_data.filter(stratum=stratum)
             column_output_context = []
             for stateclass in stateclasses:
-                rows = veg_output_data.filter(stateclass=stateclass)
+                rows = veg_output_data.filter(stateclass=stateclass, timestep=num_timesteps)
                 if rows:
-
-                    # Get column chart context
-                    column_rows = rows.filter(timestep=num_timesteps)
                     column_data = {
                         'name': stateclass.name,
-                        'max': round(100 * column_rows.aggregate(max=Max('proportion_of_landscape'))['max'], 2),
-                        'min': round(100 * column_rows.aggregate(min=Min('proportion_of_landscape'))['min'], 2),
-                        'median': round(100 * median(x[0] for x in column_rows.values_list('proportion_of_landscape')), 2)
+                        'max': round(100 * rows.aggregate(max=Max('proportion_of_landscape'))['max'], 2),
+                        'min': round(100 * rows.aggregate(min=Min('proportion_of_landscape'))['min'], 2),
+                        'median': round(100 * median(x[0] for x in rows.values_list('proportion_of_landscape')), 2)
                     }
                     column_output_context.append(column_data)
             
@@ -214,7 +211,11 @@ class Report:
             for stateclass in stateclasses:
                 stateclass_data = veg_output_data.filter(iteration=1, stateclass=stateclass)
                 if stateclass_data:
-                    row_values = [x for i, x in enumerate(stateclass_data.order_by('timestep').values('proportion_of_landscape', 'timestep')) if i in filtered_timesteps]
+                    row_values = [
+                        x for i, x in enumerate(stateclass_data.order_by('timestep')
+                                                .values('proportion_of_landscape', 'timestep'))
+                        if i in filtered_timesteps
+                    ]
                     for i, x in enumerate(row_values):
                         value = row_values[i]['proportion_of_landscape']
                         row_values[i]['percent'] = round(value * 100, 2) if value > 0.0 else '--'
