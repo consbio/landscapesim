@@ -1,3 +1,7 @@
+h3 {
+	margin-bottom: 0px;
+}
+
 body {
     color:#444343;
     width:100%;
@@ -193,8 +197,13 @@ canvas {
 	display: none;
 }
 
-#library_info{
+#library_info {
 	margin:15px;
+}
+
+#tabular_output {
+	margin-top: -10px;
+	margin-bottom: 10px;
 }
 
 .library_info_hidden{
@@ -432,6 +441,7 @@ canvas {
 
 .results_table, .selected_location_table {
 	width: 100%;
+	color: #6b6b6b;
 }
 
 .results_table th, .selected_location_table th {
@@ -454,8 +464,6 @@ canvas {
 }
 
 .results_table td {
-    background-color: #A8A8A8;
-    background-color: #8C8CE4;
     letter-spacing: 1px;
     padding-left:8px;
     line-height:24px;
@@ -484,9 +492,6 @@ canvas {
 }
 
 .chart_type_tr td {
-	background-color: #4C9ED9;
-	text-align: left;
-	color: white;
 	font-weight: bold;
 	white-space: nowrap;
 	padding-right: 15px;
@@ -505,10 +510,8 @@ canvas {
 }
 
 .probabilistic_transitions_th {
-	background-color: #DE5448;
 	font-weight: bold;
 	text-align: left;
-	color: white;
 	padding-left: 8px !important;
 	font-style: normal !important;
 	letter-spacing: 1px;
@@ -524,7 +527,7 @@ canvas {
 }
 
 .probabilistic_transitions_values_header {
-	background-color: #DE5448;
+	background-color: #0092D1;
 	text-align: center;
 	width: 80px;
 	color: white;
@@ -610,7 +613,6 @@ canvas {
 	color: #FFF;
 	font-weight: bold;
 	text-decoration: none;
-    background-color: #007BB0;
     background-color: #1EBA36;
 	box-shadow: inset 0 1px 0 0 rgba(255,255,255,.5);
     background-image: -webkit-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0));
@@ -621,7 +623,6 @@ canvas {
 }
 
 .my-button-ok:hover, .my-button-ok:focus {
-    background-color: #007BB0;
     background-color: #1EBA36;
     background-image: -webkit-linear-gradient(top, rgba(255,255,255,.2), rgba(255,255,255,0));
     background-image: -moz-linear-gradient(top, rgba(255,255,255,.2), rgba(255,255,255,0));
@@ -954,8 +955,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 }
 
 .general_settings_div {
-	background-color: #0092D1;
-	color: white;
+	text-align: right;
 	border-radius: 5px 0px 0px 5px;
 	padding-right: 5px;
 	padding-left: 5px;
@@ -964,8 +964,9 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 }
 
 .selected_td_button {
-	background-color: rgb(46, 178, 66);
-	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) inset;
+	background-color: #0092D1;
+	border-radius: 4px;
+	color: white;
 }
 
 .unselected_td_button {
@@ -974,6 +975,7 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	box-shadow: inset 1px 2px 3px rgba(245,255,255,0.5);
 	border: 1px solid #C4C4C4;
 	cursor:pointer;
+	border-radius: 4px;
 }
 
 #time-slider {
@@ -1247,7 +1249,7 @@ div.leaflet-bottom:nth-child(4){
 }
 
 .alertify-step {
-	padding: 15px 20px 2px 20px;
+	padding: 0px 20px 15px 20px;
 }
 
 .alertify-scrollable-div {
@@ -1263,4 +1265,13 @@ div.leaflet-bottom:nth-child(4){
 .alertify-img {
 	display: block;
 	margin: 10px auto;
+}
+
+.alertify-button-ok {
+	background-color: #0092d1;
+	background-image: none;
+}
+
+.alertify-button-ok:hover, .alertify-button-ok:focus {
+	background-color: #0092d1;
 }

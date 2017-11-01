@@ -24,6 +24,9 @@ var getCurrentInfo = function() {
 
 $(document).ready(function() {
 
+    // Always open instructions on page load
+    document.getElementById('instructions').click();
+
     // Top-level endpoint, get list of available libraries
     $.getJSON('/api/libraries/').done(function (res) {
 
@@ -229,7 +232,6 @@ $(document).ready(function() {
             layerControlHidden = false;
         }
 
-        $("#welcome_header").addClass("full_border_radius");
         $("#library_header").addClass("full_border_radius");
 
         currentLibrary = $.grep(availableLibraries, function(e) {return e.id == $(".model_selection").val()})[0];
@@ -293,9 +295,7 @@ $(document).ready(function() {
             map.removeLayer(boundingBoxLayer);
 
             // Collapse the Welcome and Library divs.
-            $("#welcome_header").siblings(".collapsible_div").slideUp(400, function(){});
             $("#library_header").siblings(".collapsible_div").slideUp(400, function(){});
-            $("#welcome_header").children(".collapse_icon").addClass("rotate90");
             $("#library_header").children(".collapse_icon").addClass("rotate90");
 
             // Show the other inputs.
@@ -1197,10 +1197,6 @@ function updateResultsViewer(run) {
 function update_results_table(cache, run) {
 
     $("#results_table").html([
-        "<tr class='location_tr'>", 
-        "<td class='location_th' colspan='1'>Library</td>",
-        "<td colspan='2'>" + currentLibrary.name + "</td>", 
-        "</tr>"
     ].join(''));
     
     $("#results_viewer").append([
@@ -1251,7 +1247,7 @@ function update_results_table(cache, run) {
             $("#results_table").append([
                 "<tr class='probabilistic_transitions_tr'>",
                 "<td class='probabilistic_transitions_th' id='probabalistic_transitions_th_" + run + "' colspan='2'>",
-                "Disturbance Probabilities",
+                "Probabilistic Transitions",
                 "</td>",
                 "<td class='probabilistic_transitions_values_header'>",
                 "Defaults",

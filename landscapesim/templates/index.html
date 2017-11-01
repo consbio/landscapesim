@@ -89,31 +89,13 @@
             </li>    
         </ul>
         <ul style="float: right; padding-right:40px;">
+            <li><a class="modal-item" id="instructions">Welcome & Getting Started</a></li>
             <li><a class="modal-item" id="purpose">Purpose</a></li>
             <li><a class="modal-item" id="st-sim">STSMs</a></li>
-            <li><a class="modal-item" id="instructions">Instructions</a></li>
             <li><a class="modal-item" id="contact">Contact</a></li>
         </ul>
     </div>
         <div id="left">
-
-            <!-- Welcome and Library Widgets -->
-            <div class="widget_div" id="welcome">
-                <div class="header" id="welcome_header">
-                    Welcome & Getting Started
-                    <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}">
-                </div>
-                <div class="collapsible_div" visibility="visible">
-                    <div id="intro">
-                        The Landscape Simulator is a web-based state-and-transition modelling framework powered by <!--<a href="http://syncrosim.com/index.php?title=SyncroSim" target="_blank"-->ST-Sim<!--/a-->.
-                        <p>
-                        It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
-                        <p>
-                        To get started, select a library from the table below.<p>
-                    </div>
-                </div>
-            </div>
-
             <div class="widget_div">
                 <div class="header" id="library_header">
                     ST-Sim Library
@@ -321,15 +303,18 @@
         <!-- Text for modals -->
         <script type="x-text" id="x-purpose">
         <div class="alertify-step">
+        <p>
             The <b>Landscape Simulator</b> is a web mapping application for visualizing outputs from state and transition simulation models (STSMs).
             <br><br>
             Its primary purpose is to <b>help land managers understand</b> how vegetation composition will change over time due to stochastic events (e.g. fire, disease) and land use and management actions (e.g. treatments).
             <br><br>
             Users can visualize how <b>natural events</b> and <b>human actions</b> change the landscape in the future, and use the application to plan for climate adaptation or disturbance mitigation.
+        </p>
         </div>
         </script>
         <script type="x-text" id="x-st-sim">
         <div class="alertify-step">
+            <p>
             This tool utilizes <b>State and Transition Simulation Models (STSMs)</b>, which are designed to simulate changes in vegetation cover over time.
             <br><br>
             Vegetation cover is described in terms of <b>state classes</b> which are defined as a unique combination of <b>cover type</b> (grass, shrub, tree) and <b>structural stage</b> (i.e. age).
@@ -339,11 +324,22 @@
             a visualization and analysis interface to give natural resource managers a way to explore the possible futures of their landscape.
             <!--<br><br>
             To learn more about ST-Sim, please contact Leonardo Frid (email) or visit <a href='http://syncrosim.com/index.php?title=SyncroSim' target='_blank'>syncrosim.com</a>.-->
+            </p>
         </div>
         </script>
         <script type="x-text" id="x-instructions">
+                <div class='alertify-step'>
+                    <h3>Welcome</h3>
+                    <p>The Landscape Simulator is a web-based state-and-transition modelling framework powered by ST-Sim.</p>
+                    <p>
+                    It is designed to simulate the future vegetation composition of a selected area based on a set of initial conditions, probabilistic transitions, and management actions.
+                    This allows land managers to create scenarios for climate adaptation and management.
+                    </p>
+                    <h3>Getting Started</h3>
+                </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>1. Select an <b>ST-Sim Library</b>.</div>
+                ST-Sim libraries can be created and uploaded to this tool. To learn more about how you can include your models, see <b>Contact</b>.
             </div>
             <div class='alertify-step'>
                 <div class='alertify-subheader'>2. Review the <b>Initial Vegetation Composition</b>.</div>
@@ -453,16 +449,16 @@
 
         <!-- Text for hover text -->
         <script type="x-text" id="x-library">
-            Choose a scenario to load. Scenarios are based on available STSM models.
+            Choose an ST-Sim library to load. Options are based on available STSM models.
         </script>
         <script type="x-text" id="x-vegcover">
             Vegetation present in this study area, separated by percent cover.
         </script>
         <script type="x-text" id="x-probabilities">
-            Adjust probabilities to affect the rate at which vegetation will change due to disturbances.
+            Probabilities affect the rate at which vegetation will change due to disturbances.
         </script>
         <script type="x-text" id="x-run-control">
-            Configure the scenario model run length.
+            Configure the scenario model run configuration.
         </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // Tab info
 $(document).on({
-    click: function(e) {
+    click: function() {
         var text = [
             "<div class='alertify-scrollable-div'>",
             document.getElementById('x-' + this.id).textContent,
@@ -17,19 +17,20 @@ $(document).on({
 $(document).on({
     mouseenter: function (e) {
         var popup = $("#pop-up");
-        var moveRight = 5;
-        var moveDown = 5;
-        var text = ["<div class='context_basic'>", document.getElementById('x-' + this.id).textContent, "</div>"].join('')
+        var moveRight = 10;
+        var moveDown = 10;
+        var id = this.children[0].id;
+        var text = ["<div class='context_basic'>", document.getElementById('x-' + id).textContent, "</div>"].join('')
         popup.html(text);  // split and get last element of the id. Ids look like 'help_step_x'
         popup.show();
-        $('.context_button').mousemove(function (e) {
+        $('#left .header').mousemove(function (e) {
             popup.css('top', e.pageY + moveDown).css('left', e.pageX + moveRight);
         });
     },
     mouseleave: function(e) {
         $("#pop-up").hide();
     }
-}, '.context_button');
+}, '#left .header');
 
 // Allow dismiss on click
 $(document).on({
