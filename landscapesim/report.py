@@ -322,7 +322,7 @@ class Report:
         fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.pdf')
         os.close(fd)
         pdfkit.from_string(template, filename, options=PDF_OPTIONS, configuration=PDFKIT_CONFIG)
-        return {'filename': os.path.basename(filename)}
+        return {'filename': os.path.basename(filename), 'actual_name': 'overview.pdf'}
 
     def request_zip_data(self):
         fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.zip')
@@ -338,4 +338,4 @@ class Report:
                     full_path = os.path.join(d, f)
                     zf.write(full_path, self._filter_uuid(f))
 
-        return {'filename': os.path.basename(filename)}
+        return {'filename': os.path.basename(filename), 'actual_name': 'spatial-data.zip'}

@@ -1060,7 +1060,7 @@ function downloadSpatialData(url, filename, ext, configuration) {
     }).then(function(res) { return res.json(); }).then(function(json) {
         var node = document.createElement('a')
         node.setAttribute('href', '/downloads/' + json.filename)
-        node.setAttribute('download', json.filename)
+        node.setAttribute('download', json.actual_name)
         document.body.appendChild(node)
         node.click()
         document.body.removeChild(node)
