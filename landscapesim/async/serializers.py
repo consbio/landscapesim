@@ -5,12 +5,15 @@ import json
 import os
 from uuid import uuid4
 
+from django.conf import settings
 from rest_framework import serializers
 
 from landscapesim.async.tasks import run_model
 from landscapesim.io.geojson import rasterize_geojson
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
 from landscapesim.serializers import imports
+
+STSIM_MULTIPLIER_DIR = getattr(settings, 'STSIM_MULTIPLIER_DIR')
 
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
@@ -88,9 +91,6 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         proj = Project.objects.get(library=lib, pid=pid)
         scenario = Scenario.objects.get(project=proj, sid=int(sid))
         if scenario.run_control.is_spatial:
-            #if os.path.exists(scenario.multiplier_directory):
-            #    for file in os.listdir(scenario.multiplier_directory):
-            #        os.remove(os.path.join(scenario.multiplier_directory, file))
 
             # unique identifier for these spatial multipliers
             uuid = str(uuid4())
@@ -108,8 +108,8 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
                         template_path = os.path.join(
                             scenario.input_directory, scenario.initial_conditions_spatial_settings.stratum_file_name
                         )
-                        out_path = os.path.join(scenario.multiplier_directory, tsm_file_name)
-                        rasterize_geojson(geojson, template_path=template_path, out_path=out_path)
+                        out_path = os.path.join(STSIM_MULTIPLIER_DIR, tsm_file_name)
+                        rasterize_geojson(geojson, template_path=template_path, out_path=out_path, save_geojson=True)
                     except:
                         raise IOError("Error rasterizing geojson.")
                 except KeyError:

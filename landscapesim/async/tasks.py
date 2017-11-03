@@ -3,6 +3,7 @@ import json
 import time
 import os
 
+from shutil import copyfile
 from celery.task import task
 from django.conf import settings
 from django.db import transaction
@@ -18,6 +19,23 @@ from landscapesim.models import Library, Scenario, RunScenarioModel
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 SCENARIO_SCAN_RATE = 2
 DATASET_DOWNLOAD_DIR = getattr(settings, 'DATASET_DOWNLOAD_DIR')
+STSIM_MULTIPLIER_DIR = getattr(settings, 'STSIM_MULTIPLIER_DIR')
+
+
+def setup_transition_spatial_multipliers(config, parent):
+    """
+    If there are transition spatial multipliers, move them to the appropriate scenario location on disk.
+    :param config:
+    :param parent:
+    """
+    for tsm in config['transition_spatial_multipliers']:
+        filename = tsm['MultiplierFileName']
+        src = os.path.join(STSIM_MULTIPLIER_DIR, filename)
+        dst = os.path.join(parent.multiplier_directory, filename)
+        if not os.path.exists(parent.multiplier_directory):
+            os.makedirs(parent.multiplier_directory)
+        copyfile(src, dst)
+        os.remove(src)      # Once the file is copied, we can cleanup the transition multipliers
 
 
 def import_configuration(console, config, sid, tmp_file):
@@ -99,11 +117,13 @@ def run_model(self, library_name, pid, sid):
     lib = Library.objects.get(name__iexact=library_name)
     console = STSimConsole(exe=EXE, lib_path=lib.file, orig_lib_path=lib.orig_file)
     job = RunScenarioModel.objects.get(celery_id=self.request.id)
+    parent = job.parent_scenario
     job.model_status = 'starting'
     job.save()
 
     inputs = json.loads(job.inputs)
     t = time.time()
+    setup_transition_spatial_multipliers(inputs['config'], parent)
     import_configuration(console, inputs['config'], sid, get_random_csv(lib.tmp_file))
     execute_ssim_queries(inputs['config'], lib, sid)
     print("Import time: {}".format(time.time()- t))

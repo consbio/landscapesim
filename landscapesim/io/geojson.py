@@ -1,4 +1,5 @@
 import os
+import json
 
 import numpy
 import rasterio
@@ -6,7 +7,7 @@ from rasterio import features
 from rasterio.warp import transform_geom
 
 
-def rasterize_geojson(geojson, template_path, out_path, crs=None):
+def rasterize_geojson(geojson, template_path, out_path, crs=None, save_geojson=False):
     """
     Takes the path to a (temporary?) geojson file, extracts the shapes, and then
     burns the raster value to the specified output path with the same shape as a template raster.
@@ -14,6 +15,7 @@ def rasterize_geojson(geojson, template_path, out_path, crs=None):
     :param template_path: Path to the template raster to constrain the shapes to.
     :param out_path: Path to the outputted raster with burned shapes into it.
     :param crs: CRS of the input geometry. Default is EPSG:4326.
+    :param save_geojson: If True, save a copy of the rasterized GeoJSON next to the file.
     """
 
     if crs is None:
@@ -22,6 +24,12 @@ def rasterize_geojson(geojson, template_path, out_path, crs=None):
     # Handle single geometries as well as lists
     if type(geojson) is dict:
         geojson = [geojson]
+
+    if save_geojson:
+        ext = '.{}'.format(out_path.split('.')[-1])
+        json_path = out_path.replace(ext, '.json')
+        with open(json_path, 'w') as f:
+            json.dump(geojson, f)
 
     with rasterio.open(template_path, 'r') as template:
         if not os.path.exists(os.path.dirname(out_path)):

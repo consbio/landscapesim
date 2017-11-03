@@ -1,3 +1,4 @@
+import re
 import json
 import os
 import tempfile
@@ -33,6 +34,7 @@ BASE_DIR = getattr(settings, 'BASE_DIR')
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 TEMP_DIR = getattr(settings, 'NC_TEMPORARY_FILE_LOCATION')
 DATASET_DOWNLOAD_DIR = getattr(settings, 'DATASET_DOWNLOAD_DIR')
+STSIM_MULTIPLIER_DIR = getattr(settings, 'STSIM_MULTIPLIER_DIR')
 
 MERCATOR = Proj(init='epsg:3857')
 WGS84 = Proj(init='epsg:4326')
@@ -224,7 +226,7 @@ class Report:
                         value = row_values[i]['proportion_of_landscape']
                         row_values[i]['percent'] = round(value * 100, 2) if value > 0.0 else '--'
 
-                    # Handle case where no measureable value was found at a given timestep, and fill that timestep with 0.0
+                    # Handle case where no measureable value was found at a given timestep, and fill with 0.0
                     if len(row_values) != len(filtered_timesteps):
                         # TODO - solve the more general case, for now the below line is a temporary fix
                         row_values.insert(0, {'timestep': 0, 'proportion_of_landscape': 0.0, 'percent': '--'})
@@ -276,9 +278,31 @@ class Report:
     def request_zip_data(self):
         fd, filename = tempfile.mkstemp(prefix=DATASET_DOWNLOAD_DIR + "{}-".format(self.report_name), suffix='.zip')
         os.close(fd)
+        data_dirs = (self.scenario.output_directory, self.scenario.multiplier_directory)
+
+        # Remove uuid values from multiplier filenames
+        def filter_uuid(path):
+            regex = re.compile('^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}', re.I)
+            parts = path.split('_')
+
+            match = False
+            for p in parts:
+                match = bool(regex.match(p))
+                if match:
+                    break
+
+            result = path
+            if match:
+                result = '_'.join(path.split('_')[1:])
+            return result
+
+        # Create the archive
         with zipfile.ZipFile(filename, 'w') as zf:
-            tif_files = [x for x in os.listdir(self.scenario.output_directory) if '.tif' in x]
-            for f in tif_files:
-                full_path = os.path.join(self.scenario.output_directory, f)
-                zf.write(full_path, f)
+            directories = [x for x in data_dirs if os.path.exists(x)]
+            for d in directories:
+                tif_files = [x for x in os.listdir(d) if x.split('.')[-1] == 'tif']
+                for f in tif_files:
+                    full_path = os.path.join(d, f)
+                    zf.write(full_path, filter_uuid(f))
+
         return {'filename': os.path.basename(filename)}

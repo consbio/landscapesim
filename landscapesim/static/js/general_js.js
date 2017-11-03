@@ -25,6 +25,7 @@ var getCurrentInfo = function() {
 $(document).ready(function() {
 
     // Always open instructions on page load
+    // TODO - check window location to see if we are going to load with a configuration or not
     document.getElementById('instructions').click();
 
     // Top-level endpoint, get list of available libraries
