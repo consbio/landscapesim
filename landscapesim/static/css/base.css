@@ -202,7 +202,7 @@ canvas {
 }
 
 #tabular_output {
-	margin-top: -10px;
+	margin-top: -15px;
 	margin-bottom: 10px;
 }
 
@@ -399,17 +399,20 @@ canvas {
 }
 
 #model-run-select {
-	width: 45%;
+	width: 100%;
 }
 
 .download-data {
-	width: 53%;
+	width: 100%;
+	line-height: 24px;
+	letter-spacing: 1px;
+	margin-top: 5px;
 }
 
 .results_charts {
 	position: relative;
 	overflow-y: scroll;
-	height: calc(100vh - 435px);
+	height: calc(100vh - 380px);
 	padding-right: 30px;
 	overflow-x: hidden;
 }
@@ -515,7 +518,6 @@ canvas {
 	padding-left: 8px !important;
 	font-style: normal !important;
 	letter-spacing: 1px;
-	min-width: 195px;
 }
 
 .probabilistic_transitions_tr_values {
@@ -529,6 +531,7 @@ canvas {
 .probabilistic_transitions_values_header {
 	background-color: #0092D1;
 	text-align: center;
+	border-radius: 4px;
 	width: 80px;
 	color: white;
     font-weight:bold;
@@ -976,6 +979,10 @@ ul.buttons2 li.selected a, ul.buttons2 li.selected a:hover {
 	border: 1px solid #C4C4C4;
 	cursor:pointer;
 	border-radius: 4px;
+}
+
+.selected_td_button, .unselected_td_button {
+	text-align: center;
 }
 
 #time-slider {

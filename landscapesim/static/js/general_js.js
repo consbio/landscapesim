@@ -1261,7 +1261,7 @@ function update_results_table(cache, run) {
     // Chart Type row
     $("#results_table").append([
         "<tr class='chart_type_tr'>",
-        "<td class='chart_type_th' colspan='1'>Chart Type</td>",
+        "<td class='probabilistic_transitions_th' colspan='1'>Chart Type</td>",
         "<td class='unselected_td_button' id='column_chart_td_button'>Column</td>",
         "<td class='selected_td_button' id='stacked_area_chart_td_button'>Area</td>", 
         "</td>"
@@ -1280,7 +1280,6 @@ function update_results_table(cache, run) {
         $("#column_charts").show()
         //$("#iteration_tr_" + run).hide()
         $("#area_charts").hide()
-        $("#veg_output_th").html("Vegetation Cover in " + timestepText)
     });
 
     // Chart button click functions
@@ -1292,7 +1291,6 @@ function update_results_table(cache, run) {
         $("#column_charts").hide()
         //$("#iteration_tr_" + run).show()
         $("#area_charts").show()
-        $("#veg_output_th").html("Vegetation Cover over " + timestepText)
     });
 
 
@@ -1312,14 +1310,6 @@ function update_results_table(cache, run) {
         }
     });
     */
-
-    $("#results_table").append([
-        "<tr class='veg_output_tr'>",
-        "<td class='veg_output_th' id='veg_output_th' colspan='3'>",
-        "Vegetation Cover in " + timestepText,
-        "</td>",
-        "</tr>"
-    ].join(''));
 
     // Show/Hide state class data
     $('.show_state_classes_results_link').unbind('click');
