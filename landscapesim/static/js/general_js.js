@@ -1058,11 +1058,12 @@ function downloadSpatialData(url, filename, ext, configuration) {
         },
         body: JSON.stringify({'configuration': configuration})
     }).then(function(res) { return res.json(); }).then(function(json) {
-        if (ext == '.zip') {
-            window.location = '/downloads/' + json.filename;
-        } else {
-            window.open('/downloads/' + json.filename, '_blank');
-        }
+        var node = document.createElement('a')
+        node.setAttribute('href', '/downloads/' + json.filename)
+        node.setAttribute('download', json.filename)
+        document.body.appendChild(node)
+        node.click()
+        document.body.removeChild(node)
         $('#download-data').val('Download Data & Results');
     })
 }
@@ -1077,7 +1078,6 @@ function downloadModelResults() {
         reportInputs.push("<input value='" + value + "' type='button' class='my-button download-report' id='" + report + "'>")
     }
 
-    // TODO - add selection objects in a modal.
     var text = [
         "<div class='alertify-header'>",
         "Download Data & Results",

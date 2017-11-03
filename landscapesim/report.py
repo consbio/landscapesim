@@ -48,6 +48,23 @@ class Report:
         self.scenario = Scenario.objects.get(pk=self.configuration['scenario_id'])
         self.report_name = report_name
 
+    @staticmethod
+    def _filter_uuid(path):
+        # Remove uuid values from multiplier filenames
+        regex = re.compile('^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}', re.I)
+        parts = path.split('_')
+
+        match = False
+        for p in parts:
+            match = bool(regex.match(p))
+            if match:
+                break
+
+        result = path
+        if match:
+            result = '_'.join(path.split('_')[1:])
+        return result
+
     def get_csv_data(self):
         lib = self.scenario.project.library
         temp_file = get_random_csv(lib.tmp_file)
@@ -113,6 +130,13 @@ class Report:
             legend_url = '/'.join(service_url.split('/')[:split_idx] + ['legend'])
             return map_maker.get_legend(legend_url)
 
+        def get_scale(to_world, image_height):
+            scale_bar_x = 38
+            scale_bar_y = image_height - 15
+            scale_bar_start = transform(MERCATOR, WGS84, *to_world(scale_bar_x, scale_bar_y))
+            scale_bar_end = transform(MERCATOR, WGS84, *to_world(scale_bar_x + 96, scale_bar_y))
+            return '{} mi'.format(round(vincenty(scale_bar_start, scale_bar_end).miles, 1))
+
         def get_map_context(label, name, service, is_output=False, iteration=None, timestep=None):
 
             service_url = service[name]
@@ -126,12 +150,7 @@ class Report:
             image_handle = BytesIO()
             image_data.save(image_handle, 'png')
 
-            scale_bar_x = 38
-            scale_bar_y = image_data.size[1] - 15
-            scale_bar_start = transform(MERCATOR, WGS84, *to_world(scale_bar_x, scale_bar_y))
-            scale_bar_end = transform(MERCATOR, WGS84, *to_world(scale_bar_x + 96, scale_bar_y))
-            scale = '{} mi'.format(round(vincenty(scale_bar_start, scale_bar_end).miles, 1))
-
+            scale = get_scale(to_world, image_data.size[1])
             legend_data = get_legend(service_url, is_output)
 
             return {
@@ -152,10 +171,15 @@ class Report:
             get_map_context('State Classes', 'stateclass', input_services)
         ]
 
+        basic_map_config = {key: initial_conditions_spatial[0][key] for key in ('west', 'south', 'east', 'north')}
+
         num_iterations = self.scenario.run_control.max_iteration
         num_timesteps = self.scenario.run_control.max_timestep
         timestep_units = 'Years'                    # TODO - use JSON configuration from frontend?
         timestep_interval = self.configuration.get('timestep_interval', 1)
+
+        def format_timestep_label(it, ts):
+            return 'Iteration {it} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
 
         # Output images
         output_services = ScenarioOutputServicesSerializer(self.scenario.scenario_output_services).data
@@ -169,18 +193,43 @@ class Report:
                     if ts % timestep_interval != 0:
                         continue
 
-                    label = 'Iteration {it} - Timestep ({units}) {ts}'.format(it=it, units=timestep_units, ts=ts)
                     iteration.append(get_map_context(
-                        label, 'stateclass', output_services, is_output=True, iteration=it, timestep=ts)
-                    )
+                        format_timestep_label(it, ts), 'stateclass', output_services, is_output=True, iteration=it,
+                        timestep=ts
+                    ))
                 spatial_outputs.append(iteration)
+
+        def get_management_action_map(tsm):
+            geojson_file = os.path.join(
+                STSIM_MULTIPLIER_DIR, tsm.transition_multiplier_file_name
+            ).replace('.tif', '.json')
+
+            with open(geojson_file, 'r') as f:
+                polygons = json.load(f)
+
+            transition_group = tsm.transition_group.name
+            timestep = int(tsm.transition_multiplier_file_name.split('_')[-1].split('.')[0])
+            label = '{} performed on {} {}'.format(transition_group, timestep_units, timestep)
+            image_data, bbox = map_maker.get_polygon_image(polygons)
+            to_world = image_to_world(bbox, image_data.size)
+
+            image_handle = BytesIO()
+            image_data.save(image_handle, 'png')
+
+            return {
+                'label': label,
+                'image_data': b64encode(image_handle.getvalue()),
+                'scale': get_scale(to_world, image_data.size[1]),
+                **basic_map_config
+            }
 
         # Management actions list
         has_management_actions = False
+        tsms = self.scenario.transition_spatial_multipliers.all()
         management_actions = []
         if is_spatial:
-            for ts in range(1, num_timesteps + 1):
-                pass
+            management_actions = [get_management_action_map(x) for x in tsms]
+            has_management_actions = bool(management_actions)
 
         # Results (charts - SVG, output maps)
         column_charts = self.configuration.get('column_charts')
@@ -280,22 +329,6 @@ class Report:
         os.close(fd)
         data_dirs = (self.scenario.output_directory, self.scenario.multiplier_directory)
 
-        # Remove uuid values from multiplier filenames
-        def filter_uuid(path):
-            regex = re.compile('^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}', re.I)
-            parts = path.split('_')
-
-            match = False
-            for p in parts:
-                match = bool(regex.match(p))
-                if match:
-                    break
-
-            result = path
-            if match:
-                result = '_'.join(path.split('_')[1:])
-            return result
-
         # Create the archive
         with zipfile.ZipFile(filename, 'w') as zf:
             directories = [x for x in data_dirs if os.path.exists(x)]
@@ -303,6 +336,6 @@ class Report:
                 tif_files = [x for x in os.listdir(d) if x.split('.')[-1] == 'tif']
                 for f in tif_files:
                     full_path = os.path.join(d, f)
-                    zf.write(full_path, filter_uuid(f))
+                    zf.write(full_path, self._filter_uuid(f))
 
         return {'filename': os.path.basename(filename)}

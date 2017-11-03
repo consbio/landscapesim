@@ -312,52 +312,90 @@
     </div>
 
     {% if is_spatial %}
-    <div class="new-page"></div>
-    <h3>Model Results - Spatial Outputs</h3>
-    <div>
-        {% for iteration in spatial_outputs %}
-            {% for time_config in iteration %}
+        <div class="new-page"></div>
+        <h3>State Class Transitions Over {{ num_timesteps }} {{ timestep_units }}</h3>
+        <div>
+            {% for iteration in spatial_outputs %}
+                {% for time_config in iteration %}
+                    <div class="prevent-internal-break">
+                        <h4>{{ time_config.label }}</h4>
+                        <div class="map-container">
+                            <div>
+                                <table class="map-table">
+                                    <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td class="west">{{ time_config.west|safe }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="north"><div>{{ time_config.north|safe }}</div></td>
+                                        <td class="image">
+                                            <img class="map-image" src="data:image/png;base64,{{ time_config.image_data }}" />
+                                            <div class="north-arrow"><img src="data:image/png;base64,{{ north_image_data }}" /></div>
+                                            <div class="scale-bar"><img src="data:image/png;base64,{{ scale_image_data }}" /> {{ time_config.scale }}</div>
+                                        </td>
+                                        <td class="south"><div>{{ time_config.south|safe }}</div></td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="east">{{ time_config.east|safe }}</td>
+                                        <td></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="legend">
+                                    {% for row in time_config.legend %}
+                                        <div class="legend-row">
+                                            <img class="legend-item" src="data:image/png;base64,{{ row.image_data }}" />
+                                            {{ row.label }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        {% if has_management_actions %}
+            <div class="new-page"></div>
+            <h3>Management Actions</h3>
+            {% for config in management_actions %}
                 <div class="prevent-internal-break">
-                    <h4>{{ time_config.label }}</h4>
+                    <h4>{{ config.label }}</h4>
                     <div class="map-container">
                         <div>
                             <table class="map-table">
                                 <tbody>
                                 <tr>
                                     <td></td>
-                                    <td class="west">{{ time_config.west|safe }}</td>
+                                    <td class="west">{{ config.west|safe }}</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="north"><div>{{ time_config.north|safe }}</div></td>
+                                    <td class="north"><div>{{ config.north|safe }}</div></td>
                                     <td class="image">
-                                        <img class="map-image" src="data:image/png;base64,{{ time_config.image_data }}" />
+                                        <img class="map-image" src="data:image/png;base64,{{ config.image_data }}" />
                                         <div class="north-arrow"><img src="data:image/png;base64,{{ north_image_data }}" /></div>
-                                        <div class="scale-bar"><img src="data:image/png;base64,{{ scale_image_data }}" /> {{ time_config.scale }}</div>
+                                        <div class="scale-bar"><img src="data:image/png;base64,{{ scale_image_data }}" /> {{ config.scale }}</div>
                                     </td>
-                                    <td class="south"><div>{{ time_config.south|safe }}</div></td>
+                                    <td class="south"><div>{{ config.south|safe }}</div></td>
                                 </tr>
                                 <tr>
                                     <td></td>
-                                    <td class="east">{{ time_config.east|safe }}</td>
+                                    <td class="east">{{ config.east|safe }}</td>
                                     <td></td>
                                 </tr>
                                 </tbody>
                             </table>
-                            <div class="legend">
-                                {% for row in time_config.legend %}
-                                    <div class="legend-row">
-                                        <img class="legend-item" src="data:image/png;base64,{{ row.image_data }}" /> 
-                                        {{ row.label }}
-                                    </div>
-                                {% endfor %}
-                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        {% endfor %}
-    </div>
+        {% endif %}
+
     {% endif %}
 
     <div class="new-page"></div>

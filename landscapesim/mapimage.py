@@ -146,8 +146,7 @@ class MapImage(object):
             im.paste(Image.blend(im, self._basemap_image, 1), (0, 0), self._basemap_image)
 
         for p in polygons:
-            geometry = Geometry(str(p['geometry']))
-            self.draw_geometry(im, p.coords, (0, 0, 255), 3)
+            self.draw_geometry(im, Geometry(str(p['geometry']))[0], (0, 0, 255), 3)
 
         return self.crop_image(im)
 
