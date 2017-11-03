@@ -409,6 +409,21 @@ canvas {
 	margin-top: 5px;
 }
 
+.download-report {
+	padding: 0 15px 0 20px;
+	letter-spacing: 1px;
+	line-height: 24px;
+}
+
+.download-report-container {
+	margin: auto;
+	width: fit-content;
+	width: -moz-fit-content;
+	font-weight: bold;
+	line-height: 24px;
+	letter-spacing: 1px;
+}
+
 .results_charts {
 	position: relative;
 	overflow-y: scroll;

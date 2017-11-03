@@ -1042,7 +1042,7 @@ function downloadReport(url, filename, configuration) {
             document.body.appendChild(node)
             node.click()
             document.body.removeChild(node)
-            $('#download-data').val('Download Data & Results')
+            $('#download-spinner').hide();
         })
         reader.readAsDataURL(blob);
     });
@@ -1064,25 +1064,40 @@ function downloadSpatialData(url, filename, ext, configuration) {
         document.body.appendChild(node)
         node.click()
         document.body.removeChild(node)
-        $('#download-data').val('Download Data & Results');
+        $('#download-spinner').hide();
     })
 }
 
 function downloadModelResults() {
 
     var modelRun = modelRunCache[$("#model-run-select").val()]
-    var reportInputs = [];
-    for (var report in availableReports) {
-        var id = report;
-        var value = availableReports[report].label
-        reportInputs.push("<input value='" + value + "' type='button' class='my-button download-report' id='" + report + "'>")
-    }
+
+    var reportInputs = "<div class=\"alertify-step\">" +
+        "<p>PDF overview of the model run:</p>" +
+        "<div class=\"download-report-container\">" +
+        "<input value=\"Overview\" type=\"button\" class=\"my-button download-report\" id=\"overview\">\n" +
+        "</div>" +
+        "<p>Spatial inputs and outputs from the model run can be downloaded as a .zip here:</p>\n" +
+        "<div class=\"download-report-container\">" +
+        "<input value=\"Spatial Data\" type=\"button\" class=\"download-report my-button\" id=\"spatial-data\">\n" +
+        "</div>" +
+        "<p>The following CSV downloads contain per-timestep (by iteration) breakdown of the model run. Results include state class transition amounts, transition amounts by transition type, and a transition breakdown by state class.</p>\n" +
+        "<div class=\"download-report-container\">" +
+        "<input value=\"State Classes\" type=\"button\" class=\"my-button download-report\" id=\"stateclass-summary\">\n" +
+        "<input value=\"Transitions\" type=\"button\" class=\"my-button download-report\" id=\"transition-summary\">\n" +
+        "<input value=\"Transitions by Stateclass\" type=\"button\" class=\"my-button download-report\" id=\"transition-stateclass-summary\"><p></p>\n" +
+        "</div>" +
+        "<div id='download-spinner' style='display: none' class=\"download-report-container\">" +
+        "Downloading - Please Wait " +
+        "<img src='/static/img/spinner.gif'>" +
+        "</div>" +
+        "</div>"
 
     var text = [
         "<div class='alertify-header'>",
         "Download Data & Results",
         "</div>",
-        reportInputs.join('')
+        reportInputs
     ].join('')
     alertify.alert(text);
     $('.alertify-message').remove();    // Removes the extra div created, which we replace
@@ -1135,7 +1150,8 @@ function downloadModelResults() {
             }
         }
 
-        $('#download-data').val('Downloading...');
+        //$('#download-data').val('Downloading...');
+        $('#download-spinner').show();
         var filename = reportToDownload + reportConfig.ext;
         var url = reportConfig.url;
         if (url != requestSpatialDataURL && url != requestPDFDataURL) {
