@@ -101,7 +101,7 @@ $(document).ready(function() {
                                 'geojson': x.geoJSON
                             } 
                         }).map(function(x) {
-                            x.geoJSON['properties'] = {
+                            x.geojson['properties'] = {
                                 'color': x.color
                             }
                             return x
