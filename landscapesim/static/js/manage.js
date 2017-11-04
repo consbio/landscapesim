@@ -227,13 +227,6 @@ map.on('draw:edited', function(event) {
     });
 });
 
-function calculateWKT(layer) {
-    var geojson = layer.toGeoJSON();
-    var polyWKT = Terraformer.WKT.convert(geojson.geometry);
-    layer._wkt  = polyWKT;
-    return polyWKT;
-}
-
 function calcArea(layer){
     var latlngs = layer._defaultShape ? layer._defaultShape() : layer.getLatLngs();
     var area = L.GeometryUtil.geodesicArea(latlngs);
