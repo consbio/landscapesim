@@ -86,6 +86,19 @@ $(document).ready(function() {
                         var geojson = timestepGroup.map(function (x) {
                             return x.geoJSON
                         })
+                        
+                        // Inject color into geoJSON properties
+                        var color = timestepGroup.map(function(x) {
+                            return {
+                                'color': x.color,
+                                'geojson': x.geoJSON
+                            } 
+                        }).map(function(x) {
+                            x.geoJSON['properties'] = {
+                                'color': x.color
+                            }
+                            return x
+                        })
 
                         // Submit one raster to be created for this management action type for this timestep
                         currentScenario.config.transition_spatial_multipliers.push({

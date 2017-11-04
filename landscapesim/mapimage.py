@@ -8,6 +8,7 @@ import aiohttp
 import mercantile
 from PIL import Image, ImageDraw
 from clover.geometry.bbox import BBox
+from clover.utilities.color import Color
 from django.conf import settings
 from django.contrib.gis.geometry.backend import Geometry
 from ncdjango.geoimage import world_to_image, image_to_world
@@ -147,7 +148,8 @@ class MapImage(object):
             im.paste(Image.blend(im, self._basemap_image, 1), (0, 0), self._basemap_image)
 
         for p in polygons:
-            self.draw_geometry(im, Geometry(str(p['geometry']))[0], (0, 0, 255), 3)
+            color = Color.from_hex(p['properties']['color']).to_tuple() if hasattr(p['properties'], 'color') else (0, 0, 255)
+            self.draw_geometry(im, Geometry(str(p['geometry']))[0], color, 3)
 
         return self.crop_image(im)
 

@@ -31,11 +31,11 @@ map.addControl(new L.Control.Draw({
 }));
 
 
-map.on('draw:created', function(event){
+map.on('draw:created', function(event) {
     initializePolygon(event.layer)
 });
 
-function initializePolygon(layer){
+function initializePolygon(layer) {
 
     // On draw...
     layer._cost = 0;
@@ -65,7 +65,7 @@ function initializePolygon(layer){
     
     $.each(currentScenario.config.transition_attribute_values, function (index, transitionAttributeValue) {
         var transitionGroupID = transitionAttributeValue["transition_group"];
-        var transitionGroup = $.grep(currentProject.definitions.transition_groups, function(e){return e.id == transitionGroupID })[0];
+        var transitionGroup = $.grep(currentProject.definitions.transition_groups, function(e){ return e.id == transitionGroupID })[0];
         popupMessage += "<option value=" + transitionGroup['id'] + ">" + store[currentLibrary.id]['management_actions_filter'][transitionGroup['name']] + "</option>";
     });
     
@@ -82,7 +82,7 @@ function initializePolygon(layer){
         "<div id='timestepDiv' class='timelineTableDiv'><table class='timelineTable'><tr>"
     ].join('')
 
-    for(var i = 1; i <= currentScenario.config.run_control.max_timestep ; i++){
+    for (var i = 1; i <= currentScenario.config.run_control.max_timestep; i++) {
         popupMessage += "<td>" + i.toString() + "</td>"
     }
     popupMessage += "</tr><tr>";
@@ -141,6 +141,7 @@ $(document).on("submit", ".managementActionForm", function(){
     var exists = managementActionsList.some( function(obj) {
         return obj.poly_id === polyID;
     });
+
     // If it exists, remove it.
     if (exists){
         managementActionsList = $.grep(managementActionsList, function(e){
@@ -149,10 +150,10 @@ $(document).on("submit", ".managementActionForm", function(){
             }
         });
     }
+
     var geoJSON = layer.toGeoJSON()
 
     // Add a new object to the managementActionsList and set some of the layer properties.
-    var actionObj = {};
     var actionID = parseInt($(this).find('.managementActionSelect option:selected').val())
     layer._actionID = actionID;
 
@@ -162,7 +163,7 @@ $(document).on("submit", ".managementActionForm", function(){
     $("#timestepDiv input[type=checkbox]").each(function() {
         if (this.checked) {
             allTimesteps.push(1);
-            sumTimesteps+=1
+            sumTimesteps += 1
         }
         else {
             allTimesteps.push(0);
@@ -171,11 +172,13 @@ $(document).on("submit", ".managementActionForm", function(){
 
     layer._timesteps = allTimesteps;
     layer._sumTimesteps = sumTimesteps;
-    actionObj["poly_id"] = polyID;
-    actionObj["geoJSON"] = geoJSON;
-    actionObj["action_id"] = actionID;
-    actionObj["timesteps"] = allTimesteps;
-    managementActionsList.push(actionObj);
+    managementActionsList.push({
+        'poly_id': polyID,
+        'geoJSON': geoJSON,
+        'action_id': actionID,
+        'timesteps': allTimesteps,
+        'color': layer.options.color
+    });
 
     $.each(currentProject.definitions.transition_groups, function (index, transitionGroup) {
         if (typeof transitionGroup != "undefined") {
