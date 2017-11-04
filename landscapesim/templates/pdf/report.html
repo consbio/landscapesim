@@ -197,7 +197,12 @@
             </li>
             <li>
                 {% if has_management_actions %}
-                    Management actions were applied to this landscape for each iteration.
+                    Management actions were applied to this landscape for each iteration. They included:
+                    <ul>
+                        {% for action in management_actions %}
+                            <li>{{ action.label }}</li>
+                        {% endfor %}
+                    </ul>
                 {% else %}
                     No management actions were applied.
                 {% endif %}
@@ -398,91 +403,71 @@
 
     {% endif %}
 
-    <div class="new-page"></div>
-    <h3>Model Results - Vegetation Change Over Time</h3>
-    <div>
         {% for pair in charts %}
-            <div class="prevent-internal-break">
+            <div class="new-page"></div>
+            <div>
                 <h4>{{ pair.name }}</h4>
-                <table class="charts-table composition">
-                    <thead>
-                        <tr>
-                            <th>Vegetation Cover over {{ num_timesteps }} {{ timestep_units }}</th>
-                            <th>Vegetation Cover in {{ num_timesteps }} {{ timestep_units }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            <div>{{ pair.stacked|safe }}</div>
-                        </td>
-                        <td>
-                            <div>{{ pair.column|safe }}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>
-                                <table class="composition">
-                                    <thead>
-                                        <tr>
-                                            <th>State Class</th>
-                                                {% for ts in pair.filtered_timesteps %}
-                                                    <th>Timestep {{ ts }}</th>
-                                                {% endfor %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for sc in pair.stacked_values %}
-                                            <tr>
-                                                <td>{{ sc.name }}</td>
-                                                    {% for row in sc.values %}
-                                                        <td>{{ row.percent }} %</td>
-                                                    {% endfor %}
-                                            </tr>
+                <div>
+                    Vegetation Cover over {{ num_timesteps }} {{ timestep_units }}
+                </div>
+                <div>{{ pair.stacked|safe }}</div>
+                <table class="composition">
+                        <thead>
+                            <tr>
+                                <th>State Class</th>
+                                    {% for ts in pair.filtered_timesteps %}
+                                        <th>Timestep {{ ts }}</th>
+                                    {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sc in pair.stacked_values %}
+                                <tr>
+                                    <td>{{ sc.name }}</td>
+                                        {% for row in sc.values %}
+                                            <td>{{ row.percent }} %</td>
                                         {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                        <td>
-                            <div>
-                                <table class="composition">
-                                    <thead>
-                                        <tr>
-                                            <th>State Class</th>
-                                                {% if iteration_is_one %}
-                                                    <th>% of Landscape</th>
-                                                {% else %}
-                                                    <th>Median</th>
-                                                    <th>Minimum</th>
-                                                    <th>Maximum</th>
-                                                {% endif %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for sc in pair.column_values %}
-                                            <tr>
-                                                <td>{{ sc.name }}</td>
-                                                    {% if iteration_is_one %}
-                                                        <td>{{ sc.median }}</td>
-                                                    {% else %}
-                                                        <td>{{ sc.median }}</td>
-                                                        <td>{{ sc.min }}</td>
-                                                        <td>{{ sc.max }}</td>
-                                                    {% endif %}
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+            <div class="new-page"></div>
+            <div>
+                <h4>{{ pair.name }}</h4>
+                <div>Vegetation Cover in {{ num_timesteps }} {{ timestep_units }}</div>
+                <div>{{ pair.column|safe }}</div>
+                    <table class="composition">
+                        <thead>
+                            <tr>
+                                <th>State Class</th>
+                                    {% if iteration_is_one %}
+                                        <th>% of Landscape</th>
+                                    {% else %}
+                                        <th>Median</th>
+                                        <th>Minimum</th>
+                                        <th>Maximum</th>
+                                    {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            {% for sc in pair.column_values %}
+                            <tr>
+                                <td>{{ sc.name }}</td>
+                                {% if iteration_is_one %}
+                                    <td>{{ sc.median }}</td>
+                                {% else %}
+                                    <td>{{ sc.median }}</td>
+                                    <td>{{ sc.min }}</td>
+                                    <td>{{ sc.max }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% endfor %}
-    </div>
+    
 
 <!-- End Report -->
 </body>

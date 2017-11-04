@@ -137,7 +137,7 @@ class Report:
             scale_bar_end = transform(MERCATOR, WGS84, *to_world(scale_bar_x + 96, scale_bar_y))
             return '{} mi'.format(round(vincenty(scale_bar_start, scale_bar_end).miles, 1))
 
-        def get_map_context(label, name, service, is_output=False, iteration=None, timestep=None):
+        def get_map_context(label, name, service, is_output=False, iteration=None, timestep=None, legend=None):
 
             service_url = service[name]
             if is_output:
@@ -151,7 +151,7 @@ class Report:
             image_data.save(image_handle, 'png')
 
             scale = get_scale(to_world, image_data.size[1])
-            legend_data = get_legend(service_url, is_output)
+            legend_data = get_legend(service_url, is_output) if legend is None else legend
 
             return {
                 'label': label,
@@ -161,7 +161,7 @@ class Report:
                 'west': format_x_coord(bbox.xmin),
                 'south': format_y_coord(bbox.ymin),
                 'scale': scale,
-                'legend': json.loads(legend_data[0].decode())
+                'legend': legend_data
             }
 
         # Input images
@@ -171,6 +171,7 @@ class Report:
             get_map_context('State Classes', 'stateclass', input_services)
         ]
 
+        stratum_legend, stateclass_legend = [x.get('legend') for x in initial_conditions_spatial]
         basic_map_config = {key: initial_conditions_spatial[0][key] for key in ('west', 'south', 'east', 'north')}
 
         num_iterations = self.scenario.run_control.max_iteration
@@ -195,8 +196,9 @@ class Report:
 
                     iteration.append(get_map_context(
                         format_timestep_label(it, ts), 'stateclass', output_services, is_output=True, iteration=it,
-                        timestep=ts
+                        timestep=ts, legend=stateclass_legend
                     ))
+
                 spatial_outputs.append(iteration)
 
         def get_management_action_map(tsm):

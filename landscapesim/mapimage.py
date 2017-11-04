@@ -2,6 +2,7 @@ import asyncio
 import math
 import sys
 from io import BytesIO
+from json import loads
 
 import aiohttp
 import mercantile
@@ -168,4 +169,4 @@ class MapImage(object):
             response = asyncio.gather(task)
             asyncio.get_event_loop().run_until_complete(task)
 
-        return response.result()
+        return loads(response.result()[0].decode())
