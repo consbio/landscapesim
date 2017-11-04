@@ -84,13 +84,6 @@ def look_for_new_scenario(self, run_id):
         return
 
     recorded_sids = {x['sid'] for x in Scenario.objects.filter(is_result=True).values('sid')}
-
-    # Handle edge case where the output directory of the input scenario does not yet exist.
-    if not os.path.exists(run.parent_scenario.output_directory):
-        time.sleep(SCENARIO_SCAN_RATE)
-        look_for_new_scenario.delay(run_id)
-        return
-
     spatial_directories = os.listdir(os.path.dirname(os.path.dirname(run.parent_scenario.output_directory)))
     directory_sids = {int(x.split('-')[1]) for x in spatial_directories}
     new_sids = directory_sids - recorded_sids
