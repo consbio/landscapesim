@@ -119,10 +119,10 @@ $(document).ready(function() {
         var updateProgress = function(progress, jobStatus, modelStatus) {
 
             if (modelStatus == 'waiting') {
-                progressbarlabel.text("Waiting for worker...");
+                progressbarlabel.text("Waiting For Available Model Worker ...");
             }
             else if (modelStatus == 'starting') {
-                progressbarlabel.text("Starting worker...");
+                progressbarlabel.text("Starting Model Run...");
             }
             else if (jobStatus == 'started' && modelStatus == 'running') {
                 if (progress !== undefined && progress !== null) {
@@ -135,7 +135,7 @@ $(document).ready(function() {
                 }
 
                 if (modelStatus == 'processing' || modelStatus == 'complete') {
-                    progressbarlabel.text("Run Complete - Preparing Results");
+                    progressbarlabel.text("Model Run Complete - Preparing Results");
                 }
             }
         }
@@ -608,49 +608,24 @@ $(document).ready(function() {
     });
 
     $("#reset_default_probabilistic_transitions").on("click", function(){
-        reset_probabilistic_transitions();
-    });
-
-    function reset_probabilistic_transitions() {
-        var count=1;
+        var count = 1;
         $.each(probabilistic_transitions_json, function (transition_type) {
             probabilistic_transitions_slider_values[transition_type] = 0;
             $("#probabilistic_transition" + count + "_slider").slider("value", 0);
             $("#probabilistic_transition" + count + "_label").val("Default Probabilities");
-            count+=1;
+            count += 1;
         });
-    }
+    });
 
     /********************************************** Timestep Changes **************************************************/
 
-    $("#settings_timesteps").on("keyup", function(){
-        var user_timesteps =  parseFloat($(this).val());
-
-        if (isNaN(user_timesteps)) {
-            alert("Please enter an integer value");
-            $(this).val(1)
-        }
-        else if (user_timesteps == 0 ) {
-            alert("Please enter a value greater than 0");
-            $(this).val(1)
-        }
-
+    $("#settings_timesteps").on("change", function(){
         currentScenario.config.run_control.max_timestep = parseInt($(this).val())
     });
 
     /********************************************* Iteration Changes **************************************************/
 
-    $("#settings_iterations").on("keyup", function(){
-        var user_iterations =  parseFloat($(this).val());
-
-        if (isNaN(user_iterations)) {
-            alert("Please enter an integer value");
-            $(this).val(1)
-        }
-        else if (user_iterations == 0 ) {
-            alert("Please enter a value greater than 0");
-            $(this).val(1)
-        }
+    $("#settings_iterations").on("change", function(){
         currentScenario.config.run_control.max_iteration = parseInt($(this).val());
     });
 
@@ -779,16 +754,6 @@ function setInitialConditionsSidebar(vegInitialConditions) {
             "<table id='" + veg_id + "' class='sub_slider_table' title='" + veg_type + "'><tr><td colspan='3'><div class='state_class_header'>" + veg_type + "<img class='close_state_class' src='static/img/close.png'></div></td></tr></table>" +
             "</div></div>" +
             "</td>" +
-             /*
-            "<td>" +
-            "<div class='manage_div'><span class='manage_span'>Manage</span></div>" +
-            "<div class='management_action_inputs' style='display:none'>" +
-            "<div class='manage_callout callout right'>" +
-            "<table id='" + management_table_id + "' class='sub_slider_table' title='" + veg_type + "'></table>" +
-            "</div>" +
-            "</div>" +
-            "</td>
-            */
             "</tr></table>" +
             "</td></tr>"
         );
@@ -808,16 +773,6 @@ function setInitialConditionsSidebar(vegInitialConditions) {
             $("#" + veg_id).append("<tr><td><div class='scene_legend_color_initial_vegetation_cover' style='border-radius: 3px; background-color:" + colorMap["State Classes"][state_class] +  "'></div></td>"+
                 "<td>" + state_class + " </td><td><input class='veg_state_class_entry' id='" + "veg_" + veg_id + "_" + state_class_id + "' type='text' size='2' value=" + pct_cover +  ">%</td></tr>")
         });
-
-        /*
-        var management_action_count = 1;
-        // TODO: Currently hard coded. Same for each veg type. List of management actions will eventually be specific to the veg type.
-        management_actions_dict[veg_type] = management_actions_list;
-        $.each(management_actions_dict[veg_type], function (index, management_action) {
-            $("#" + management_table_id).append("<tr><td>" + management_action + " </td><td><input class='veg_state_class_entry' id='" + "management_" + veg_iteration + "_" + state_class_count + "_manage' type='text' size='2' value='0'> Acres</td></tr>")
-            management_action_count++
-        });
-        */
 
         $("#vegTypeSliderTable").append("</td></td>")
 
@@ -921,15 +876,13 @@ function setInitialConditionsSidebar(vegInitialConditions) {
         );
 
         // Create a slider bar
-        create_probability_slider(probability_iteration, transition_type, 0);
-
+        createProbabilitySlider(probability_iteration, transition_type, 0);
         $("#probabilisticTransitionSliderTable").append("</td></td>");
-
         probability_iteration++;
 
     });
 
-    function create_probability_slider(iterator, transition_type) {
+    function createProbabilitySlider(iterator, transition_type) {
 
         $(function () {
             $("#probabilistic_transition" + iterator + "_slider").slider({
@@ -950,7 +903,6 @@ function setInitialConditionsSidebar(vegInitialConditions) {
         });
     }
 
-    //initializeStateClassColorMap();
     $(".current_probability_slider_setting").val("Default Probabilities");
 }
 
@@ -1201,7 +1153,7 @@ function processStateClassSummaryReport(reportData) {
 // Change the currently visible results in the results sidebar.
 function updateResultsViewer(run) {
     var cache = reportCache[run];
-    update_results_table(cache, run);
+    updateResultsTable(cache, run);
     createAreaCharts(cache, run);
     createColumnCharts(cache, run);
     updateOutputLayers(run);
@@ -1211,7 +1163,7 @@ function updateResultsViewer(run) {
 /****************************************  Results Table & Output Charts **********************************************/
 
 // Create the Results Table
-function update_results_table(cache, run) {
+function updateResultsTable(cache, run) {
 
     $("#results_table").html([
     ].join(''));
@@ -1285,6 +1237,8 @@ function update_results_table(cache, run) {
 
 
     var timestepText = currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps
+    var iterations = modelRunCache[run].config.run_control.max_iteration;
+    var showIterationsOptions = iterations > 1;
 
     // Chart button click functions
     $("#column_chart_td_button").click(function () {
@@ -1294,7 +1248,7 @@ function update_results_table(cache, run) {
         $("#stacked_area_chart_td_button").removeClass("selected_td_button")
         $(this).addClass("selected_td_button")
         $("#column_charts").show()
-        //$("#iteration_tr_" + run).hide()
+        if (showIterationsOptions) $("#iteration_tr").hide()
         $("#area_charts").hide()
     });
 
@@ -1305,27 +1259,34 @@ function update_results_table(cache, run) {
         $("#column_chart_td_button").addClass("unselected_td_button")
         $("#column_chart_td_button").removeClass("selected_td_button")
         $("#column_charts").hide()
-        //$("#iteration_tr_" + run).show()
+        if (iterations > 1) $("#iteration_tr").show()
         $("#area_charts").show()
     });
 
 
-    // Iteration row
-    // TODO - Re-evaluate how iterations are handled in the viewer.
-    /*
-    $("#results_table").append("<tr class='iteration_tr' id='iteration_tr_" + run + "'><td class='iteration_th' colspan='2'>Iteration to Display</td><td colspan='1'><input class='iteration_to_plot' id='iteration_to_plot_" + run + "' type='text' size='3' value=1></td></tr>");
+    if (showIterationsOptions) {
+        var iterationOptions = [];
+        for (var it = 1; it <= iterations; it++) {
+            iterationOptions.push("<option value='" + it + "'>" + it + "</option>")
+        }    
 
-    $("#iteration_to_plot_" + run).on('keyup', function () {
-        if (this.value != '') {
-            $("#area_charts_" + run).empty();
-            create_area_charts(cache, run, this.value);
-
-            // Redraw the map and show the new iteration
-            outputStateClassLayers[run].options.it=parseInt(this.value);
-            outputStateClassLayers[run].redraw();
-        }
-    });
-    */
+        $("#results_table").append([
+            "<tr class='probabilistic_transitions_tr' id='iteration_tr'>",
+            "<td class='probabilistic_transitions_th' colspan='2'>Iteration to Display</td>",
+            "<td colspan='1'>",
+            "<select class='iteration_to_plot'>",
+            iterationOptions.join(''),
+            "</select>",
+            "</td></tr>"
+        ].join(''));
+    
+        $(".iteration_to_plot").on('change', function () {
+                console.log(this.value);
+                var it = Number(this.value);
+                createAreaCharts(cache, run, it);
+                updateOutputLayers(run, it);
+        });
+    }
 
     // Show/Hide state class data
     $('.show_state_classes_results_link').unbind('click');

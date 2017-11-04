@@ -102,7 +102,12 @@ function loadOutputLayers(config) {
 // Called after a model run (which triggers a tab click), or when a tab is clicked.
 var currentOutputLayer;
 var timestepSlider;
-function updateOutputLayers(run) {
+function updateOutputLayers(run, iteration) {
+
+    if (typeof iteration == 'undefined') {
+        iteration = 1;
+    }
+
     var config = modelRunCache[run].config;
     var layer = config.stateclassLayer;
     var step = config.run_control.max_timestep;
@@ -114,6 +119,8 @@ function updateOutputLayers(run) {
     }
 
     currentOutputLayer = layer;
+    currentOutputLayer.options.t = step;
+    currentOutputLayer.options.it = iteration;
     currentOutputLayer.addTo(map);
     currentOutputLayer.setOpacity(Number(opacity.getContainer().children[1].value));
 
@@ -131,12 +138,12 @@ function updateOutputLayers(run) {
         layer.options.t = Number(e.value);
         layer.redraw();
         layer.bringToFront();
-        update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
+        update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', iteration))
     });
 
     // Reparent the time slider so it is visible in 3D viewer
     document.getElementById('time-slider').appendChild(timestepSlider.getContainer());
     
     // Always update the layer after a layer change.
-    update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
+    update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer))
 }

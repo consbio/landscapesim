@@ -518,6 +518,10 @@ canvas {
 	line-height: 22px;
 }
 
+.iteration_to_plot {
+	width: 100%;
+}
+
 .iteration_tr td {
 	background-color: #4C9ED9;
 	text-align: left;
