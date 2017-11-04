@@ -20,12 +20,18 @@ map.addControl(new L.Control.Draw({
         polyline:false,
         rectangle : {
             metric: false,
-            showArea: true
+            showArea: true,
+            shapeOptions: {
+                color: "#000000"
+            }
         },
         polygon : {
             allowIntersection: false,
             metric: false,
-            showArea: true
+            showArea: true,
+            shapeOptions: {
+                color: "#000000"
+            }
         }
     }
 }));
@@ -39,18 +45,9 @@ function initializePolygon(layer) {
 
     // On draw...
     layer._cost = 0;
-
-    // Set the color of the polygon
-    /*
-    var colorR = Math.floor((Math.random() * (255-0+1)+0));
-    var colorG = Math.floor((Math.random() * (255-0+1)+0));
-    var colorB = Math.floor((Math.random() * (255-0+1)+0));
-    var randColor = "rgb(" + colorR + "," + colorG + "," + colorB + ")";
-    layer.options.color = randColor;
-    */
-
-    layer.options.color = "#00FFFF";        /* TODO - make the polygons easier to see - currently not visible at all!  */
+    layer.options.color = "#000000"
     layer.options.fillOpacity = 0;
+
     // Add the shape to map
     drawnItems.addLayer(layer);
     // Get the polygon ID
