@@ -126,11 +126,15 @@ function createColumnCharts(data, run) {
             data: medians,
             showInLegend: false,
         })
-        cc.addSeries({
-            name: 'Error Bars',
-            type: 'errorbar',
-            data: minMaxValues,
-        })
+
+        // If the model is only run for one iteration, error bars don't make sense since there is no uncertainty.
+        if (iterations > 1) {
+            cc.addSeries({
+                name: 'Error Bars',
+                type: 'errorbar',
+                data: minMaxValues,
+            })    
+        }
 
         $("#show_column_chart_link_" + chartCount + "_" + run).click(function () {
             var div = $("#" + chartDivID);
