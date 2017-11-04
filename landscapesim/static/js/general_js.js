@@ -53,6 +53,13 @@ $(document).ready(function() {
 
     $('#run_button').on('click', function() {
 
+
+        // Make sure the timestep and iteration are setup correctly. Otherwise, throw an error.
+        if (isNaN(currentScenario.config.run_control.max_timestep) || isNaN(currentScenario.config.run_control.max_iteration)) {
+            alert("Run Control parameters are invalid. Please supply an integer greater or equal to 1.");
+            return;
+        }
+
         // Clear the current transition_spatial_multipliers
         currentScenario.config.transition_spatial_multipliers = [];
 
