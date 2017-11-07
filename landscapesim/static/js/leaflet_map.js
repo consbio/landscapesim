@@ -145,5 +145,5 @@ function updateOutputLayers(run, iteration) {
     document.getElementById('time-slider').appendChild(timestepSlider.getContainer());
     
     // Always update the layer after a layer change.
-    update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer))
+    update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
 }
