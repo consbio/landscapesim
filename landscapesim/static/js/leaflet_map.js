@@ -15,6 +15,15 @@ var basemaps = map.addControl(L.control.basemaps({
     position: 'bottomleft'
 }))
 
+
+var landfire = L.tileLayer.wms("http://landfire.cr.usgs.gov/arcgis/services/Landfire/US_140/MapServer/WMSServer?", {
+	layers: "US_140BPS", 	//layers: "US_130BPS",
+	format: "image/png",
+	transparent: true
+}).addTo(map);
+
+landfire.bringToFront();
+
 var currentBasemap = topographic._url;
 map.on('baselayerchange', function(basemap) {
     currentBasemap = basemap._url;

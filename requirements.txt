@@ -9,6 +9,7 @@ mercantile
 Shapely==1.5.17
 xarray
 pdfkit==0.6.1
+rasterstats
 
 # Server dependencies
 Django==1.11.6

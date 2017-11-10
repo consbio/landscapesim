@@ -9,6 +9,7 @@ import uuid
 
 from celery.result import AsyncResult
 from django.db import models
+from django.contrib.gis.db import models as gis_models
 
 
 # TODO - add a lookup field for the project when it is necessary.
@@ -54,6 +55,18 @@ class Scenario(models.Model):
     def multiplier_directory(self):
         return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
                             'STSim_TransitionSpatialMultiplier')
+
+
+class LibraryAssets(models.Model):
+    library = models.OneToOneField('Library', related_name='assets', on_delete=models.CASCADE)
+    stratum_path = models.FilePathField(match="*.tif")
+    stateclass_path = models.FilePathField(match="*.tif")
+    reporting_units_path = models.FilePathField(match="*.json")
+
+
+class ReportingUnit(gis_models.Model):
+    name = models.CharField(max_length=256)
+    polygon = gis_models.GeometryField()
 
 
 """

@@ -45,9 +45,16 @@ class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
 
 
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
+
+    #relative_amount = serializers.SerializerMethodField()
+
     class Meta:
         model = models.InitialConditionsNonSpatialDistribution
         exclude = ('scenario',)
+
+    #def get_relative_amount(self, obj):
+    #    print(obj)
+    #    return 0
 
 
 class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
@@ -233,7 +240,8 @@ class ScenarioConfigSerializer(serializers.Serializer):
     # Values
     deterministic_transitions = DeterministicTransitionSerializer(many=True, read_only=True)
     transitions = TransitionSerializer(many=True, read_only=True)
-    initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
+    #initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
+    initial_conditions_nonspatial_distributions = serializers.SerializerMethodField(read_only=True, allow_null=True)
     transition_targets = TransitionTargetSerializer(many=True, read_only=True)
     transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
     transition_size_distributions = TransitionSizeDistributionSerializer(many=True, read_only=True)
@@ -250,3 +258,22 @@ class ScenarioConfigSerializer(serializers.Serializer):
                   'transition_targets', 'transition_multiplier_values', 'transition_size_distributions',
                   'transition_spatial_multipliers', 'transition_size_prioritizations', 'state_attribute_values',
                   'transition_attribute_values', 'transition_attribute_targets')
+
+    @property
+    def reporting_unit(self):
+        return self.context.get('reporting_unit', None)
+
+    def get_initial_conditions_nonspatial_distributions(self, obj):
+        """
+        Customized serializer for retreiving nonspatial distributions when a reporting unit has been specified for the
+        configuration. If no reporting unit is identified, then we simply return the default value stored by the model.
+        :param obj: An instance of a Scenario.
+        :return: A list of serialized InitialConditionsNonSpatialDistribution objects.
+        """
+
+        nonspatial_distributions = obj.initial_conditions_nonspatial_distributions.all()
+        if self.reporting_unit:
+            pass    # TODO - query the Scenario's veg and stateclass rasters with this reporting unit
+
+        #return InitialConditionsNonSpatialDistributionSerializer(many=True, data=obj, read_only=True)
+        return InitialConditionsNonSpatialDistributionSerializer(nonspatial_distributions, many=True).data
