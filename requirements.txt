@@ -12,11 +12,11 @@ pdfkit==0.6.1
 rasterstats
 
 # Server dependencies
-Django==1.11.6
+Django==1.11.7
 geopy
 celery==3.1.25
 django-celery==3.2.1
-djangorestframework==3.7.1
+djangorestframework==3.7.3
 psycopg2
 ncdjango==0.5.0
 aiohttp
