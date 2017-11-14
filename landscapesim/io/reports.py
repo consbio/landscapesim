@@ -6,178 +6,139 @@
 
 import csv
 import os
+from inspect import isfunction
+
+from django.conf import settings
 
 from landscapesim import models
-from landscapesim.io.utils import default_int
+from landscapesim.io import config
+from landscapesim.io.utils import default_int, get_random_csv
+
+DEBUG = getattr(settings, 'DEBUG')
 
 
-def create_stateclass_summary(s, file):
-    report = models.StateClassSummaryReport.objects.create(scenario=s)
-    with open(file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            r = models.StateClassSummaryReportRow.objects.create(
-                report=report,
-                iteration=int(row['Iteration']),
-                timestep=int(row['Timestep']),
-                stratum=models.Stratum.objects.filter(name__exact=row['StratumID'], project=s.project).first(),
-                stateclass=models.StateClass.objects.filter(name__exact=row['StateClassID'], project=s.project).first(),
-                amount=float(row['Amount']),
-                age_min=default_int(row['AgeMin']),
-                age_max=default_int(row['AgeMax']),
-                proportion_of_landscape=float(row['ProportionOfLandscape']),
-                proportion_of_stratum=float(row['ProportionOfStratumID'])
-            )
-            secondary_stratum = row['SecondaryStratumID']
-            if len(secondary_stratum) > 0:
-                r.secondary_stratum = models.SecondaryStratum.objects.filter(
-                    name__exact=secondary_stratum, project=s.project
-                ).first()
-                r.save()
-    return report
+class Filter:
+    """ A utility class for quickly collecting a foreign key for reports. """
+    def __init__(self, model):
+        self.model = model
+
+    def get(self, name, project):
+        return self.model.objects.filter(name__exact=name, project=project).first()
 
 
-def create_transition_summary(s, file):
-    report = models.TransitionSummaryReport.objects.create(scenario=s)
-    with open(file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            r = models.TransitionSummaryReportRow.objects.create(
-                report=report,
-                iteration=int(row['Iteration']),
-                timestep=int(row['Timestep']),
-                stratum=models.Stratum.objects.filter(name__exact=row['StratumID'], project=s.project).first(),
-                transition_group=models.TransitionGroup.objects.filter(
-                    name__exact=row['TransitionGroupID'], project=s.project
-                ).first(),
-                age_min=default_int(row['AgeMin']),
-                age_max=default_int(row['AgeMax']),
-                amount=float(row['Amount']),
-            )
-            secondary_stratum = row['SecondaryStratumID']
-            if len(secondary_stratum) > 0:
-                r.secondary_stratum = models.SecondaryStratum.objects.filter(
-                    name__exact=secondary_stratum, project=s.project
-                ).first()
-                r.save()
-    return report
+STRATUM_FILTER = Filter(models.Stratum)
+STATECLASS_FILTER = Filter(models.StateClass)
+TRANSITION_GROUP_FILTER = Filter(models.TransitionGroup)
+TRANSITION_TYPE_FILTER = Filter(models.TransitionType)
+STATE_ATTRIBUTE_FILTER = Filter(models.StateAttributeType)
+TRANSITION_ATTRIBUTE_FILTER = Filter(models.TransitionAttributeType)
+SECONDARY_STRATUM_FILTER = Filter(models.SecondaryStratum)
+
+""" Report summary configuration
+
+Each report configuration corresponds to:
+- Report name
+- Report model class
+- Report row model call
+- SyncroSim sheet mapping
+- Type conversion mapping
+
+"""
+
+STATECLASS_REPORT = (
+    'stateclass-summary',
+    models.StateClassSummaryReport,
+    models.StateClassSummaryReportRow,
+    config.STATECLASS_SUMMARY_ROW,
+    (int, int, STRATUM_FILTER, STATECLASS_FILTER, float, default_int, default_int, float, float, SECONDARY_STRATUM_FILTER)
+)
+TRANSITION_REPORT = (
+    'transition-summary',
+    models.TransitionSummaryReport,
+    models.TransitionSummaryReportRow,
+    config.TRANSITION_SUMMARY_ROW,
+    (int, int, STRATUM_FILTER, TRANSITION_GROUP_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+)
+TRANSITION_STATECLASS_REPORT = (
+    'transition-stateclass-summary',
+    models.TransitionByStateClassSummaryReport,
+    models.TransitionByStateClassSummaryReportRow,
+    config.TRANSITION_STATECLASS_SUMMARY_ROW,
+    (int, int, STRATUM_FILTER, TRANSITION_TYPE_FILTER, STATECLASS_FILTER, STATECLASS_FILTER, float, SECONDARY_STRATUM_FILTER)
+)
+STATE_ATTRIBUTE_REPORT = (
+    'state-attributes',
+    models.StateAttributeSummaryReport,
+    models.StateAttributeSummaryReportRow,
+    config.STATE_ATTRIBUTE_SUMMARY_ROW,
+    (int, int, STRATUM_FILTER, STATE_ATTRIBUTE_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+)
+TRANSITION_ATTRIBUTE_REPORT = (
+    'transition-attributes',
+    models.TransitionAttributeSummaryReport,
+    models.TransitionAttributeSummaryReportRow,
+    config.TRANSITION_ATTRIBUTE_SUMMARY_ROW,
+    (int, int, STRATUM_FILTER, TRANSITION_ATTRIBUTE_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+)
 
 
-def create_transition_sc_summary(s, file):
-    report = models.TransitionByStateClassSummaryReport.objects.create(scenario=s)
-    with open(file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            r = models.TransitionByStateClassSummaryReportRow.objects.create(
-                report=report,
-                iteration=int(row['Iteration']),
-                timestep=int(row['Timestep']),
-                stratum=models.Stratum.objects.filter(name__exact=row['StratumID'], project=s.project).first(),
-                transition_type=models.TransitionType.objects.filter(
-                    name__exact=row['TransitionTypeID'], project=s.project
-                ).first(),
-                stateclass_src=models.StateClass.objects.filter(
-                    name__exact=row['StateClassID'], project=s.project
-                ).first(),
-                stateclass_dest=models.StateClass.objects.filter(
-                    name__exact=row['EndStateClassID'], project=s.project
-                ).first(),
-                amount=float(row['Amount'])
-            )
-            secondary_stratum = row['SecondaryStratumID']
-            if len(secondary_stratum) > 0:
-                r.secondary_stratum = models.SecondaryStratum.objects.filter(
-                    name__exact=secondary_stratum, project=s.project
-                ).first()
-                r.save()
-    return report
+class ReportImporter:
+    """ A high-level interface for exporting reports and creating API-exposed reports. """
 
+    def __init__(self, scenario, console):
+        """
+        Constructor
+        :param scenario: Instance of Scenario
+        :param console: Instance of STSimConsole
+        """
+        self.scenario = scenario
+        self.console = console
+        self.temp_file = get_random_csv(scenario.project.library.tmp_file)
 
-def create_state_attribute_summary(s, file):
-    report = models.StateAttributeSummaryReport.objects.create(scenario=s)
-    with open(file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            r = models.StateAttributeSummaryReportRow.objects.create(
-                report=report,
-                iteration=int(row['Iteration']),
-                timestep=int(row['Timestep']),
-                stratum=models.Stratum.objects.filter(name__exact=row['StratumID'], project=s.project).first(),
-                state_attribute_type=models.StateAttributeType.objects.filter(
-                    name__exact=row['StateAttributeTypeID'], project=s.project).first(),
-                age_min=default_int(row['AgeMin']),
-                age_max=default_int(row['AgeMax']),
-                amount=float(row['Amount']),
-            )
-            secondary_stratum = row['SecondaryStratumID']
-            if len(secondary_stratum) > 0:
-                r.secondary_stratum = models.SecondaryStratum.objects.filter(
-                    name__exact=secondary_stratum, project=s.project
-                ).first()
-                r.save()
-    return report
+    def generate_report(self, report_name):
+        """
+        Create a CSV report corresponding to the appropriate name.
+        :param report_name: The name of the ST-Sim report to export.
+        """
+        self.console.generate_report(report_name, self.temp_file, self.scenario.sid)
 
+    def _create_report_summary(self, report_config):
+        name, model, row_model, sheet_map, type_map = report_config
+        project = self.scenario.project
 
-def create_transition_attribute_summary(s, file):
-    report = models.TransitionAttributeSummaryReport.objects.create(scenario=s)
-    with open(file, 'r') as sheet:
-        reader = csv.DictReader(sheet)
-        for row in reader:
-            r = models.TransitionAttributeSummaryReportRow.objects.create(
-                report=report,
-                iteration=int(row['Iteration']),
-                timestep=int(row['Timestep']),
-                stratum=models.Stratum.objects.filter(name__exact=row['StratumID'], project=s.project).first(),
-                transition_attribute_type=models.TransitionAttributeType.objects.filter(
-                    name__exact=row['TransitionAttributeTypeID'], project=s.project
-                ).first(),
-                age_min=default_int(row['AgeMin']),
-                age_max=default_int(row['AgeMax']),
-                amount=float(row['Amount']),
-            )
-            secondary_stratum = row['SecondaryStratumID']
-            if len(secondary_stratum) > 0:
-                r.secondary_stratum = models.SecondaryStratum.objects.filter(
-                    name__exact=secondary_stratum, project=s.project
-                ).first()
-                r.save()
-    return report
+        def map_row(row_data):
+            """ Map a row of data using the sheet_map and type_maps. """
+            objects = {}
+            for pair, type_or_filter in zip(sheet_map, type_map):
+                model_field, sheet_field = pair
+                data = row_data[sheet_field]
+                is_filter = not (isinstance(type_or_filter, type) or isfunction(type_or_filter))
+                objects[model_field] = type_or_filter.get(data, project) if is_filter else type_or_filter(data)
+            return objects
 
+        self.generate_report(name)
+        report, created = model.objects.get_or_create(scenario=self.scenario)
+        with open(self.temp_file, 'r') as sheet:
+            reader = csv.DictReader(sheet)
+            for row in reader:
+                row_model.objects.create(report=report, **map_row(row))
 
-def process_reports(console, s, tmp_file):
-    """ Convenient shortcut to processing all reports """
+        if not DEBUG and os.path.exists(self.temp_file):
+            os.remove(self.temp_file)
 
-    # import state class reports,
-    console.generate_report('stateclass-summary', tmp_file, s.sid)
-    create_stateclass_summary(s, tmp_file)
+        return report
 
-    print('Imported stateclass summary report for scenario {}.'.format(s.sid))
-    os.remove(tmp_file)
+    def create_stateclass_summary(self):
+        self._create_report_summary(STATECLASS_REPORT)
 
-    # import transition summary reports
-    #console.generate_report('transition-summary', tmp_file, s.sid)
-    #create_transition_summary(s, tmp_file)
+    def create_transition_summary(self):
+        self._create_report_summary(TRANSITION_REPORT)
 
-    #print('Imported transition summary report for scenario {}.'.format(s.sid))
-    #os.remove(tmp_file)
+    def create_transition_sc_summary(self):
+        self._create_report_summary(TRANSITION_STATECLASS_REPORT)
 
-    # import transition-stateclass summary reports
-    #console.generate_report('transition-stateclass-summary', tmp_file, s.sid)
-    #create_transition_sc_summary(s, tmp_file)
+    def create_state_attribute_summary(self):
+        self._create_report_summary(STATE_ATTRIBUTE_REPORT)
 
-    #print('Imported transition-by-stateclass summary report for scenario {}.'.format(s.sid))
-    #os.remove(tmp_file)
-
-    # import state-attribute summary reports
-    #console.generate_report('state-attributes', tmp_file, s.sid)
-    #create_state_attribute_summary(s, tmp_file)
-
-    #print('Imported state-attribute summary report for scenario {}.'.format(s.sid))
-    #os.remove(tmp_file)
-
-    # import transition-attribute summary reports
-    #console.generate_report('transition-attributes', tmp_file, s.sid)
-    #create_transition_attribute_summary(s, tmp_file)
-
-    #print('Imported transition-attribute summary report for scenario {}.'.format(s.sid))
-    #os.remove(tmp_file)
+    def create_transition_attribute_summary(self):
+        self._create_report_summary(TRANSITION_ATTRIBUTE_REPORT)

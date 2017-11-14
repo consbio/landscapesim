@@ -2,17 +2,17 @@ import csv
 import json
 import time
 import os
+import re
 
 from shutil import copyfile
 from celery.task import task
 from django.conf import settings
-from django.db import transaction
 
 from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.query import ssim_query
 from landscapesim.io.rasters import process_output_rasters
-from landscapesim.io.reports import process_reports
+from landscapesim.io.reports import ReportImporter
 from landscapesim.io.utils import get_random_csv, process_run_control, process_scenario_inputs
 from landscapesim.models import Library, Scenario, RunScenarioModel
 
@@ -164,7 +164,8 @@ def run_model(self, library_name, pid, sid):
     process_output_rasters(scenario)
     print("Output rasters created in {} seconds".format(time.time() - t))
     t = time.time()
-    process_reports(console, scenario, get_random_csv(lib.tmp_file))
+    reporter = ReportImporter(scenario, console)
+    reporter.create_stateclass_summary()
     print("Reports created in {} seconds".format(time.time() - t))
 
         # Signal that the model can now be used for viewing.

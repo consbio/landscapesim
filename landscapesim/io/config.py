@@ -12,7 +12,8 @@ _stratum_dest = ('stratum_dest', 'StratumIDDest')
 _secondary_stratum = ('secondary_stratum', 'SecondaryStratumID')
 _stateclass = ('stateclass', 'StateClassID')
 _stateclass_src = ('stateclass_src', 'StateClassIDSource')
-_stateclass_dest = ('stateclass_dest', 'StateClassIDDest')
+_stateclass_dest = ('stateclass_dest', 'StateClassIDDest')      # Slight table difference for destination state classes
+_stateclass_dest_end = ('stateclass_dest', 'EndStateClassID')   # in this line and line above
 _transition_group = ('transition_group', 'TransitionGroupID')
 _transition_type = ('transition_type', 'TransitionTypeID')
 _state_attribute_type = ('state_attribute_type', 'StateAttributeTypeID')
@@ -22,6 +23,7 @@ _iteration = ('iteration', 'Iteration')
 _timestep = ('timestep', 'Timestep')
 _age_min = ('age_min', 'AgeMin')
 _age_max = ('age_max', 'AgeMax')
+_amount = ('amount', 'Amount')
 _distribution_type_id = ('distribution_type', 'DistributionTypeID')  # Slight discrepancy in use for distributions.
 _distribution_type = ('distribution_type', 'DistributionType')       # Make sure not to use both *type and *type_id
 _distribution_sd = ('distribution_sd', 'DistributionSD')             # concurrently.
@@ -172,6 +174,44 @@ TRANSITION_ATTRIBUTE_TARGET = (*_time_common,
                                _transition_attribute_type,
                                ('target', 'Amount'),
                                *_distribution_common)
+
+STATECLASS_SUMMARY_ROW = (*_time_common,
+                          _stratum,
+                          _stateclass,
+                          _amount,
+                          *_age_common,
+                          ('proportion_of_landscape', 'ProportionOfLandscape'),
+                          ('proportion_of_stratum', 'ProportionOfStratumID'),
+                          _secondary_stratum)
+
+TRANSITION_SUMMARY_ROW = (*_time_common,
+                          _stratum,
+                          _transition_group,
+                          *_age_common,
+                          _amount,
+                          _secondary_stratum)
+
+TRANSITION_STATECLASS_SUMMARY_ROW = (*_time_common,
+                                     _stratum,
+                                     _transition_type,
+                                     _stateclass,
+                                     _stateclass_dest_end,
+                                     _amount,
+                                     _secondary_stratum)
+
+STATE_ATTRIBUTE_SUMMARY_ROW = (*_time_common,
+                               _stratum,
+                               _state_attribute_type,
+                               *_age_common,
+                               _amount,
+                               _secondary_stratum)
+
+TRANSITION_ATTRIBUTE_SUMMARY_ROW = (*_time_common,
+                                    _stratum,
+                                    _transition_attribute_type,
+                                    *_age_common,
+                                    _amount,
+                                    _secondary_stratum)
 
 # Configuration of run outputs, time control, distributions, etc.
 CONFIG_IMPORTS = (
