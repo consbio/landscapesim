@@ -521,7 +521,13 @@ class RunScenarioModel(AsyncJobModel):
         if self.result_scenario:
             # Scan output directory for progress of the model run by 
             # checking the number of files created.
-            run_control = json.loads(self.inputs)['config']['run_control']
+            config = json.loads(self.inputs)['config']
+            run_control = config['run_control']
+
+            # Non-spatial runs have no progress
+            if run_control.get('IsSpatial') != 'Yes':
+                return None
+
             iterations = run_control['MaximumIteration']
             timesteps = run_control['MaximumTimestep']
             max_num_files = iterations * timesteps + iterations  # t-0 is included in file directory
