@@ -4,6 +4,7 @@ import uuid
 
 from landscapesim import models
 from landscapesim.io.services import ServiceGenerator
+from landscapesim.io.types import default_int, default_float, empty_or_yes_to_bool
 
 M2_TO_ACRES = 0.000247105
 
@@ -24,30 +25,6 @@ def get_random_csv(file):
 def color_to_rgba(colorstr):
     r, g, b, a = colorstr.split(',')
     return {'r': r, 'g': g, 'b': b, 'a': a}
-
-
-def default_int(value):
-    return int(value) if len(value) else -1
-
-
-def default_int_to_empty_or_int(value):
-    return value if value != -1 else ''
-
-
-def default_float(value):
-    return float(value) if len(value) else -1
-
-
-def default_float_to_empty_or_float(value):
-    return value if value != -1 else ''
-
-
-def empty_or_yes_to_bool(value):
-    return value == 'Yes'
-
-
-def bool_to_empty_or_yes(value):
-    return 'Yes' if value else ''
 
 
 class ProjectImporter:

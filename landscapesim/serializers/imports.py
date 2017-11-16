@@ -5,7 +5,7 @@ from django.db import models
 from rest_framework.serializers import ValidationError
 
 from landscapesim.io import config
-from landscapesim.io.utils import default_int_to_empty_or_int, bool_to_empty_or_yes
+from landscapesim.io.types import default_num_to_empty_or_int, bool_to_empty_or_yes
 from landscapesim.serializers import scenarios as serializers
 
 
@@ -33,14 +33,13 @@ class BaseImportSerializer(object):
         """
         transformed_data = OrderedDict()
         # Fill fields from validated data
-        for pair in self.sheet_map:
-            for attr in data.items():
-                if self._ignore(attr[0]):
+        for internal_key, ssim_name in self.sheet_map:
+            for config_key, config_data in data.items():
+                if self._ignore(config_key):
                     continue
 
-                if attr[0] == pair[0]:
-                    ssim_name = pair[1]
-                    transformed_data[ssim_name] = attr[1] if attr[1] is not None else ''
+                if config_key == internal_key:
+                    transformed_data[ssim_name] = config_data if config_data is not None else ''
 
                     # Convert pk-related fields to the value of it's name field
                     is_django_model = inspect.isclass(type(transformed_data[ssim_name])) and \
@@ -54,9 +53,9 @@ class BaseImportSerializer(object):
                     if type(transformed_data[ssim_name]) is bool:
                         transformed_data[ssim_name] = bool_to_empty_or_yes(transformed_data[ssim_name])
 
-                    # Filter default integers (-1) to empty string
+                    # Filter default integers and floats (-1) to empty string
                     elif type(transformed_data[ssim_name]) is int:
-                        transformed_data[ssim_name] = default_int_to_empty_or_int(transformed_data[ssim_name])
+                        transformed_data[ssim_name] = default_num_to_empty_or_int(transformed_data[ssim_name])
                     break
 
         if len(list(transformed_data.keys())) != len(self.sheet_map):
