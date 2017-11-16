@@ -8,19 +8,11 @@ import os
 import uuid
 
 from celery.result import AsyncResult
-from django.db import models
 from django.contrib.gis.db import models as gis_models
-
-
-# TODO - add a lookup field for the project when it is necessary.
-#        could be something like "has_lookup" and a fk to the lookup table
-#        WILL be needed for the landfire library, and then represented
-#        in the serializer as a lookup map (i.e. KEY from stsim -> lookup value)
-# TODO - The above todo would be better solved by using a separate django application interfacing with landscapesim
+from django.db import models
 
 
 class Library(models.Model):
-
     name = models.CharField(max_length=50, unique=True)
     file = models.FilePathField(match="*.ssim")
     orig_file = models.FilePathField(match="*.ssim")
@@ -28,14 +20,12 @@ class Library(models.Model):
 
 
 class Project(models.Model):
-
     library = models.ForeignKey('Library', related_name='projects', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     pid = models.PositiveSmallIntegerField()
 
 
 class Scenario(models.Model):
-
     project = models.ForeignKey('Project', related_name='scenarios', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     is_result = models.BooleanField(default=False)
@@ -70,9 +60,6 @@ class LibraryAssets(models.Model):
     reporting_units_path = models.FilePathField(match="*.json")
 
 
-
-
-
 class ReportingUnit(gis_models.Model):
     name = models.CharField(max_length=256)
     polygon = gis_models.GeometryField()
@@ -84,7 +71,6 @@ class ReportingUnit(gis_models.Model):
 
 
 class Terminology(models.Model):
-
     project = models.OneToOneField('Project', related_name='terminology', on_delete=models.CASCADE)
     amount_label = models.CharField(max_length=100)
     amount_units = models.CharField(max_length=100)
@@ -96,7 +82,6 @@ class Terminology(models.Model):
 
 
 class DistributionType(models.Model):
-
     project = models.ForeignKey('Project', related_name='distribution_types', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
@@ -104,7 +89,6 @@ class DistributionType(models.Model):
 
 
 class Stratum(models.Model):
-
     project = models.ForeignKey('Project', related_name='strata', on_delete=models.CASCADE)
     stratum_id = models.IntegerField()
     name = models.CharField(max_length=50)
@@ -121,7 +105,6 @@ class SecondaryStratum(models.Model):
 
 
 class StateClass(models.Model):
-
     project = models.ForeignKey('Project', related_name='stateclasses', on_delete=models.CASCADE)
     stateclass_id = models.IntegerField()
     name = models.CharField(max_length=50)
@@ -141,14 +124,12 @@ class TransitionType(models.Model):
 
 
 class TransitionGroup(models.Model):
-
     project = models.ForeignKey('Project', related_name='transition_groups', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
 
 
 class TransitionTypeGroup(models.Model):
-
     project = models.ForeignKey('Project', related_name='transition_type_groups', on_delete=models.CASCADE)
     transition_type = models.ForeignKey('TransitionType')
     transition_group = models.ForeignKey('TransitionGroup')
@@ -156,20 +137,17 @@ class TransitionTypeGroup(models.Model):
 
 
 class TransitionMultiplierType(models.Model):
-
     project = models.ForeignKey('Project', related_name='transition_multiplier_types', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
 
 
 class AttributeGroup(models.Model):
-
     project = models.ForeignKey('Project', related_name='attribute_groups')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
 
 
 class StateAttributeType(models.Model):
-
     project = models.ForeignKey('Project', related_name='state_attributes', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
@@ -178,28 +156,26 @@ class StateAttributeType(models.Model):
 
 
 class TransitionAttributeType(models.Model):
-
     project = models.ForeignKey('Project', related_name='transition_attributes', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     attribute_group = models.ForeignKey('AttributeGroup', null=True, blank=True)
     units = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
 
-"""
-    Scenario configuration settings
-"""
 
-# TODO - Add Transition Order
-# TODO - Add Transition Spread Distribution
-# TODO - Add Transition Patch Prioritization
-# TODO - Add Transition Direction Multipliers
-# TODO - Add DigitalElevationModel setting
-# TODO - Add Transition Slope Multipliers
-# TODO - Add Transition Adjacency Setting/Multipliers
+""" Scenario configuration settings """
+
+# Tables that could be included but are not currently used include:
+# - Transition Order
+# - Transition Spread Distribution
+# - Transition Patch Prioritization
+# - Transition Direction Multipliers
+# - DigitalElevationModel setting
+# - Transition Slope Multipliers
+# - Transition Adjacency Setting/Multipliers
 
 
 class AgeMixin(models.Model):
-
     class Meta:
         abstract = True
 
@@ -208,7 +184,6 @@ class AgeMixin(models.Model):
 
 
 class DistributionValue(models.Model):
-
     scenario = models.ForeignKey('Scenario', related_name='distribution_values')
     distribution_type = models.ForeignKey('DistributionType')
     dmin = models.FloatField(null=True, blank=True)
@@ -258,7 +233,6 @@ class OutputOption(models.Model):
 
 
 class DeterministicTransition(AgeMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='deterministic_transitions')
     stratum_src = models.ForeignKey('Stratum', related_name='stratum_src_det')
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_det')
@@ -268,7 +242,6 @@ class DeterministicTransition(AgeMixin):
 
 
 class Transition(AgeMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='transitions')
     stratum_src = models.ForeignKey('Stratum', related_name='stratum_src')
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src')
@@ -285,7 +258,6 @@ class Transition(AgeMixin):
 
 
 class InitialConditionsNonSpatial(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='initial_conditions_nonspatial_settings')
     total_amount = models.FloatField()
     num_cells = models.IntegerField()
@@ -293,7 +265,6 @@ class InitialConditionsNonSpatial(models.Model):
 
 
 class InitialConditionsNonSpatialDistribution(AgeMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='initial_conditions_nonspatial_distributions')
     stratum = models.ForeignKey('Stratum', related_name='stratum_ic')
     secondary_stratum = models.ForeignKey('SecondaryStratum', blank=True, null=True)
@@ -302,7 +273,6 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
 
 
 class InitialConditionsSpatial(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='initial_conditions_spatial_settings')
     num_rows = models.IntegerField()
     num_cols = models.IntegerField()
@@ -321,7 +291,6 @@ class InitialConditionsSpatial(models.Model):
 
 
 class TimestepModelBase(models.Model):
-
     class Meta:
         abstract = True
 
@@ -331,7 +300,6 @@ class TimestepModelBase(models.Model):
 
 
 class DistributionMixin(models.Model):
-
     class Meta:
         abstract = True
 
@@ -342,7 +310,6 @@ class DistributionMixin(models.Model):
 
 
 class SecondaryStratumMixin(models.Model):
-
     class Meta:
         abstract = True
 
@@ -350,14 +317,12 @@ class SecondaryStratumMixin(models.Model):
 
 
 class TransitionTarget(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_targets')
     transition_group = models.ForeignKey('TransitionGroup')
     target_area = models.FloatField()
 
 
 class TransitionMultiplierValue(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_multiplier_values')
     stateclass = models.ForeignKey('StateClass', null=True, blank=True)
     transition_group = models.ForeignKey('TransitionGroup')
@@ -366,7 +331,6 @@ class TransitionMultiplierValue(TimestepModelBase, SecondaryStratumMixin, Distri
 
 
 class TransitionSizeDistribution(TimestepModelBase):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_size_distributions')
     transition_group = models.ForeignKey('TransitionGroup')
     maximum_area = models.FloatField()
@@ -374,7 +338,6 @@ class TransitionSizeDistribution(TimestepModelBase):
 
 
 class TransitionSizePrioritization(TimestepModelBase):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_size_prioritizations')
     transition_group = models.ForeignKey('TransitionGroup', null=True, blank=True)
     priority = models.CharField(max_length=25)
@@ -391,7 +354,6 @@ class TransitionSpatialMultiplier(models.Model):
 
 
 class StateAttributeValue(TimestepModelBase, SecondaryStratumMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='state_attribute_values')
     stateclass = models.ForeignKey('StateClass', null=True, blank=True)
     state_attribute_type = models.ForeignKey('StateAttributeType')
@@ -399,7 +361,6 @@ class StateAttributeValue(TimestepModelBase, SecondaryStratumMixin):
 
 
 class TransitionAttributeValue(TimestepModelBase, SecondaryStratumMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_attribute_values')
     transition_group = models.ForeignKey('TransitionGroup')
     stateclass = models.ForeignKey('StateClass', null=True, blank=True)
@@ -408,7 +369,6 @@ class TransitionAttributeValue(TimestepModelBase, SecondaryStratumMixin):
 
 
 class TransitionAttributeTarget(TimestepModelBase, SecondaryStratumMixin, DistributionMixin):
-
     scenario = models.ForeignKey('Scenario', related_name='transition_attribute_targets')
     transition_attribute_type = models.ForeignKey('TransitionAttributeType')
     target = models.FloatField()
@@ -419,10 +379,7 @@ class TransitionAttributeTarget(TimestepModelBase, SecondaryStratumMixin, Distri
 
 
 class SummaryReportRowBase(models.Model):
-    """
-    All summary report rows require the following fields
-    """
-
+    """ All summary report rows require the following fields """
     class Meta:
         abstract = True
 
@@ -434,12 +391,10 @@ class SummaryReportRowBase(models.Model):
 
 
 class StateClassSummaryReport(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='stateclass_summary_report', on_delete=models.CASCADE)
 
 
 class StateClassSummaryReportRow(SummaryReportRowBase, AgeMixin):
-
     report = models.ForeignKey('StateClassSummaryReport', related_name='results', on_delete=models.CASCADE)
     stateclass = models.ForeignKey('StateClass')
     proportion_of_landscape = models.FloatField()
@@ -447,23 +402,19 @@ class StateClassSummaryReportRow(SummaryReportRowBase, AgeMixin):
 
 
 class TransitionSummaryReport(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='transition_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionSummaryReportRow(SummaryReportRowBase, AgeMixin):
-
     report = models.ForeignKey('TransitionSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_group = models.ForeignKey('TransitionGroup')
 
 
 class TransitionByStateClassSummaryReport(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='transition_by_sc_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionByStateClassSummaryReportRow(SummaryReportRowBase):
-
     report = models.ForeignKey('TransitionByStateClassSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_type = models.ForeignKey('TransitionType')
     stateclass_src = models.ForeignKey('StateClass', related_name='stateclass_src_tscr')
@@ -471,23 +422,19 @@ class TransitionByStateClassSummaryReportRow(SummaryReportRowBase):
 
 
 class StateAttributeSummaryReport(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='state_attribute_summary_report', on_delete=models.CASCADE)
 
 
 class StateAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
-
     report = models.ForeignKey('StateAttributeSummaryReport', related_name='results', on_delete=models.CASCADE)
     state_attribute_type = models.ForeignKey('StateAttributeType')
 
 
 class TransitionAttributeSummaryReport(models.Model):
-
     scenario = models.OneToOneField('Scenario', related_name='transition_attribute_summary_report', on_delete=models.CASCADE)
 
 
 class TransitionAttributeSummaryReportRow(SummaryReportRowBase, AgeMixin):
-
     report = models.ForeignKey('TransitionAttributeSummaryReport', related_name='results', on_delete=models.CASCADE)
     transition_attribute_type = models.ForeignKey('TransitionAttributeType')
 
@@ -500,7 +447,6 @@ class AsyncJobModel(models.Model):
     """
         An abstract class for models that interact with celery backend results.
     """
-
     class Meta:
         abstract = True
 
@@ -518,7 +464,6 @@ class AsyncJobModel(models.Model):
 
 
 class RunScenarioModel(AsyncJobModel):
-
     parent_scenario = models.ForeignKey('Scenario', related_name='parent_scenario')
     result_scenario = models.ForeignKey('Scenario', related_name='result_scenario', null=True)
     model_status = models.TextField(null=False, default='complete')
@@ -546,11 +491,11 @@ class RunScenarioModel(AsyncJobModel):
         else:
             return None
 
+
 class ScenarioInputServices(models.Model):
     """
         ncdjango services for a scenario with spatial inputs. Allows input rasters to be utilized in maps and 3D scenes.
     """
-
     scenario = models.OneToOneField('Scenario', related_name='scenario_input_services')
     stratum = models.ForeignKey('ncdjango.Service', related_name='stratum_input_service', null=True)
     secondary_stratum = models.ForeignKey('ncdjango.Service', related_name='secondary_stratum_input_service', null=True)

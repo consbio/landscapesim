@@ -12,7 +12,8 @@ from django.conf import settings
 
 from landscapesim import models
 from landscapesim.io import config
-from landscapesim.io.utils import default_int, get_random_csv
+from landscapesim.io.utils import get_random_csv
+from landscapesim.io.types import default_int
 
 DEBUG = getattr(settings, 'DEBUG')
 
