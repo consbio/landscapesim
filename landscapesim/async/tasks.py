@@ -8,12 +8,12 @@ from time import sleep, time
 from celery.task import task
 from django.conf import settings
 
+from landscapesim.importers import ScenarioImporter, ReportImporter
 from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.query import ssim_query
-from landscapesim.io.reports import ReportImporter
 from landscapesim.io.services import ServiceGenerator
-from landscapesim.io.utils import ScenarioImporter, get_random_csv
+from landscapesim.io.utils import get_random_csv
 from landscapesim.models import Library, Scenario, RunScenarioModel
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')

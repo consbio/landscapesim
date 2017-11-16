@@ -8,10 +8,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from landscapesim.importers import ScenarioImporter, ProjectImporter, ReportImporter
 from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.rasters import ServiceGenerator
-from landscapesim.io.reports import ReportImporter
-from landscapesim.io.utils import process_run_control, process_scenario_inputs, process_project_definitions
+from landscapesim.io.services import ServiceGenerator
 from landscapesim.models import Library, Project, Scenario
 
 
@@ -81,15 +80,16 @@ class Command(BaseCommand):
                         print('Created scenario {}.'.format(s['sid']))
 
                 # Import all project definitions
-                process_project_definitions(console, project)
+                ProjectImporter(project, console).process_project_definitions()
 
                 # Now import any scenario-specific information we want to capture
                 scenarios = Scenario.objects.filter(project=project)
                 for s in scenarios:
 
                     # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
-                    process_run_control(console, s)
-                    process_scenario_inputs(console, s)
+                    scenario_importer = ScenarioImporter(s, console)
+                    scenario_importer.process_run_control()
+                    scenario_importer.process_scenario_inputs()
 
                     if os.path.exists(tmp_file):
                         os.remove(tmp_file)

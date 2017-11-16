@@ -1,7 +1,13 @@
 """
-    Report generation utilities.
-    Provide the file with the generated report from SyncroSim,
-    create the related rows django rows to expose
+    An import utility class for creating reports in SyncroSim and exporting them to be used in
+    the LandscapeSim API.
+
+    Each report configuration corresponds to:
+    - Report name,
+    - Report model class,
+    - Report row model call,
+    - SyncroSim sheet mapping, and
+    - Type conversion mapping
 """
 
 import csv
@@ -12,21 +18,13 @@ from django.conf import settings
 
 from landscapesim import models
 from landscapesim.io import config
-from landscapesim.io.utils import get_random_csv
 from landscapesim.io.types import default_int
+from landscapesim.io.utils import get_random_csv
+from .base import Filter
 
 DEBUG = getattr(settings, 'DEBUG')
 
-
-class Filter:
-    """ A utility class for quickly collecting a foreign key for reports. """
-    def __init__(self, model):
-        self.model = model
-
-    def get(self, name, project):
-        return self.model.objects.filter(name__exact=name, project=project).first()
-
-
+# Report filters
 STRATUM_FILTER = Filter(models.Stratum)
 STATECLASS_FILTER = Filter(models.StateClass)
 TRANSITION_GROUP_FILTER = Filter(models.TransitionGroup)
@@ -35,17 +33,7 @@ STATE_ATTRIBUTE_FILTER = Filter(models.StateAttributeType)
 TRANSITION_ATTRIBUTE_FILTER = Filter(models.TransitionAttributeType)
 SECONDARY_STRATUM_FILTER = Filter(models.SecondaryStratum)
 
-""" Report summary configuration
-
-Each report configuration corresponds to:
-- Report name
-- Report model class
-- Report row model call
-- SyncroSim sheet mapping
-- Type conversion mapping
-
-"""
-
+""" Report summary configurations """
 STATECLASS_REPORT = (
     'stateclass-summary',
     models.StateClassSummaryReport,
@@ -108,7 +96,7 @@ class ReportImporter:
         project = self.scenario.project
 
         def map_row(row_data):
-            """ Map a row of data using the sheet_map and type_maps. """
+            """ Map a row of data using the sheet_map and type_map. """
             objects = {}
             for pair, type_or_filter in zip(sheet_map, type_map):
                 model_field, sheet_field = pair
