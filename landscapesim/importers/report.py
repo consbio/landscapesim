@@ -64,16 +64,22 @@ TRANSITION_ATTRIBUTE_REPORT = (
 
 
 class ReportImporter:
-    """ A high-level interface for exporting reports and creating API-exposed reports. """
+    """
+    A base report creation interface for exporting reports and creating API-exposed reports.
 
-    def __init__(self, scenario, console):
+    This class functions very similarly to ProjectImporter (or ImporterBase), but it requires additional
+    information about what models are connected to the scenario the report is created for. For that reason,
+    this class is orphaned away from ImporterBase.
+    """
+
+    def __init__(self, console, scenario):
         """
         Constructor
-        :param scenario: Instance of Scenario
         :param console: Instance of STSimConsole
+        :param scenario: Instance of Scenario
         """
-        self.scenario = scenario
         self.console = console
+        self.scenario = scenario
         self.temp_file = get_random_csv(scenario.library.tmp_file)
 
     def generate_report(self, report_name):

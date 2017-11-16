@@ -1,16 +1,9 @@
-import csv
-import os
-from inspect import isfunction
-
-from django.conf import settings
-
 from landscapesim import models
 from landscapesim.io import config
 from landscapesim.io.types import default_int, empty_or_yes_to_bool
 from landscapesim.io.utils import get_random_csv
+from .base import ImporterBase
 from .filters import *
-
-DEBUG = getattr(settings, 'DEBUG')
 
 
 TERMINOLOGY = (
@@ -87,36 +80,17 @@ TRANSITION_ATTRIBUTE_TYPE = (
 )
 
 
-class ProjectImporter:
+class ProjectImporter(ImporterBase):
+    """
+    The base Project importer, responsible for converting SyncroSim project-related ata into the
+    appropriate LandscapeSim project-related data.
+    """
 
-    def __init__(self, project, console):
-        self.project = project
-        self.console = console
-        self.kwargs = {'pid': self.project.pid, 'overwrite': True, 'orig': True}
-        self.temp_file = get_random_csv(self.project.library.tmp_file)
+    related_model = models.Project
 
-    def map_row(self, row_data, sheet_map, type_map):
-        result = {}
-        for pair, type_or_filter in zip(sheet_map, type_map):
-            model_field, sheet_field = pair
-            data = row_data[sheet_field]
-            is_filter = not (isinstance(type_or_filter, type) or isfunction(type_or_filter))
-            result[model_field] = type_or_filter.get(data, self.project) if is_filter else type_or_filter(data)
-        return result
-
-    def _clean_temp_file(self):
-        if not DEBUG and os.path.exists(self.temp_file):
-            os.remove(self.temp_file)
-
-    def _extract_sheet(self, sheet_config):
-        sheet_name, model, sheet_map, type_map = sheet_config
-        self.console.export_sheet(sheet_name, self.temp_file, **self.kwargs)
-        with open(self.temp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                model.objects.create(project=self.project, **self.map_row(row, sheet_map, type_map))
-        print("Imported {}".format(sheet_name))
-        self._clean_temp_file()
+    def __init__(self, console, project=None):
+        super().__init__(console, project, get_random_csv(project.library.tmp_file))
+        self.sheet_kwargs = {'pid': project.pid, 'overwrite': True, 'orig': True}
 
     def import_terminology(self):
         self._extract_sheet(TERMINOLOGY)

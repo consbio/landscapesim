@@ -30,7 +30,7 @@ class Command(BaseCommand):
         tmp_file = file.split('.ssim')[0] + '_tmp.csv'
 
         if Library.objects.filter(file__iexact=file).exists():
-            print('The library located at {} already exists in the database.')
+            print('The library located at {} already exists in the database.'.format(file))
             return
 
         if not os.path.exists(orig_file):
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                         print('Created scenario {}.'.format(s['sid']))
 
                 # Import all project definitions
-                ProjectImporter(project, console).process_project_definitions()
+                ProjectImporter(console, project).process_project_definitions()
 
                 # Now import any scenario-specific information we want to capture
                 scenarios = Scenario.objects.filter(project=project)

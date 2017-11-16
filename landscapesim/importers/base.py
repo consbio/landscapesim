@@ -4,8 +4,6 @@ from inspect import isfunction
 
 from django.conf import settings
 
-from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.utils import get_random_csv
 from landscapesim.models import Project, Scenario
 
 DEBUG = getattr(settings, 'DEBUG')
@@ -17,7 +15,9 @@ class ImporterBase:
     database entries for use in the LandscapeSim API.
     """
 
-    def __init__(self, console: STSimConsole, filter_obj=None, temp_file=None):
+    related_model = None
+
+    def __init__(self, console, filter_obj=None, temp_file=None):
         """
         Constructor
         :param console: The STSimConsole to be used for importing project data with.
@@ -25,10 +25,15 @@ class ImporterBase:
         Project's information, filter_obj should be the Project object instance to be imported.
         :param temp_file: The path to a template CSV file to be used for importing data to.
         """
+        if not isinstance(filter_obj, self.related_model):
+            raise TypeError(
+                "Provided filter object of type {} is not valid for this importer.".format(type(self.related_model))
+            )
+
         self.console = console
         self.filter_obj = filter_obj
-        self.temp_file = get_random_csv(temp_file)
-        self.kwargs = {}
+        self.temp_file = temp_file
+        self.sheet_kwargs = {}
         self.project = None
         self.scenario = None
         self.import_kwargs = {}
@@ -70,10 +75,11 @@ class ImporterBase:
     def _extract_sheet(self, sheet_config):
         """ Extract data from the STSimConsole and import into LandscapeSim. """
         sheet_name, model, sheet_map, type_map = sheet_config
-        self.console.export_sheet(sheet_name, self.temp_file, **self.kwargs)
+        self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
         with open(self.temp_file, 'r') as sheet:
             reader = csv.DictReader(sheet)
             for row in reader:
                 model_data = {**self.import_kwargs, **self.map_row(row, sheet_map, type_map)}
-                model.objects.create(model_data)
+                model.objects.create(**model_data)
+        print("Imported {}".format(sheet_name))
         self._cleanup_temp_file()
