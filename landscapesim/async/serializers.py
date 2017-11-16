@@ -158,7 +158,7 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         lib = Library.objects.get(name__exact=library_name)
         proj = Project.objects.get(library=lib, pid=int(pid))
         parent_scenario = Scenario.objects.get(project=proj, sid=int(sid))
-        result = run_model.delay(library_name, pid, sid)
+        result = run_model.delay(library_name, sid)
         return RunScenarioModel.objects.create(
             parent_scenario=parent_scenario,
             celery_id=result.id,

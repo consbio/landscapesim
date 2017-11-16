@@ -4,25 +4,24 @@
     Available Consoles (Verbose Name, basename, Python class):
         - System Console                        'system'        Console
         - ST-Sim State and Transition Console   'stsim'         STSimConsole
-        - Stocks and Flows Console              'stockflow'     StockFlowConsole
-
 """
 
 import os
 import subprocess
 
-# The standard installation location for SyncroSim (subject to change, also not valid for linux...)
+# The standard installation location for SyncroSim (subject to change. Not valid for linux installations)
 DEFAULT_EXE = "C:\\Program Files\\SyncroSim\\1\\SyncroSim.Console.Exe"
 
 # Niceness level to apply to all SyncroSim processes
 NICENESS = 20
 NICE_CMD = ['nice', '-n', '{}'.format(NICENESS)]
 
+
 class ConsoleMeta(type):
     """  Metaclass for handling the different console names, enforcing each console to specify a name """
     def __init__(cls, name, bases, attrs):
         if 'name' not in attrs:
-            raise ValueError("Class {name} doesn't define a console name.".format(name=name))
+            raise ValueError("Class {name} doesn't define a class-level 'name' (E.x. name='stsim').".format(name=name))
         type.__init__(cls, name, bases, attrs)
 
 
@@ -30,7 +29,6 @@ class Console:
     """ System Console class. Provides lots of basic I/O functions for running models and working with sheets."""
 
     __metaclass__ = ConsoleMeta
-
     name = 'system'  # name is never needed for the system console, but subclasses require this to be known
 
     def __init__(self, **kwargs):
@@ -61,7 +59,7 @@ class Console:
                 os.mkdir(self.spatial_input_dir)
             if not os.path.exists(self.spatial_output_dir):
                 os.mkdir(self.spatial_output_dir)
-        except:
+        except OSError:
             raise ValueError("The provided library path is invalid.\nProvided path was: " + self.lib)
 
         self.exe_orig_lib = None
@@ -77,18 +75,16 @@ class Console:
 
                 # TODO - verify that all the scenario IDs in the original library exist in the working library
 
-            except:
+            except OSError:
                 raise ValueError("The provided library path is invalid.\nProvided path was: " + self.orig_lib)
 
         # verify that all the necessary directories exist for all the existing scenarios
         self.verify_spatial_directories()
 
     def __str__(self):
-
         return self.lib
 
     def verify_spatial_directories(self):
-
         scenarios = self.list_scenarios()
         result_scenarios = self.list_scenarios(results_only=True)
         if self.exe_orig_lib is not None:
@@ -155,6 +151,17 @@ class Console:
                 results.append({'sid': decoded[0], 'name':scenario_name, 'pid': decoded[1]})
         return results
 
+    def get_scenario_attrs(self, sid):
+        """
+        Get the scenario attributes for a specific sid.
+        :param sid: The scenario ID for the SyncroSim Scenario.
+        :return: The scenario attributes for the scenario. Returns None if the scenario was not found.
+        """
+        for x in self.list_scenario_attrs():
+            if int(x['sid']) == sid:
+                return x
+        return None
+
     def list_scenarios(self, results_only=None, orig=False):
         """
         List scenarios from the .ssim library.
@@ -162,7 +169,6 @@ class Console:
         :param orig: List results from the original library
         :return A list of scenario IDs from the library
         """
-
         args = ["--list", "--scenarios"]
         output = self.exec_command(args, orig=orig).stdout.split(str.encode(self.sep))
         results = list()
@@ -205,7 +211,6 @@ class Console:
         :param sid: The scenario to run the model for.
         :return: The result scenario ID from this model run.
         """
-
         if self.exe_orig_lib and str(sid) in self.list_scenarios(results_only=True):
             raise ValueError(str(sid) + ' is not an available scenario in the original (non-editable) library.')
 
@@ -220,7 +225,6 @@ class Console:
         :param sheet_name: The sheet to perform the action on.
         :param path: External file path to import from or export to.
         """
-
         action = '--' + action
         args = [action, "--sheet=" + sheet_name, "--file=" + path]
         if sheet_name in self.list_datafeeds(orig=orig):
@@ -244,7 +248,6 @@ class Console:
         :param pid: Project ID to apply the sheet to.
         :param cleanup: Delete the file after the file has been imported in.
         """
-
         self._use_sheet('import', sheet_name, import_path, sid=sid, pid=pid)
         if cleanup:
             os.remove(import_path)
@@ -259,7 +262,6 @@ class Console:
         :param overwrite: (Optional) Overwrite the file in the location.
         :param orig: Use the original library to export the sheet from.
         """
-
         if os.path.exists(export_path):
             if overwrite:
                 os.remove(export_path)
@@ -275,52 +277,37 @@ class ReporterConsole(Console):
         """List reports from a given console
         :return: A list of valid report types
         """
-
         args = ["--console=" + self.name, "--list-reports"]
         return [report.decode() for report in self.exec_command(args).stdout.strip().split()[2:]]
 
-    def generate_report(self, report_type, out_path, sids):
+    def generate_report(self, report_type, out_path, sid):
         """
         Generates a report using the current console name and the provided report type, output path and scenario ID
         :param report_type: Name of the report to generate. Must be one available under self.reports
         :param out_path: Path to export the report to.
-        :param sids: The scenario ID to execute the report on. Can be a single sid (str or int), a list of sids, or a
-        numeric string of ids
+        :param sids: The scenario ID to execute the report on.
         """
-
-        # TODO - improve handling for different types of sids
-        #if isinstance(sids, int):
-        #    output_sids = str(sids)
-        #elif isinstance(sids, list):
-        #    output_sids = [str(sid) for sid in sids]
-
         if report_type in self.list_reports():
-            if str(sids) in self.list_scenarios():
-
-                # TODO - sids means we can output more than 1 report, so should output_sid be "".join([sid1, sid2, ...]) ?
-                args = ["--console=" + self.name, "--create-report", "--name=" + report_type,
-                        "--file=" + out_path, "--sids=" + str(sids)]
+            if str(sid) in self.list_scenarios():
+                args = [
+                    "--console=" + self.name,
+                    "--create-report",
+                    "--name=" + report_type,
+                    "--file=" + out_path,
+                    "--sids=" + str(sid)
+                ]
                 self.exec_command(args)
-
             else:
-                raise ValueError("Scenario id is not available. Check list_scenarios() for available scenarios.")
+                raise ValueError("Scenario ID is not available. Check list_scenarios() for available scenarios.")
         else:
             raise ValueError(
-                report_type.decode() + " is not a valid report type. Check list_reports() for available reports.")
+                report_type.decode() + " is not a valid report type. Check list_reports() for available reports."
+            )
 
 
-# Here we create each reporter console with their given name
+# Here we create subclasses for various reporter consoles
 class STSimConsole(ReporterConsole):
     """ ST-Sim State and Transition Console class """
-
     name = 'stsim'
 
-
-class StockFlowConsole(ReporterConsole):
-    """ Stocks and Flows Console class """
-
-    name = 'stockflow'
-
-    # TODO - Find use cases for Stocks and Flows
-
-# TODO - Add other consoles
+# Other consoles simply need to supply their name (i.e. 'stsim', 'stockflow', etc)

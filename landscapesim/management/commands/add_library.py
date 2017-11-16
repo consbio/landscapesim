@@ -9,8 +9,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.rasters import process_output_rasters
-from landscapesim.io.reports import process_reports
+from landscapesim.io.rasters import ServiceGenerator
+from landscapesim.io.reports import ReportImporter
 from landscapesim.io.utils import process_run_control, process_scenario_inputs, process_project_definitions
 from landscapesim.models import Library, Project, Scenario
 
@@ -97,10 +97,10 @@ class Command(BaseCommand):
                     if s.is_result:
 
                         # Import all available reports
-                        process_reports(console, s, tmp_file)
+                        ReportImporter(s, console).create_all_reports()
 
                         # Import output rasters
-                        process_output_rasters(s)
+                        ServiceGenerator(s).create_output_services()
 
                     print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
                 print("Project {} successfully imported into landscapesim".format(project.name))

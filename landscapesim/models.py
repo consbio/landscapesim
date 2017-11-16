@@ -43,18 +43,24 @@ class Scenario(models.Model):
     parent = models.ForeignKey("self", null=True, blank=True)
 
     @property
+    def library(self):
+        return self.project.library
+
+    @property
     def input_directory(self):
-        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
-                            'STSim_InitialConditionsSpatial')
+        return os.path.join(
+            self.library.file + '.input', 'Scenario-' + str(self.sid), 'STSim_InitialConditionsSpatial'
+        )
 
     @property
     def output_directory(self):
-        return os.path.join(self.project.library.file+'.output', 'Scenario-'+str(self.sid), 'Spatial')
+        return os.path.join(self.library.file + '.output', 'Scenario-' + str(self.sid), 'Spatial')
 
     @property
     def multiplier_directory(self):
-        return os.path.join(self.project.library.file+'.input', 'Scenario-'+str(self.sid),
-                            'STSim_TransitionSpatialMultiplier')
+        return os.path.join(
+            self.library.file + '.input', 'Scenario-' + str(self.sid), 'STSim_TransitionSpatialMultiplier'
+        )
 
 
 class LibraryAssets(models.Model):
@@ -62,6 +68,9 @@ class LibraryAssets(models.Model):
     stratum_path = models.FilePathField(match="*.tif")
     stateclass_path = models.FilePathField(match="*.tif")
     reporting_units_path = models.FilePathField(match="*.json")
+
+
+
 
 
 class ReportingUnit(gis_models.Model):

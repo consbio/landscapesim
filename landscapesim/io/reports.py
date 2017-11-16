@@ -93,7 +93,7 @@ class ReportImporter:
         """
         self.scenario = scenario
         self.console = console
-        self.temp_file = get_random_csv(scenario.project.library.tmp_file)
+        self.temp_file = get_random_csv(scenario.library.tmp_file)
 
     def generate_report(self, report_name):
         """
@@ -142,3 +142,10 @@ class ReportImporter:
 
     def create_transition_attribute_summary(self):
         self._create_report_summary(TRANSITION_ATTRIBUTE_REPORT)
+
+    def create_all_reports(self):
+        self.create_stateclass_summary()
+        self.create_transition_summary()
+        self.create_transition_sc_summary()
+        self.create_state_attribute_summary()
+        self.create_transition_attribute_summary()
