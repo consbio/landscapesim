@@ -163,16 +163,14 @@ class ProjectImporter:
         with open(tmp_file, 'r') as sheet:
             reader = csv.DictReader(sheet)
             for row in reader:
-                grp = models.TransitionGroup.objects.filter(
-                    name__exact=row['TransitionGroupID'], project=self.project
-                ).first()
-                ttype = models.TransitionType.objects.filter(
-                    name__exact=row['TransitionTypeID'], project=self.project
-                ).first()
                 models.TransitionTypeGroup.objects.create(
                     project=self.project,
-                    transition_type=ttype,
-                    transition_group=grp,
+                    transition_type=models.TransitionType.objects.filter(
+                        name__exact=row['TransitionTypeID'], project=self.project
+                    ).first(),
+                    transition_group=models.TransitionGroup.objects.filter(
+                        name__exact=row['TransitionGroupID'], project=self.project
+                    ).first(),
                     is_primary=row['IsPrimary']
                 )
         print('Imported transition type groups for project {}.'.format(self.project.name))
