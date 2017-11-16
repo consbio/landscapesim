@@ -62,7 +62,7 @@ class LibraryAssets(models.Model):
 
 class ReportingUnit(gis_models.Model):
     name = models.CharField(max_length=256)
-    polygon = gis_models.GeometryField()
+    polygon = gis_models.GeometryField(geography=True)
 
 
 """
