@@ -20,6 +20,10 @@ def empty_or_yes_to_bool(value):
     return value == 'Yes'
 
 
+def time_int(value):
+    return int(value) if len(value) else None
+
+
 # Reverse conversions
 def default_num_to_empty_or_int(value):     # Can be used on integers and floats
     return value if value != -1 else ''
