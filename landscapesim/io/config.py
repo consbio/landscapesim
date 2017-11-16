@@ -37,7 +37,61 @@ _distribution_max = ('distribution_max', 'DistributionMax')
 _time_common = (_timestep, _iteration)
 _age_common = (_age_min, _age_max)
 _distribution_common = (_distribution_type, _distribution_sd, _distribution_min, _distribution_max)
+_project_def = (_name, _description)
+_project_def_color = (*_project_def, _color)
 
+# Project-specific mappings
+TERMINOLOGY = (
+    ('amount_label', 'AmountLabel'),
+    ('amount_units', 'AmountUnits'),
+    ('state_label_x', 'StateLabelX'),
+    ('state_label_y', 'StateLabelY'),
+    ('primary_stratum_label', 'PrimaryStratumLabel'),
+    ('secondary_stratum_label', 'SecondaryStratumLabel'),
+    ('timestep_units', 'TimestepUnits')
+)
+DISTRIBUTION_TYPE = (
+    _project_def,
+    ('is_internal', 'IsInternal')
+)
+STRATUM = (
+    *_project_def_color,
+    ('stratum_id', 'ID')
+)
+SECONDARY_STRATUM = (
+    _project_def,
+    ('secondary_stratum_id', 'ID')
+)
+STATECLASS = (
+    *_project_def_color,
+    ('state_label_x', 'StateLabelXID'),
+    ('state_label_y', 'StateLabelYID'),
+    ('stateclass_id', 'ID')
+)
+TRANSITION_TYPE = (
+    *_project_def_color,
+    ('transition_type_id', 'ID')
+)
+TRANSITION_GROUP = (
+    *_project_def,
+)
+TRANSITION_TYPE_GROUP = (
+    ('transition_type', 'TransitionTypeID'),
+    ('transition_group', 'TransitionGroupID'),
+    ('is_primary', 'IsPrimary')
+)
+TRANSITION_MULTIPLIER_TYPE = (
+    _name,
+)
+ATTRIBUTE_GROUP = (
+    *_project_def,
+)
+STATE_ATTRIBUTE_TYPE = (
+    *_project_def,
+    ('units', 'Units'),
+    ('attribute_group', 'AttributeGroupID')
+)
+TRANSITION_ATTRIBUTE_TYPE = STATE_ATTRIBUTE_TYPE
 
 # Scenario-specific mappings
 DISTRIBUTION_VALUE = (
