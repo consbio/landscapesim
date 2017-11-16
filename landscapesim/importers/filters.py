@@ -2,8 +2,8 @@ from landscapesim.models import Stratum, StateClass, SecondaryStratum, Transitio
     StateAttributeType, TransitionAttributeType, TransitionMultiplierType, DistributionType
 
 
-class Filter:
-    """ A utility class for quickly collecting a foreign key for reports. """
+class ProjectFilter:
+    """ A utility class for quickly collecting a foreign key from project-level definitions """
     def __init__(self, model):
         self.model = model
 
@@ -12,13 +12,13 @@ class Filter:
 
 
 # Common filters
-StratumFilter = Filter(Stratum)
-StateClassFilter = Filter(StateClass)
-SecondaryStratumFilter = Filter(SecondaryStratum)
-TransitionGroupFilter = Filter(TransitionGroup)
-TransitionTypeFilter = Filter(TransitionType)
-AttributeGroupFilter = Filter(AttributeGroup)
-StateAttributeTypeFilter = Filter(StateAttributeType)
-TransitionAttributeTypeFilter = Filter(TransitionAttributeType)
-TransitionMultiplierTypeFilter = Filter(TransitionMultiplierType)
-DistributionTypeFilter = Filter(DistributionType)
+StratumFilter = ProjectFilter(Stratum)
+StateClassFilter = ProjectFilter(StateClass)
+SecondaryStratumFilter = ProjectFilter(SecondaryStratum)
+TransitionGroupFilter = ProjectFilter(TransitionGroup)
+TransitionTypeFilter = ProjectFilter(TransitionType)
+AttributeGroupFilter = ProjectFilter(AttributeGroup)
+StateAttributeTypeFilter = ProjectFilter(StateAttributeType)
+TransitionAttributeTypeFilter = ProjectFilter(TransitionAttributeType)
+TransitionMultiplierTypeFilter = ProjectFilter(TransitionMultiplierType)
+DistributionTypeFilter = ProjectFilter(DistributionType)
