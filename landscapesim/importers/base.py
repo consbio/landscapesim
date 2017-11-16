@@ -32,7 +32,7 @@ class ImporterBase:
         :param console: The STSimConsole to be used for importing project data with.
         :param filter_obj: The Django model instance to filter types on. For example, when importing a specific
         Project's information, filter_obj should be the Project object instance to be imported.
-        :param template_temp_file: The path to a template CSV file to be used for importing data to.
+        :param temp_file: The path to a template CSV file to be used for importing data to.
         """
         self.console = console
         self.filter_obj = filter_obj

@@ -97,7 +97,7 @@ class Command(BaseCommand):
                     if s.is_result:
 
                         # Import all available reports
-                        ReportImporter(s, console).create_all_reports()
+                        ReportImporter(s, console).create_all_summaries()
 
                         # Import output rasters
                         ServiceGenerator(s).create_output_services()

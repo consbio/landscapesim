@@ -25,13 +25,13 @@ from .base import Filter
 DEBUG = getattr(settings, 'DEBUG')
 
 # Report filters
-STRATUM_FILTER = Filter(models.Stratum)
-STATECLASS_FILTER = Filter(models.StateClass)
-TRANSITION_GROUP_FILTER = Filter(models.TransitionGroup)
-TRANSITION_TYPE_FILTER = Filter(models.TransitionType)
-STATE_ATTRIBUTE_FILTER = Filter(models.StateAttributeType)
-TRANSITION_ATTRIBUTE_FILTER = Filter(models.TransitionAttributeType)
-SECONDARY_STRATUM_FILTER = Filter(models.SecondaryStratum)
+StratumFilter = Filter(models.Stratum)
+StateClassFilter = Filter(models.StateClass)
+TransitionGroupFilter = Filter(models.TransitionGroup)
+TransitionTypeFilter = Filter(models.TransitionType)
+StateAttributeFilter = Filter(models.StateAttributeType)
+TransitionAttributeFilter = Filter(models.TransitionAttributeType)
+SecondaryStratumFilter = Filter(models.SecondaryStratum)
 
 """ Report summary configurations """
 STATECLASS_REPORT = (
@@ -39,35 +39,35 @@ STATECLASS_REPORT = (
     models.StateClassSummaryReport,
     models.StateClassSummaryReportRow,
     config.STATECLASS_SUMMARY_ROW,
-    (int, int, STRATUM_FILTER, STATECLASS_FILTER, float, default_int, default_int, float, float, SECONDARY_STRATUM_FILTER)
+    (int, int, StratumFilter, StateClassFilter, float, default_int, default_int, float, float, SecondaryStratumFilter)
 )
 TRANSITION_REPORT = (
     'transition-summary',
     models.TransitionSummaryReport,
     models.TransitionSummaryReportRow,
     config.TRANSITION_SUMMARY_ROW,
-    (int, int, STRATUM_FILTER, TRANSITION_GROUP_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+    (int, int, StratumFilter, TransitionGroupFilter, default_int, default_int, float, SecondaryStratumFilter)
 )
 TRANSITION_STATECLASS_REPORT = (
     'transition-stateclass-summary',
     models.TransitionByStateClassSummaryReport,
     models.TransitionByStateClassSummaryReportRow,
     config.TRANSITION_STATECLASS_SUMMARY_ROW,
-    (int, int, STRATUM_FILTER, TRANSITION_TYPE_FILTER, STATECLASS_FILTER, STATECLASS_FILTER, float, SECONDARY_STRATUM_FILTER)
+    (int, int, StratumFilter, TransitionTypeFilter, StateClassFilter, StateClassFilter, float, SecondaryStratumFilter)
 )
 STATE_ATTRIBUTE_REPORT = (
     'state-attributes',
     models.StateAttributeSummaryReport,
     models.StateAttributeSummaryReportRow,
     config.STATE_ATTRIBUTE_SUMMARY_ROW,
-    (int, int, STRATUM_FILTER, STATE_ATTRIBUTE_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+    (int, int, StratumFilter, StateAttributeFilter, default_int, default_int, float, SecondaryStratumFilter)
 )
 TRANSITION_ATTRIBUTE_REPORT = (
     'transition-attributes',
     models.TransitionAttributeSummaryReport,
     models.TransitionAttributeSummaryReportRow,
     config.TRANSITION_ATTRIBUTE_SUMMARY_ROW,
-    (int, int, STRATUM_FILTER, TRANSITION_ATTRIBUTE_FILTER, default_int, default_int, float, SECONDARY_STRATUM_FILTER)
+    (int, int, StratumFilter, TransitionAttributeFilter, default_int, default_int, float, SecondaryStratumFilter)
 )
 
 
@@ -129,7 +129,7 @@ class ReportImporter:
     def create_transition_attribute_summary(self):
         self._create_report_summary(TRANSITION_ATTRIBUTE_REPORT)
 
-    def create_all_reports(self):
+    def create_all_summaries(self):
         self.create_stateclass_summary()
         self.create_transition_summary()
         self.create_transition_sc_summary()
