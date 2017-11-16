@@ -8,14 +8,10 @@ from landscapesim import models
 from landscapesim.io import config
 from landscapesim.io.types import default_int, empty_or_yes_to_bool
 from landscapesim.io.utils import get_random_csv
-from .base import Filter
+from .filters import *
 
 DEBUG = getattr(settings, 'DEBUG')
 
-
-TransitionTypeFilter = Filter(models.TransitionType)
-TransitionGroupFilter = Filter(models.TransitionGroup)
-AttributeGroupFilter = Filter(models.AttributeGroup)
 
 TERMINOLOGY = (
     'STSim_Terminology',

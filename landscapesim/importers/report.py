@@ -20,18 +20,10 @@ from landscapesim import models
 from landscapesim.io import config
 from landscapesim.io.types import default_int
 from landscapesim.io.utils import get_random_csv
-from .base import Filter
+from .filters import *
 
 DEBUG = getattr(settings, 'DEBUG')
 
-# Report filters
-StratumFilter = Filter(models.Stratum)
-StateClassFilter = Filter(models.StateClass)
-TransitionGroupFilter = Filter(models.TransitionGroup)
-TransitionTypeFilter = Filter(models.TransitionType)
-StateAttributeFilter = Filter(models.StateAttributeType)
-TransitionAttributeFilter = Filter(models.TransitionAttributeType)
-SecondaryStratumFilter = Filter(models.SecondaryStratum)
 
 """ Report summary configurations """
 STATECLASS_REPORT = (
