@@ -51,7 +51,7 @@ TERMINOLOGY = (
     ('timestep_units', 'TimestepUnits')
 )
 DISTRIBUTION_TYPE = (
-    _project_def,
+    *_project_def,
     ('is_internal', 'IsInternal')
 )
 STRATUM = (
@@ -59,7 +59,7 @@ STRATUM = (
     ('stratum_id', 'ID')
 )
 SECONDARY_STRATUM = (
-    _project_def,
+    *_project_def,
     ('secondary_stratum_id', 'ID')
 )
 STATECLASS = (

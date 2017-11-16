@@ -80,9 +80,9 @@ STATE_ATTRIBUTE_TYPE = (
     (str, str, str, AttributeGroupFilter)
 )
 TRANSITION_ATTRIBUTE_TYPE = (
-    'STSim_StateAttributeType',
-    models.StateAttributeType,
-    config.STATE_ATTRIBUTE_TYPE,
+    'STSim_TransitionAttributeType',
+    models.TransitionAttributeType,
+    config.TRANSITION_ATTRIBUTE_TYPE,
     (str, str, str, AttributeGroupFilter)
 )
 
@@ -115,6 +115,7 @@ class ProjectImporter:
             reader = csv.DictReader(sheet)
             for row in reader:
                 model.objects.create(project=self.project, **self.map_row(row, sheet_map, type_map))
+        print("Imported {}".format(sheet_name))
         self._clean_temp_file()
 
     def import_terminology(self):
