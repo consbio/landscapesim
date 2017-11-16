@@ -40,8 +40,11 @@ class ImporterBase:
 
         relationship = None
         if isinstance(filter_obj, Project):
+            self.project = filter_obj
             relationship = 'project'
         elif isinstance(filter_obj, Scenario):
+            self.scenario = filter_obj
+            self.project = self.scenario.project
             relationship = 'scenario'
 
         if relationship is not None:
@@ -66,10 +69,15 @@ class ImporterBase:
         """
         result = {}
         for pair, type_or_filter in zip(sheet_map, type_map):
+
+            # Skip entries in mapping that are not handled by LandscapeSim
+            if type_or_filter is None:
+                continue
+
             model_field, sheet_field = pair
             data = row_data[sheet_field]
             is_filter = not (isinstance(type_or_filter, type) or isfunction(type_or_filter))
-            result[model_field] = type_or_filter.get(data, self.filter_obj) if is_filter else type_or_filter(data)
+            result[model_field] = type_or_filter.get(data, self.project) if is_filter else type_or_filter(data)
         return result
 
     def _extract_sheet(self, sheet_config):
@@ -78,8 +86,9 @@ class ImporterBase:
         self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
         with open(self.temp_file, 'r') as sheet:
             reader = csv.DictReader(sheet)
-            for row in reader:
-                model_data = {**self.import_kwargs, **self.map_row(row, sheet_map, type_map)}
-                model.objects.create(**model_data)
+            data = [r for r in reader]
+            for row in data:
+                instance_data = {**self.import_kwargs, **self.map_row(row, sheet_map, type_map)}
+                model.objects.create(**instance_data)
         print("Imported {}".format(sheet_name))
         self._cleanup_temp_file()

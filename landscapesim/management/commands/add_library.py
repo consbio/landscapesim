@@ -87,9 +87,10 @@ class Command(BaseCommand):
                 for s in scenarios:
 
                     # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
-                    scenario_importer = ScenarioImporter(s, console)
-                    scenario_importer.process_run_control()
-                    scenario_importer.process_scenario_inputs()
+                    scenario_importer = ScenarioImporter(console, s)
+                    scenario_importer.import_run_control()
+                    scenario_importer.import_output_options()
+                    scenario_importer.import_post_processed_sheets()
 
                     if os.path.exists(tmp_file):
                         os.remove(tmp_file)

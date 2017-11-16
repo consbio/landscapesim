@@ -1,5 +1,5 @@
 from landscapesim.models import Stratum, StateClass, SecondaryStratum, TransitionGroup, TransitionType, AttributeGroup,\
-    StateAttributeType, TransitionAttributeType
+    StateAttributeType, TransitionAttributeType, TransitionMultiplierType, DistributionType
 
 
 class Filter:
@@ -18,5 +18,7 @@ SecondaryStratumFilter = Filter(SecondaryStratum)
 TransitionGroupFilter = Filter(TransitionGroup)
 TransitionTypeFilter = Filter(TransitionType)
 AttributeGroupFilter = Filter(AttributeGroup)
-StateAttributeFilter = Filter(StateAttributeType)
-TransitionAttributeFilter = Filter(TransitionAttributeType)
+StateAttributeTypeFilter = Filter(StateAttributeType)
+TransitionAttributeTypeFilter = Filter(TransitionAttributeType)
+TransitionMultiplierTypeFilter = Filter(TransitionMultiplierType)
+DistributionTypeFilter = Filter(DistributionType)

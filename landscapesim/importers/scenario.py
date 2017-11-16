@@ -1,487 +1,189 @@
-import csv
-import os
-
 from landscapesim import models
+from landscapesim.io import config
 from landscapesim.io.services import ServiceGenerator
-from landscapesim.io.types import default_int, default_float, empty_or_yes_to_bool
+from landscapesim.io.types import default_int, default_float, empty_or_yes_to_bool, time_int
 from landscapesim.io.utils import get_random_csv
+from .base import ImporterBase
+from .filters import *
+
+_distribution_types = (DistributionTypeFilter, default_float, default_float, default_float)
+
+RUN_CONTROL = (
+    'STSim_RunControl',
+    models.RunControl,
+    config.RUN_CONTROL,
+    (int, int, int, int, empty_or_yes_to_bool)
+)
+OUTPUT_OPTIONS = (
+    'STSim_OutputOptions',
+    models.OutputOption,
+    config.OUTPUT_OPTION,
+    (empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, empty_or_yes_to_bool, default_int, empty_or_yes_to_bool,
+     default_int, empty_or_yes_to_bool, empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int,
+     empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int,
+     empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int,
+     empty_or_yes_to_bool, default_int, empty_or_yes_to_bool, default_int)
+)
+DISTRIBUTION_VALUE = (
+    'Stats_DistributionValue',
+    models.DistributionValue,
+    config.DISTRIBUTION_VALUE,
+    (DistributionTypeFilter, default_float, default_float, default_float)
+)
+DETERMINISTIC_TRANSITION = (
+    'STSim_DeterministicTransition',
+    models.DeterministicTransition,
+    config.DETERMINISTIC_TRANSITION,
+    (StratumFilter, StateClassFilter, StratumFilter, StateClassFilter, default_int, default_int, str)
+)
+TRANSITION = (
+    'STSim_Transition',
+    models.Transition,
+    config.TRANSITION,
+    (StratumFilter, StateClassFilter, StratumFilter, StateClassFilter, TransitionTypeFilter, float,
+     None, None, empty_or_yes_to_bool, None, None, None, None, None)
+)
+INITIAL_CONDITIONS_NON_SPATIAL = (
+    'STSim_InitialConditionsNonSpatial',
+    models.InitialConditionsNonSpatial,
+    config.INITIAL_CONDITIONS_NON_SPATIAL,
+    (float, int, empty_or_yes_to_bool)
+)
+INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION = (
+    'STSim_InitialConditionsNonSpatialDistribution',
+    models.InitialConditionsNonSpatialDistribution,
+    config.INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION,
+    (StratumFilter, SecondaryStratumFilter, StateClassFilter, float, default_int, default_int)
+)
+INITIAL_CONDITIONS_SPATIAL = (
+    'STSim_InitialConditionsSpatial',
+    models.InitialConditionsSpatial,
+    config.INITIAL_CONDITIONS_SPATIAL,
+    (default_int, default_int, default_int, default_float, str, default_float, empty_or_yes_to_bool, default_float,
+     default_float, str, str, str, str, str)
+)
+TRANSITION_TARGET = (
+    'STSim_TransitionTarget',
+    models.TransitionTarget,
+    config.TRANSITION_TARGET,
+    (time_int, time_int, StratumFilter, SecondaryStratumFilter, TransitionGroupFilter, float, *_distribution_types)
+)
+TRANSITION_MULTIPLIER_VALUE = (
+    'STSim_TransitionMultiplierValue',
+    models.TransitionMultiplierValue,
+    config.TRANSITION_MULTIPLIER_VALUE,
+    (time_int, time_int, StratumFilter, SecondaryStratumFilter, StateClassFilter, TransitionGroupFilter,
+     TransitionMultiplierTypeFilter, float, *_distribution_types)
+)
+TRANSITION_SIZE_DISTRIBUTION = (
+    'STSim_TransitionSizeDistribution',
+    models.TransitionSizeDistribution,
+    config.TRANSITION_SIZE_DISTRIBUTION,
+    (time_int, time_int, StratumFilter, TransitionGroupFilter, float)
+)
+TRANSITION_SIZE_PRIORITIZATION = (
+    'STSim_TransitionSizePrioritization',
+    models.TransitionSizePrioritization,
+    config.TRANSITION_SIZE_PRIORITIZATION,
+    (time_int, time_int, StratumFilter, TransitionGroupFilter, str)
+)
+TRANSITION_SPATIAL_MULTIPLIER = (
+    'STSim_TransitionSpatialMultiplier',
+    models.TransitionSpatialMultiplier,
+    config.TRANSITION_SPATIAL_MULTIPLIER,
+    (time_int, time_int, TransitionGroupFilter, TransitionMultiplierTypeFilter, str)
+)
+STATE_ATTRIBUTE_VALUE = (
+    'STSim_StateAttributeValue',
+    models.StateAttributeValue,
+    config.STATE_ATTRIBUTE_VALUE,
+    (time_int, time_int, StratumFilter, SecondaryStratumFilter, StateClassFilter, StateAttributeTypeFilter, float)
+)
+TRANSITION_ATTRIBUTE_VALUE = (
+    'STSim_TransitionAttributeValue',
+    models.TransitionAttributeValue,
+    config.TRANSITION_ATTRIBUTE_VALUE,
+    (time_int, time_int, StratumFilter, SecondaryStratumFilter, TransitionGroupFilter, StateClassFilter,
+     TransitionAttributeTypeFilter, float)
+)
+TRANSITION_ATTRIBUTE_TARGET = (
+    'STSim_TransitionAttributeTarget',
+    models.TransitionAttributeTarget,
+    config.TRANSITION_ATTRIBUTE_TARGET,
+    (time_int, time_int, StratumFilter, SecondaryStratumFilter, TransitionAttributeTypeFilter, float,
+     *_distribution_types)
+)
 
 
-class ScenarioImporter:
+class ScenarioImporter(ImporterBase):
+    """ Scenario importer class, used for pulling all Scenario-level information from SyncroSim into LandscapeSim. """
 
-    def __init__(self, scenario: models.Scenario, console):
-        self.scenario = scenario
-        self.console = console
+    related_model = models.Scenario
 
-    def process_run_control(self):
-        tmp_file = get_random_csv(self.scenario.library.tmp_file)
-        kwgs = {'sid': self.scenario.sid, 'overwrite': True, 'orig': not self.scenario.is_result}
+    def __init__(self, console, scenario):
+        super().__init__(console, scenario, get_random_csv(scenario.library.tmp_file))
+        self.sheet_kwargs = {'sid': scenario.sid, 'overwrite': True, 'orig': not scenario.is_result}
 
-        # import initial run control
-        self.console.export_sheet('STSim_RunControl', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            run_options = [r for r in reader][0]
-            models.RunControl.objects.create(
-                scenario=self.scenario,
-                min_iteration=int(run_options['MinimumIteration']),
-                max_iteration=int(run_options['MaximumIteration']),
-                min_timestep=int(run_options['MinimumTimestep']),
-                max_timestep=int(run_options['MaximumTimestep']),
-                is_spatial=empty_or_yes_to_bool(run_options['IsSpatial'])
-            )
-        print('Imported run control for scenario {}'.format(self.scenario.sid))
+    def import_run_control(self):
+        self._extract_sheet(RUN_CONTROL)
 
-        # import output options
-        self.console.export_sheet('STSim_OutputOptions', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            output_options = [r for r in reader]
-            oo = models.OutputOption.objects.create(scenario=self.scenario)
-            if len(output_options):
-                output_options = output_options[0]
-                oo.sum_sc = empty_or_yes_to_bool(output_options['SummaryOutputSC'])
-                oo.sum_sc_t = default_int(output_options['SummaryOutputSCTimesteps'])
-                oo.sum_sc_zeros = empty_or_yes_to_bool(output_options['SummaryOutputSCZeroValues'])
-                oo.raster_sc = empty_or_yes_to_bool(output_options['RasterOutputSC'])
-                oo.raster_sc_t = default_int(output_options['RasterOutputSCTimesteps'])
-                oo.sum_tr = empty_or_yes_to_bool(output_options['SummaryOutputTRIntervalMean'])
-                oo.sum_tr_t = default_int(output_options['SummaryOutputTRTimesteps'])
-                oo.sum_tr_interval = empty_or_yes_to_bool(output_options['SummaryOutputTRIntervalMean'])
-                oo.raster_tr = empty_or_yes_to_bool(output_options['RasterOutputTR'])
-                oo.raster_tr_t = default_int(output_options['RasterOutputTRTimesteps'])
-                oo.sum_trsc = empty_or_yes_to_bool(output_options['SummaryOutputTRSC'])
-                oo.sum_trsc_t = default_int(output_options['SummaryOutputTRSCTimesteps'])
-                oo.sum_sa = empty_or_yes_to_bool(output_options['SummaryOutputSA'])
-                oo.sum_sa_t = default_int(output_options['SummaryOutputSATimesteps'])
-                oo.raster_sa = empty_or_yes_to_bool(output_options['RasterOutputSA'])
-                oo.raster_sa_t = default_int(output_options['RasterOutputSATimesteps'])
-                oo.sum_ta = empty_or_yes_to_bool(output_options['SummaryOutputTA'])
-                oo.sum_ta_t = default_int(output_options['SummaryOutputTATimesteps'])
-                oo.raster_ta = empty_or_yes_to_bool(output_options['RasterOutputTA'])
-                oo.raster_ta_t = default_int(output_options['RasterOutputTATimesteps'])
-                oo.raster_strata = empty_or_yes_to_bool(output_options['RasterOutputST'])
-                oo.raster_strata_t = default_int(output_options['RasterOutputSTTimesteps'])
-                oo.raster_age = empty_or_yes_to_bool(output_options['RasterOutputAge'])
-                oo.raster_age_t = default_int(output_options['RasterOutputAgeTimesteps'])
-                oo.raster_tst = empty_or_yes_to_bool(output_options['RasterOutputTST'])
-                oo.raster_tst_t = default_int(output_options['RasterOutputTSTTimesteps'])
-                oo.raster_aatp = empty_or_yes_to_bool(output_options['RasterOutputAATP'])
-                oo.raster_aatp_t = default_int(output_options['RasterOutputAATPTimesteps'])
-                oo.save()
-        print('Imported output options for scenario {}'.format(self.scenario.sid))
+    def import_output_options(self):
+        self._extract_sheet(OUTPUT_OPTIONS)
 
-    def process_scenario_inputs(self, create_input_services=True):
-        tmp_file = get_random_csv(self.scenario.library.tmp_file)
-        project = self.scenario.project
-        kwgs = {'sid': self.scenario.sid, 'overwrite': True, 'orig': not self.scenario.is_result}
+    def import_distribution_values(self):
+        self._extract_sheet(DISTRIBUTION_VALUE)
 
-        def add_distribution_to(obj, entry):
-            """ Simple helper for adding distributions to models that use them """
+    def import_deterministic_transitions(self):
+        self._extract_sheet(DETERMINISTIC_TRANSITION)
 
-            dist_type = entry['DistributionType']
-            if len(dist_type):
-                obj.distribution_type = models.DistributionType.objects.filter(
-                    name__exact=dist_type, project=project
-                ).first()
-                if len(entry['DistributionSD']):
-                    obj.distribution_sd = float(entry['DistributionSD'])
-                if len(entry['DistributionMin']):
-                    obj.distribution_min = float(entry['DistributionMin'])
-                if len(entry['DistributionMax']):
-                    obj.distribution_max = float(entry['DistributionMax'])
+    def import_probabilistic_transitions(self):
+        self._extract_sheet(TRANSITION)
 
-        self.console.export_sheet('Stats_DistributionValue', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                dmin = float(row['Min']) if len(row['Min']) else ''
-                relative_frequency = float(row['RelativeFrequency']) if len(row['RelativeFrequency']) else ''
-                dv = models.DistributionValue.objects.create(
-                    scenario=self.scenario,
-                    distribution_type=models.DistributionType.objects.filter(
-                        name__exact=row['DistributionTypeID'], project=project
-                    ).first(),
-                    dmax=float(row['Max'])
-                )
-                if type(dmin) is float:
-                    dv.dmin = dmin
-                if type(relative_frequency) is float:
-                    dv.relative_frequency = relative_frequency
+    def import_initial_conditions_non_spatial(self):
+        self._extract_sheet(INITIAL_CONDITIONS_NON_SPATIAL)
 
-                dv.save()
-        print('Imported distribution values for scenario {}'.format(self.scenario.sid))
+    def import_initial_conditions_non_spatial_distribution(self):
+        self._extract_sheet(INITIAL_CONDITIONS_NON_SPATIAL_DISTRIBUTION)
 
-        self.console.export_sheet('STSim_DeterministicTransition', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                stratum_dest = row['StratumIDDest']
-                t = models.DeterministicTransition.objects.create(
-                    scenario=self.scenario,
-                    stratum_src=models.Stratum.objects.filter(
-                        name__exact=row['StratumIDSource'], project=project
-                    ).first(),
-                    stratum_dest=models.Stratum.objects.filter(
-                        name__exact=row['StratumIDDest'], project=project
-                    ).first(),
-                    stateclass_src=models.StateClass.objects.filter(
-                        name__exact=row['StateClassIDSource'], project=project
-                    ).first(),
-                    stateclass_dest=models.StateClass.objects.filter(
-                        name__exact=row['StateClassIDDest'], project=project
-                    ).first(),
-                    age_min=default_int(row['AgeMin']),
-                    age_max=default_int(row['AgeMax']),
-                    location=row['Location']
-                )
-                if len(stratum_dest):
-                    t.stratum_dest = models.Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
-                t.save()
-        print('Imported deterministic transitions for scenario {}'.format(self.scenario.sid))
+    def import_initial_conditions_spatial(self, create_input_services=True):
+        if self.scenario.run_control.is_spatial:
+            self._extract_sheet(INITIAL_CONDITIONS_SPATIAL)
+            if create_input_services:
+                ServiceGenerator(self.scenario).create_input_services()
 
-        # import initial probabilistic transition probabilities
-        self.console.export_sheet('STSim_Transition', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                stratum_dest = row['StratumIDDest']
-                t = models.Transition.objects.create(  # omit stratum_dest, no change in stratum per timestep
-                    scenario=self.scenario,
-                    stratum_src=models.Stratum.objects.filter(
-                        name__exact=row['StratumIDSource'], project=project
-                    ).first(),
-                    stateclass_src=models.StateClass.objects.filter(
-                        name__exact=row['StateClassIDSource'], project=project
-                    ).first(),
-                    stateclass_dest=models.StateClass.objects.filter(
-                        name__exact=row['StateClassIDDest'], project=project
-                    ).first(),
-                    transition_type=models.TransitionType.objects.filter(
-                        name__exact=row['TransitionTypeID'], project=project
-                    ).first(),
-                    probability=float(row['Probability']),
-                    age_reset=empty_or_yes_to_bool(row['AgeReset'])
-                )
-                if len(stratum_dest):
-                    t.stratum_dest = models.Stratum.objects.filter(name__exact=stratum_dest, project=project).first()
-                    t.save()
+    def import_transition_targets(self):
+        self._extract_sheet(TRANSITION_TARGET)
 
-        print('Imported transition probabilities for scenario {}'.format(self.scenario.sid))
+    def import_transition_multiplier_values(self):
+        self._extract_sheet(TRANSITION_MULTIPLIER_VALUE)
 
-        # Import initial conditions non spatial configuration
-        self.console.export_sheet('STSim_InitialConditionsNonSpatial', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            conditions = [r for r in reader][0]
-            models.InitialConditionsNonSpatial.objects.create(
-                scenario=self.scenario,
-                total_amount=float(conditions['TotalAmount']),
-                num_cells=int(conditions['NumCells']),
-                calc_from_dist=empty_or_yes_to_bool(conditions['CalcFromDist'])
-            )
-        print('Imported initial conditions for scenario {}'.format(self.scenario.sid))
+    def import_transition_size_distributions(self):
+        self._extract_sheet(TRANSITION_SIZE_DISTRIBUTION)
 
-        # Import initial conditions non spatial values
-        self.console.export_sheet('STSim_InitialConditionsNonSpatialDistribution', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                secondary_stratum = row['SecondaryStratumID']
-                ic = models.InitialConditionsNonSpatialDistribution.objects.create(
-                    scenario=self.scenario,
-                    stratum=models.Stratum.objects.filter(
-                        name__exact=row['StratumID'], project=project).first(),
-                    stateclass=models.StateClass.objects.filter(
-                        name__exact=row['StateClassID'], project=project
-                    ).first(),
-                    relative_amount=float(row['RelativeAmount']),
-                    age_min=default_int(row['AgeMin']),
-                    age_max=default_int(row['AgeMax'])
-                )
-                if len(secondary_stratum):
-                    ic.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                ic.save()
-        print('Imported initial conditions values for scenario {}'.format(self.scenario.sid))
+    def import_transition_size_prioritizations(self):
+        self._extract_sheet(TRANSITION_SIZE_PRIORITIZATION)
 
-        # Import initial conditions spatial
-        self.console.export_sheet('STSim_InitialConditionsSpatial', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            init = [r for r in reader]
-            if len(init):
-                init = init[0]
-                models.InitialConditionsSpatial.objects.create(
-                    scenario=self.scenario,
-                    num_rows=default_int(init['NumRows']),
-                    num_cols=default_int(init['NumColumns']),
-                    num_cells=default_int(init['NumCells']),
-                    cell_size=default_float(init['CellSize']),
-                    cell_size_units=init['CellSizeUnits'],
-                    cell_area=default_float(init['CellArea']),
-                    cell_area_override=empty_or_yes_to_bool(init['CellAreaOverride']),
-                    xll_corner=default_float(init['XLLCorner']),
-                    yll_corner=default_float(init['YLLCorner']),
-                    srs=init['SRS'],
-                    stratum_file_name=init['StratumFileName'],
-                    secondary_stratum_file_name=init['SecondaryStratumFileName'],
-                    stateclass_file_name=init['StateClassFileName'],
-                    age_file_name=init['AgeFileName']
-                )
+    def import_transition_spatial_multipliers(self):
+        self._extract_sheet(TRANSITION_SPATIAL_MULTIPLIER)
 
-                # Create map services
-                if create_input_services:
-                    ServiceGenerator(self.scenario).create_input_services()
+    def import_state_attribute_values(self):
+        self._extract_sheet(STATE_ATTRIBUTE_VALUE)
 
-        print('Imported initial conditions spatial settings for scenario {}'.format(self.scenario.sid))
+    def import_transition_attribute_values(self):
+        self._extract_sheet(TRANSITION_ATTRIBUTE_VALUE)
 
-        # Import transition targets
-        self.console.export_sheet('STSim_TransitionTarget', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                stratum = row['StratumID']
-                secondary_stratum = row['SecondaryStratumID']
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                tt = models.TransitionTarget.objects.create(
-                    scenario=self.scenario,
-                    transition_group=models.TransitionGroup.objects.filter(
-                        name__exact=row['TransitionGroupID'], project=project
-                    ).first(),
-                    target_area=float(row['Amount'])
-                )
-                if type(iteration) is int:
-                    tt.iteration = iteration
-                if type(timestep) is int:
-                    tt.timestep = timestep
-                if len(stratum):
-                    tt.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(secondary_stratum):
-                    tt.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                add_distribution_to(tt, row)
-                tt.save()
-        print('Imported transition targets for scenario {}'.format(self.scenario.sid))
+    def import_transition_attribute_targets(self):
+        self._extract_sheet(TRANSITION_ATTRIBUTE_TARGET)
 
-        # Import transition multiplier values
-        self.console.export_sheet('STSim_TransitionMultiplierValue', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                stratum = row['StratumID']
-                secondary_stratum = row['SecondaryStratumID']
-                stateclass = row['StateClassID']
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                transition_multiplier_type = row['TransitionMultiplierTypeID']
-                tm = models.TransitionMultiplierValue.objects.create(
-                    scenario=self.scenario,
-                    transition_group=models.TransitionGroup.objects.filter(
-                        name__exact=row['TransitionGroupID'], project=project
-                    ).first(),
-                    multiplier=float(row['Amount'])
-                )
-                if len(stratum):
-                    tm.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(secondary_stratum):
-                    tm.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                if len(stateclass):
-                    tm.stateclass = models.StateClass.objects.filter(name__exact=stateclass, project=project).first()
-                if type(iteration) is int:
-                    tm.iteration = iteration
-                if type(timestep) is int:
-                    tm.timestep = timestep
-                if len(transition_multiplier_type):
-                    tm.transition_multiplier_type = models.TransitionMultiplierType.objects.filter(
-                        name__exact=transition_multiplier_type, project=project).first()
-                add_distribution_to(tm, row)
-                tm.save()
-        print('Imported transition multiplier values for scenario {}'.format(self.scenario.sid))
-
-        # Import transition size distribution
-        self.console.export_sheet('STSim_TransitionSizeDistribution', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                stratum = row['StratumID']
-                sd = models.TransitionSizeDistribution.objects.create(
-                    scenario=self.scenario,
-                    transition_group=models.TransitionGroup.objects.filter(
-                        name__exact=row['TransitionGroupID'], project=project).first(),
-                    maximum_area=float(row['MaximumArea']),
-                    relative_amount=float(row['RelativeAmount'])
-                )
-                if type(iteration) is int:
-                    sd.iteration = iteration
-                if type(timestep) is int:
-                    sd.timestep = timestep
-                if len(stratum):
-                    sd.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-
-                sd.save()
-        print('Imported transition size distribution for scenario {}'.format(self.scenario.sid))
-
-        # Import transition size prioritization
-        self.console.export_sheet('STSim_TransitionSizePrioritization', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            priorities = [r for r in reader]
-            if len(priorities):
-                priorities = priorities[0]
-                iteration = int(priorities['Iteration']) if len(priorities['Iteration']) else ''
-                timestep = int(priorities['Timestep']) if len(priorities['Timestep']) else ''
-                stratum = priorities['StratumID']
-                transition_group = priorities['TransitionGroupID']
-                sp = models.TransitionSizePrioritization.objects.create(
-                    scenario=self.scenario,
-                    priority=priorities['Priority']
-                )
-                if len(stratum):
-                    sp.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(transition_group):
-                    sp.transition_group = models.TransitionGroup.objects.filter(
-                        name__exact=transition_group, project=project
-                    ).first()
-                if type(iteration) is int:
-                    sp.iteration = iteration
-                if type(timestep) is int:
-                    sp.timestep = timestep
-
-                sp.save()
-        print('Imported transition size prioritization for scenario {}'.format(self.scenario.sid))
-
-        # Import transition spatial multipliers
-        self.console.export_sheet('STSim_TransitionSpatialMultiplier', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                transition_multiplier_type = row['TransitionMultiplierTypeID']
-                tsm = models.TransitionSpatialMultiplier.objects.create(
-                    scenario=self.scenario,
-                    transition_group=models.TransitionGroup.objects.filter(
-                        name__exact=row['TransitionGroupID'], project=project
-                    ).first(),
-                    transition_multiplier_file_name=row['MultiplierFileName']
-                )
-
-                if type(iteration) is int:
-                    tsm.iteration = iteration
-
-                if type(timestep) is int:
-                    tsm.timestep = timestep
-
-                if len(transition_multiplier_type):
-                    tsm.transition_multiplier_type = models.TransitionMultiplierType.objects.filter(
-                        name__exact=transition_multiplier_type,
-                        project=project).first()
-
-                tsm.save()
-        print('Imported transition spatial multipliers for scenario {}'.format(self.scenario.sid))
-
-        # Import state attribute values
-        self.console.export_sheet('STSim_StateAttributeValue', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                stratum = row['StratumID']
-                secondary_stratum = row['SecondaryStratumID']
-                stateclass = row['StateClassID']
-                sav = models.StateAttributeValue.objects.create(
-                    scenario=self.scenario,
-                    state_attribute_type=models.StateAttributeType.objects.filter(
-                        name__exact=row['StateAttributeTypeID'], project=project).first(),
-                    value=float(row['Value'])
-                )
-                if len(stratum):
-                    sav.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(secondary_stratum):
-                    sav.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                if len(stateclass):
-                    sav.stateclass = models.StateClass.objects.filter(name__exact=stateclass, project=project).first()
-                if type(iteration) is int:
-                    sav.iteration = iteration
-                if type(timestep) is int:
-                    sav.timestep = timestep
-
-                sav.save()
-        print('Imported state attribute values for scenario {}'.format(self.scenario.sid))
-
-        # import transition attribute values
-        self.console.export_sheet('STSim_TransitionAttributeValue', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                stratum = row['StratumID']
-                secondary_stratum = row['SecondaryStratumID']
-                stateclass = row['StateClassID']
-                tav = models.TransitionAttributeValue.objects.create(
-                    scenario=self.scenario,
-                    transition_group=models.TransitionGroup.objects.filter(
-                        name__exact=row['TransitionGroupID'], project=project).first(),
-                    transition_attribute_type=models.TransitionAttributeType.objects.filter(
-                        name__exact=row['TransitionAttributeTypeID'], project=project).first(),
-                    value=float(row['Value'])
-                )
-                if len(stratum):
-                    tav.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(secondary_stratum):
-                    tav.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                if len(stateclass):
-                    tav.stateclass = models.StateClass.objects.filter(name__exact=stateclass, project=project).first()
-                if type(iteration) is int:
-                    tav.iteration = iteration
-                if type(timestep) is int:
-                    tav.timestep = timestep
-
-                tav.save()
-        print('Imported transition attribute values for scenario {}'.format(self.scenario.sid))
-
-        # import transition attribute targets
-        self.console.export_sheet('STSim_TransitionAttributeTarget', tmp_file, **kwgs)
-        with open(tmp_file, 'r') as sheet:
-            reader = csv.DictReader(sheet)
-            for row in reader:
-                iteration = int(row['Iteration']) if len(row['Iteration']) else ''
-                timestep = int(row['Timestep']) if len(row['Timestep']) else ''
-                stratum = row['StratumID']
-                secondary_stratum = row['SecondaryStratumID']
-                tat = models.TransitionAttributeTarget.objects.create(
-                    scenario=self.scenario,
-                    transition_attribute_type=models.TransitionAttributeType.objects.filter(
-                        name__exact=row['TransitionAttributeTypeID'], project=project).first(),
-                    target=float(row['Amount'])
-                )
-                if len(stratum):
-                    tat.stratum = models.Stratum.objects.filter(name__exact=stratum, project=project).first()
-                if len(secondary_stratum):
-                    tat.secondary_stratum = models.SecondaryStratum.objects.filter(
-                        name__exact=secondary_stratum, project=project
-                    ).first()
-                if type(iteration) is int:
-                    tat.iteration = iteration
-                if type(timestep) is int:
-                    tat.timestep = timestep
-
-                add_distribution_to(tat, row)
-                tat.save()
-        print('Imported transition attribute targets for scenario {}'.format(self.scenario.sid))
-        if os.path.exists(tmp_file):
-            os.remove(tmp_file)
+    def import_post_processed_sheets(self, create_input_services=True):
+        self.import_deterministic_transitions()
+        self.import_probabilistic_transitions()
+        self.import_initial_conditions_non_spatial()
+        self.import_initial_conditions_non_spatial_distribution()
+        self.import_initial_conditions_spatial(create_input_services=create_input_services)
+        self.import_transition_targets()
+        self.import_transition_multiplier_values()
+        self.import_transition_spatial_multipliers()
+        self.import_state_attribute_values()
+        self.import_transition_attribute_values()
+        self.import_transition_attribute_targets()

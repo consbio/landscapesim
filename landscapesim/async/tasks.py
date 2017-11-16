@@ -186,8 +186,9 @@ def run_model(self, library_name, sid):
     job.save()
 
     # Begin importing data into LandscapeSim
-    importer = ScenarioImporter(scenario, console)
-    importer.process_run_control()
+    importer = ScenarioImporter(console, scenario)
+    importer.import_run_control()
+    importer.import_output_options()
 
     # Create ncdjango services
     service_generator = ServiceGenerator(scenario)
@@ -210,7 +211,7 @@ def post_process_results(run_id):
     run = RunScenarioModel.objects.get(id=run_id)
     scenario = run.result_scenario
     console = STSimConsole(lib_path=scenario.library.file, orig_path=scenario.library.orig_file, exe=EXE)
-    ScenarioImporter(scenario, console).process_scenario_inputs(create_input_services=False)
+    ScenarioImporter(console, scenario).import_post_processed_sheets(create_input_services=False)
 
 
 @task

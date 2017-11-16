@@ -52,14 +52,14 @@ STATE_ATTRIBUTE_REPORT = (
     models.StateAttributeSummaryReport,
     models.StateAttributeSummaryReportRow,
     config.STATE_ATTRIBUTE_SUMMARY_ROW,
-    (int, int, StratumFilter, StateAttributeFilter, default_int, default_int, float, SecondaryStratumFilter)
+    (int, int, StratumFilter, StateAttributeTypeFilter, default_int, default_int, float, SecondaryStratumFilter)
 )
 TRANSITION_ATTRIBUTE_REPORT = (
     'transition-attributes',
     models.TransitionAttributeSummaryReport,
     models.TransitionAttributeSummaryReportRow,
     config.TRANSITION_ATTRIBUTE_SUMMARY_ROW,
-    (int, int, StratumFilter, TransitionAttributeFilter, default_int, default_int, float, SecondaryStratumFilter)
+    (int, int, StratumFilter, TransitionAttributeTypeFilter, default_int, default_int, float, SecondaryStratumFilter)
 )
 
 
