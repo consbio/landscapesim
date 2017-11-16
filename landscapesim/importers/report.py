@@ -91,27 +91,24 @@ class ReportImporter:
         """
         self.console.generate_report(report_name, self.temp_file, self.scenario.sid)
 
+    def map_row(self, row_data, sheet_map, type_map):
+        result = {}
+        for pair, type_or_filter in zip(sheet_map, type_map):
+            model_field, sheet_field = pair
+            data = row_data[sheet_field]
+            is_filter = not (isinstance(type_or_filter, type) or isfunction(type_or_filter))
+            result[model_field] = type_or_filter.get(data, self.scenario.project) if is_filter else type_or_filter(data)
+        return result
+
     def _create_report_summary(self, report_config):
         name, model, row_model, sheet_map, type_map = report_config
-        project = self.scenario.project
-
-        def map_row(row_data):
-            """ Map a row of data using the sheet_map and type_map. """
-            objects = {}
-            for pair, type_or_filter in zip(sheet_map, type_map):
-                model_field, sheet_field = pair
-                data = row_data[sheet_field]
-                is_filter = not (isinstance(type_or_filter, type) or isfunction(type_or_filter))
-                objects[model_field] = type_or_filter.get(data, project) if is_filter else type_or_filter(data)
-            return objects
 
         self.generate_report(name)
         report, created = model.objects.get_or_create(scenario=self.scenario)
         with open(self.temp_file, 'r') as sheet:
             reader = csv.DictReader(sheet)
             for row in reader:
-                row_model.objects.create(report=report, **map_row(row))
-
+                row_model.objects.create(report=report, **self.map_row(row, sheet_map, type_map))
         if not DEBUG and os.path.exists(self.temp_file):
             os.remove(self.temp_file)
 
