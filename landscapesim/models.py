@@ -60,9 +60,15 @@ class LibraryAssets(models.Model):
     reporting_units_path = models.FilePathField(match="*.json")
 
 
+class Region(models.Model):
+    name = models.CharField(max_length=50)
+    path = models.FilePathField()
+
+
 class ReportingUnit(gis_models.Model):
+    region = models.ForeignKey('Region', related_name='reporting_units', on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
-    polygon = gis_models.GeometryField(geography=True)
+    polygons = gis_models.MultiPolygonField(geography=True)
 
 
 """
