@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from landscapesim import models
 from landscapesim.report import Report
-from landscapesim.serializers import projects, reports, scenarios
+from landscapesim.serializers import projects, reports, scenarios, regions
 
 
 class LibraryViewset(viewsets.ReadOnlyModelViewSet):
@@ -267,3 +267,14 @@ class RequestSpatialDataView(ReportViewBase):
 class RequestPDFReportView(ReportViewBase):
     def _response(self, report):
         return JsonResponse(report.request_pdf_data())
+
+
+class RegionViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Region.objects.all()
+    serializer_class = regions.RegionSerializer
+
+
+class ReportingUnitViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = models.ReportingUnit.objects.all()
+    serializer_class = regions.ReportingUnitSerializer
+

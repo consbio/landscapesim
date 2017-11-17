@@ -44,6 +44,10 @@ router.register('transition-by-stateclass-summaries', views.TransitionByStateCla
 router.register('state-attribute-summaries', views.StateAttributeSummaryReportViewset)
 router.register('transition-attribute-summaries', views.TransitionAttributeSummaryReportViewset)
 
+# Regions and reporting units
+router.register('regions', views.RegionViewset)
+router.register('reporting-units', views.ReportingUnitViewset)
+
 # Exported url paths
 urlpatterns = [
     url(r'^', include(router.urls)),

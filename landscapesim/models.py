@@ -57,7 +57,6 @@ class LibraryAssets(models.Model):
     library = models.OneToOneField('Library', related_name='assets', on_delete=models.CASCADE)
     stratum_path = models.FilePathField(match="*.tif")
     stateclass_path = models.FilePathField(match="*.tif")
-    reporting_units_path = models.FilePathField(match="*.json")
 
 
 class Region(models.Model):
@@ -67,6 +66,7 @@ class Region(models.Model):
 
 class ReportingUnit(gis_models.Model):
     region = models.ForeignKey('Region', related_name='reporting_units', on_delete=models.CASCADE)
+    unit_id = models.PositiveIntegerField()
     name = models.CharField(max_length=256)
     polygons = gis_models.MultiPolygonField(geography=True)
 
