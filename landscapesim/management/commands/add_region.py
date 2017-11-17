@@ -41,19 +41,20 @@ class Command(BaseCommand):
 
         region = Region.objects.create(name=name, path=path)
         with fiona.open(path, 'r') as shp:
-            for feature in shp:
-                properties = feature['properties']
-                geometry = feature['geometry']
-                polygons = []
+            with transaction.atomic():
+                for i, feature in enumerate(shp):
+                    properties = feature['properties']
+                    geometry = feature['geometry']
+                    polygons = []
+                    if geometry['type'] == 'MultiPolygon':
+                        coordinate_set = geometry['coordinates']
+                    else:
+                        coordinate_set = [geometry['coordinates']]
 
-                if geometry['type'] == 'MultiPolygon':
-                    coordinate_set = geometry['coordinates']
-                else:
-                    coordinate_set = [geometry['coordinates']]
+                    for coordinates in coordinate_set:
+                        polygons.append(Polygon(*[LinearRing(x) for x in coordinates]))
 
-                for coordinates in coordinate_set:
-                    polygons.append(Polygon(*[LinearRing(x) for x in coordinates]))
-
-                feature_name = properties.get('NAME')
-                with transaction.atomic():
-                    ReportingUnit.objects.create(region=region, name=feature_name, polygons=MultiPolygon(polygons))
+                    feature_name = properties.get('NAME')
+                    ReportingUnit.objects.create(
+                        region=region, unit_id=i, name=feature_name, polygons=MultiPolygon(polygons)
+                    )
