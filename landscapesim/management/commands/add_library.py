@@ -1,6 +1,3 @@
-"""
-    add_library: Imports an existing .ssim library into landscapesim.
-"""
 import os
 from shutil import copyfile
 
@@ -9,9 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from landscapesim import contrib
-from landscapesim.importers import ScenarioImporter, ProjectImporter, ReportImporter
 from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.services import ServiceGenerator
 from landscapesim.models import Library, Project, Scenario
 
 
@@ -92,7 +87,8 @@ class Command(BaseCommand):
                 for s in scenarios:
 
                     # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
-                    scenario_importer = ScenarioImporter(console, s)
+                    #scenario_importer = ScenarioImporter(console, s)
+                    scenario_importer = contrib.get_scenario_importer_cls(name)
                     scenario_importer.import_run_control()
                     scenario_importer.import_output_options()
                     scenario_importer.import_post_processed_sheets()
@@ -102,11 +98,13 @@ class Command(BaseCommand):
 
                     if s.is_result:
 
-                        # Import all available reports
-                        ReportImporter(s, console).create_all_summaries()
+                        # Import all available reports from result scenarios
+                        report_importer = contrib.get_report_importer_cls(name)
+                        report_importer(s, console).create_all_summaries()
 
                         # Import output rasters
-                        ServiceGenerator(s).create_output_services()
+                        # TODO - decide whether this should be allowed on initial import
+                        # ServiceGenerator(s).create_output_services()
 
                     print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
                 print("Project {} successfully imported into landscapesim.".format(project.name))
