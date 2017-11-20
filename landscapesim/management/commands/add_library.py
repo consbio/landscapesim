@@ -104,5 +104,5 @@ class Command(BaseCommand):
                         ServiceGenerator(s).create_output_services()
 
                     print("Scenario {} successfully imported into project {}.".format(s.sid, project.name))
-                print("Project {} successfully imported into landscapesim".format(project.name))
+                print("Project {} successfully imported into landscapesim.".format(project.name))
             print("Library {} successfully added to landscapesim.".format(name))
