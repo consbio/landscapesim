@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from landscapesim import contrib
 from landscapesim.importers import ScenarioImporter, ProjectImporter, ReportImporter
 from landscapesim.io.consoles import STSimConsole
 from landscapesim.io.services import ServiceGenerator
@@ -80,7 +81,11 @@ class Command(BaseCommand):
                         print('Created scenario {}.'.format(s['sid']))
 
                 # Import all project definitions
-                ProjectImporter(console, project).process_project_definitions()
+
+                # At this point, there may be slightly different ways to import a library. We check to see
+                # if there are any contributor modules that might handle them. Otherwise, we do a normal import.
+                project_importer = contrib.get_project_importer_cls(name)
+                project_importer(console, project).process_project_definitions()
 
                 # Now import any scenario-specific information we want to capture
                 scenarios = Scenario.objects.filter(project=project)

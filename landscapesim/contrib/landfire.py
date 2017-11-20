@@ -28,6 +28,11 @@ from rasterstats import zonal_stats
 from landscapesim.models import ReportingUnit
 from landscapesim.serializers.regions import ReportingUnitSerializer
 
+
+# Unique identifier for this contributor module.
+LIBRARY_NAME = 'LANDFIRE'
+
+
 LANDFIRE_DIR = os.path.join(settings.BASE_DIR, 'materials', 'landfire')
 
 # Disallow use of module if Landfire data is not present.
@@ -80,16 +85,16 @@ SCLASS_ALL_MAPPINGS = (
 )
 
 
-def create_strata(self):
+def create_strata():
     pass
 
-def create_stateclasses(self):
+def create_stateclasses():
     pass
 
-def create_reporting_units(self):
+def create_reporting_units():
     pass
 
-def get_initial_conditions(self, reporting_unit: int):
+def get_initial_conditions(reporting_unit: int):
     """ Retreive the initial conditions from a given reporting unit. """
 
     r = ReportingUnit.objects.get(pk=reporting_unit)
@@ -146,10 +151,10 @@ def get_initial_conditions(self, reporting_unit: int):
 
     return initial_conditions
 
-def create_strata_raster(self):
+def create_strata_raster():
     """ Create a stratum raster for importing into ST-Sim. """
     pass
 
-def create_stateclass_raster(self):
+def create_stateclass_raster():
     """ Create a stateclass raster for importing into ST-Sim. """
     pass
