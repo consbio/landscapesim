@@ -1,7 +1,5 @@
 """
 
-TODO - make sure that all contrib files have the following functions
-
 
 LIBRARY_NAME -> str
 get_initial_conditions(reporting_unit: int) -> List[InitialConditionNonSpatialDistributionSerializer]

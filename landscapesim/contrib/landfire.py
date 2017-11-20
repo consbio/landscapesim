@@ -25,6 +25,9 @@ from django.conf import settings
 from rasterio.warp import transform_geom
 from rasterstats import zonal_stats
 
+
+from landscapesim.importers import ProjectImporter, ScenarioImporter, ReportImporter
+
 from landscapesim.models import ReportingUnit
 from landscapesim.serializers.regions import ReportingUnitSerializer
 
@@ -32,27 +35,30 @@ from landscapesim.serializers.regions import ReportingUnitSerializer
 # Unique identifier for this contributor module.
 LIBRARY_NAME = 'LANDFIRE'
 
-
+# Data file paths
 LANDFIRE_DIR = os.path.join(settings.BASE_DIR, 'materials', 'landfire')
-
-# Disallow use of module if Landfire data is not present.
-if not os.path.exists(LANDFIRE_DIR):
-    raise ImportError("LANDFIRE support is not enabled.")
-
 BPS_TIF = os.path.join(LANDFIRE_DIR, 'LANDFIRE_130BPS.tif')
 SCLASS_TIF = os.path.join(LANDFIRE_DIR, 'LANDFIRE_130SCLASS.tif')
+BPS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_BPS.csv')
+SCLASS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_SCLASS.csv')
+BPS_SC_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_BPS_SCLASS_mapping.csv')
+SCLASS_ID_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_STSIM_SCLASS_ID_mapping.csv')
+
+# Disallow use of module if Landfire data is not present.
+all_data_exist = all(os.path.exists(p) for p in (LANDFIRE_DIR, BPS_TIF, SCLASS_TIF, BPS_TIF, BPS_FILE, SCLASS_FILE,
+                                            BPS_SC_FILE, SCLASS_ID_FILE))
+
+if not all_data_exist:
+    raise ImportError(
+        "LANDFIRE support is not enabled."
+        "Check to see that all necessary files exist in <project_root>/materials/landfire"
+    )
 
 with rasterio.open(BPS_TIF, 'r') as src:
     BPS_CRS = src.crs.get('init')
 
 with rasterio.open(SCLASS_TIF, 'r') as src:
     SCLASS_CRS = src.crs.get('init')
-
-
-BPS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_BPS.csv')
-SCLASS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_SCLASS.csv')
-BPS_SC_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_BPS_SCLASS_mapping.csv')
-SCLASS_ID_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_STSIM_SCLASS_ID_mapping.csv')
 
 
 def create_mapping(path, src, dest, key_type=None) -> dict:
@@ -66,6 +72,7 @@ def create_mapping(path, src, dest, key_type=None) -> dict:
         mapping = {key_type(row[src]): row[dest] for row in raw_data}
     return mapping
 
+
 BPS_MAPPING = create_mapping(BPS_FILE, 'VALUE', 'BPS_MODEL')
 BPS_NAMES = create_mapping(BPS_FILE, 'VALUE', 'BPS_NAME')
 SCLASS_MAPPING= create_mapping(SCLASS_FILE, 'Value', 'Label')
@@ -75,7 +82,6 @@ SCLASS_C_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'C')
 SCLASS_D_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'D')
 SCLASS_E_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'E')
 SCLASS_ID_MAPPING = create_mapping(SCLASS_ID_FILE, 'Name', 'ID', str)
-
 SCLASS_ALL_MAPPINGS = (
     ('A', SCLASS_A_MAPPING),
     ('B', SCLASS_B_MAPPING),
@@ -85,16 +91,24 @@ SCLASS_ALL_MAPPINGS = (
 )
 
 
-def create_strata():
+class LandfireProjectImporter(ProjectImporter):
     pass
 
-def create_stateclasses():
+
+class LandfireScenarioImporter(ScenarioImporter):
     pass
 
-def create_reporting_units():
+
+class LandfireReportImporter(ReportImporter):
     pass
 
-def get_initial_conditions(reporting_unit: int):
+
+PROJECT_IMPORTER_CLASS = LandfireProjectImporter
+SCENARIO_IMPORTER_CLASS = LandfireScenarioImporter
+REPORT_IMPORTER_CLASS = LandfireReportImporter
+
+
+def get_initial_conditions(reporting_unit):
     """ Retreive the initial conditions from a given reporting unit. """
 
     r = ReportingUnit.objects.get(pk=reporting_unit)
@@ -158,3 +172,16 @@ def create_strata_raster():
 def create_stateclass_raster():
     """ Create a stateclass raster for importing into ST-Sim. """
     pass
+
+
+'''
+def create_strata():
+    pass
+
+def create_stateclasses():
+    pass
+'''
+
+
+
+
