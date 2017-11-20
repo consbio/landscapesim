@@ -19,8 +19,11 @@
 import os
 import csv
 
-from landscapesim.models import Region, ReportingUnit
+import numpy
+
+from landscapesim.models import Region, ReportingUnit, Stratum, StateClass
 from landscapesim.serializers.regions import ReportingUnitSerializer
+from landscapesim.serializers.scenarios import InitialConditionsNonSpatialDistributionSerializer
 
 from rasterstats import zonal_stats
 from rasterio.warp import transform_geom
@@ -47,32 +50,38 @@ with rasterio.open(SCLASS_TIF, 'r') as src:
 
 BPS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_BPS.csv')
 SCLASS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_SCLASS.csv')
-SCLASS_SC_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_STSIM_mapping.csv')
+BPS_SC_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_BPS_SCLASS_mapping.csv')
+SCLASS_ID_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_STSIM_SCLASS_ID_mapping.csv')
 
 
-def create_mapping(data, src: str, dest: str) -> dict:
-    """ Create a dictionary between two types. """
+def create_mapping(path, src, dest, key_type=None) -> dict:
+    """ Create a dictionary between two attributes. """
+    if key_type is None:
+        key_type = int
 
-    if isinstance(data, str):
-        with open(data, 'r') as f:
-            reader = csv.DictReader(f)
-            raw_data = [r for r in reader]
-    else:
-        raw_data = data
-    mapping = {int(row[src]): row[dest] for row in raw_data}
-    return mapping, raw_data
+    with open(path, 'r') as f:
+        reader = csv.DictReader(f)
+        raw_data = [r for r in reader]
+        mapping = {key_type(row[src]): row[dest] for row in raw_data}
+    return mapping
 
-BPS_MAPPING, _ = create_mapping(BPS_FILE, 'VALUE', 'BPS_MODEL')
-SCLASS_MAPPING, _ = create_mapping(SCLASS_FILE, 'Value', 'Label')
-SCLASS_A_MAPPING, data = create_mapping(SCLASS_SC_FILE, 'code', 'A')
-SCLASS_B_MAPPING = create_mapping(data, 'code', 'B')
-SCLASS_C_MAPPING = create_mapping(data, 'code', 'C')
-SCLASS_D_MAPPING = create_mapping(data, 'code', 'D')
-SCLASS_E_MAPPING = create_mapping(data, 'code', 'E')
+BPS_MAPPING = create_mapping(BPS_FILE, 'VALUE', 'BPS_MODEL')
+BPS_NAMES = create_mapping(BPS_FILE, 'VALUE', 'BPS_NAME')
+SCLASS_MAPPING= create_mapping(SCLASS_FILE, 'Value', 'Label')
+SCLASS_A_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'A')
+SCLASS_B_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'B')
+SCLASS_C_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'C')
+SCLASS_D_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'D')
+SCLASS_E_MAPPING = create_mapping(BPS_SC_FILE, 'code', 'E')
+SCLASS_ID_MAPPING = create_mapping(SCLASS_ID_FILE, 'Name', 'ID', str)
 
-
-# TODO - get stateclass mapping from Landfire stsim library
-
+SCLASS_ALL_MAPPINGS = (
+    ('A', SCLASS_A_MAPPING),
+    ('B', SCLASS_B_MAPPING),
+    ('C', SCLASS_C_MAPPING),
+    ('D', SCLASS_D_MAPPING),
+    ('E', SCLASS_E_MAPPING)
+)
 
 
 class Landfire:
@@ -99,13 +108,56 @@ class Landfire:
         zone_feature = feature.copy()
         zone_feature['geometry'] = transform_geom({'init': 'EPSG:4326'}, BPS_CRS, feature['geometry'])
         bps_stats = zonal_stats(
-            zone_feature, BPS_TIF, stats=['count'], categorical=True, category_mapping=BPS_MAPPING, raster_out=True
-        )
+            zone_feature, BPS_TIF, stats=[], categorical=True, raster_out=True
+        )[0]
+        bps_raster = bps_stats.get('mini_raster_array')
 
-        # TODO - Get Stateclass stats, convert stateclass raster to bps_sc mapping
+        sclass_stats = zonal_stats(
+            zone_feature, SCLASS_TIF, stats=[], raster_out=True
+        )[0]
+        sclass_raster = sclass_stats.get('mini_raster_array')
 
+        # The count of the area that *is not* masked, i.e. the count within the reporting unit
+        count = bps_raster.count()
 
-        return bps_stats
+        initial_conditions = []
+        for value in bps_stats:
+            if value in BPS_MAPPING:
+                # Calculate state class percentages where the vegetation occurs
+                try:
+                    bps_model_code = int(BPS_MAPPING[value])
+                except ValueError:
+                    continue
+
+                bps_model_name = BPS_NAMES[value]
+                stateclass_names = []
+                for sclass_type, lookup in SCLASS_ALL_MAPPINGS:
+                    if bps_model_code in lookup:
+                        name = lookup[bps_model_code]
+                        if name:
+                            stateclass_names.append((sclass_type, name))
+
+                # TODO - calculate the initial stateclass conditions for each stateclass we found
+                sclass_locations = sclass_raster[numpy.where(bps_raster == value)]
+                sclass_keys_found, sclass_counts = numpy.unique(sclass_locations, return_counts=True)
+                print(sclass_keys_found)
+                veg_initial_conditions = {}
+                for i, name_tuple in enumerate(stateclass_names):
+                    name, stateclass = name_tuple
+                    if i not in sclass_keys_found:
+                        relative_amount = 0.0
+                    else:
+                        sclass_idx = list(sclass_keys_found).index(i)
+                        relative_amount = sclass_counts[sclass_idx] / count
+
+                    initial_conditions.append({
+                        'scenario': 123,                        # TODO - get scenario information
+                        'relative_amount': relative_amount,
+                        'stratum': bps_model_name,              # TODO - get foreign key, use name as lookup?
+                        'stateclass': stateclass                # TODO - get foreign key, use sclass name as lookup?
+                    })
+
+        return initial_conditions, (bps_stats, sclass_stats)
 
     def create_strata_raster(self):
         """ Create a stratum raster for importing into ST-Sim. """
@@ -116,9 +168,9 @@ class Landfire:
         pass
 
 
-    def _calculate_vegetation_statistics(self):
+    def _calculate_vegetation_statistics(self, bps, sclass):
         pass
 
-    def _calculate_stateclass_statistics(self):
+    def _calculate_stateclass_statistics(self, bps, sclass):
         pass
 
