@@ -45,16 +45,9 @@ class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
 
 
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
-
-    #relative_amount = serializers.SerializerMethodField()
-
     class Meta:
         model = models.InitialConditionsNonSpatialDistribution
         exclude = ('scenario',)
-
-    #def get_relative_amount(self, obj):
-    #    print(obj)
-    #    return 0
 
 
 class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
@@ -261,7 +254,10 @@ class ScenarioConfigSerializer(serializers.Serializer):
 
     @property
     def reporting_unit(self):
-        return self.context.get('reporting_unit', None)
+        pk = self.context.get('reporting_unit')
+        if unit:
+            return models.ReportingUnit.objects.get(pk=pk)
+        return None
 
     def get_initial_conditions_nonspatial_distributions(self, obj):
         """
