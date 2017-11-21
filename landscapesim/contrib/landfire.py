@@ -92,7 +92,6 @@ SCLASS_ALL_MAPPINGS = (
 class LandfireProjectImporter(ProjectImporter):
     """ A custom Project importer that uses more descriptive names than those stored in the SyncroSim database. """
 
-    
     def _extract_sheet_alternative_names(self, sheet_config, mapping):
         sheet_name, model, sheet_map, type_map = sheet_config
         self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
@@ -112,19 +111,8 @@ class LandfireProjectImporter(ProjectImporter):
     def import_stratum(self):
         self._extract_sheet_alternative_names(STRATUM, BPS_NAMES)
 
-'''
-class LandfireScenarioImporter(ScenarioImporter):
-    pass
-
-
-class LandfireReportImporter(ReportImporter):
-    pass
-'''
-
 # Register the importer classes so that LandscapeSim picks them up
 PROJECT_IMPORTER_CLASS = LandfireProjectImporter
-#SCENARIO_IMPORTER_CLASS = LandfireScenarioImporter
-#REPORT_IMPORTER_CLASS = LandfireReportImporter
 
 
 def get_initial_conditions(reporting_unit):
@@ -150,7 +138,8 @@ def get_initial_conditions(reporting_unit):
     initial_conditions = []
     for value in bps_stats:
         if value in BPS_MAPPING:
-            # Calculate state class percentages where the vegetation occurs
+
+            # If the raster value is not found, skip it
             try:
                 bps_model_code = int(BPS_MAPPING[value])
             except ValueError:
