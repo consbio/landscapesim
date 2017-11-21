@@ -2,15 +2,16 @@
 var availableLibraries = [];
 var currentLibrary = {};
 var projectURL = '';
-var available_projects = [];
+var availableProjects = [];
 var currentProject = {};
-var available_scenarios = [];
+var availableScenarios = [];
 var scenarioURL = '';
 var currentScenario = {};
 var runModelURL = '/api/jobs/run-model/';
 var settings;
 var boundingBoxLayer;
 var librarySelected = false;
+var availableRegions = [];
 
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -35,13 +36,17 @@ $(document).ready(function() {
 
         // Add each library to the library selection dropdown.
         $.each(availableLibraries, function(index, library){
-            $(".model_selection").append("<option value ='" + library.id + "'>" + library.name)
+            $(".model_selection").append("<option value ='" + library.name + "'>" + library.name)
         });
 
         $("select").prop("selectedIndex",0);
         $("#spatial_switch")[0].checked = true
 
     });
+
+    $.getJSON('/api/regions/').done(function(res) {
+        availableRegions = res.results;
+    })
 
     /************************************************* Run Model  ****************************************************/
     // Send the scenario and initial conditions to ST-Sim.
@@ -233,9 +238,14 @@ $(document).ready(function() {
         var info = getCurrentInfo();
 
         // Show the layer
-        boundingBoxLayer = L.geoJSON(info.extent).addTo(map);
-        boundingBoxLayer.bindPopup(info.name + " Extent").openPopup();
+        if (info.extent != null) {
+            boundingBoxLayer = L.geoJSON(info.extent).addTo(map);
+            boundingBoxLayer.bindPopup(info.name + " Extent").openPopup();        
+        }
+        else if (info.regions != null) {
 
+        }
+        
         // Uppate the values in the library_info table
         $("#library_author").html(info.author);
         $("#library_date").html(info.date);
@@ -255,14 +265,14 @@ $(document).ready(function() {
 
         $("#library_header").addClass("full_border_radius");
 
-        currentLibrary = $.grep(availableLibraries, function(e) {return e.id == $(".model_selection").val()})[0];
-        available_projects = currentLibrary.projects;
-        projectURL = available_projects[0];
+        currentLibrary = $.grep(availableLibraries, function(e) {return e.name == $(".model_selection").val()})[0];
+        availableProjects = currentLibrary.projects;
+        projectURL = availableProjects[0];
 
         // Get Stuff from the Web API
         $.getJSON(projectURL).done(function (project) {
             currentProject = project;
-            available_scenarios = currentProject.scenarios;
+            availableScenarios = currentProject.scenarios;
 
             // Get project definitions
             $.getJSON(projectURL + 'definitions').done(function (definitions) {
@@ -271,7 +281,7 @@ $(document).ready(function() {
             });
 
             // Select scenario from list; here we are just taking the top one
-            scenarioURL = available_scenarios[0];
+            scenarioURL = availableScenarios[0];
 
             // Get scenario information
             $.getJSON(scenarioURL).done(function (scenario) {

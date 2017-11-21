@@ -1,8 +1,7 @@
-var store = {};
-
-store[1] = {
+var store = {
+    "Castle Creek": {
         name: "Castle Creek",
-        description : "A sample ST-Sim library developed for a semi-arid shrub-steppe ecosystem in southwest Idaho (Castle Creek).",
+        description: "A sample ST-Sim library developed for a semi-arid shrub-steppe ecosystem in southwest Idaho (Castle Creek).",
         author: "Michael S. O'Donnell",
         date: "2015",
         extent: {
@@ -26,16 +25,26 @@ store[1] = {
             "Restoration Tree Encroached H": "Restoration Tree Encroached H",
             "Restoration Depleted Sage L": "Restoration Depleted Sage L",
             "Restoration Depleted Sage H": "Restoration Depleted Sage H",
-            "Restoration Depleted Sage": "Restoration Depleted Sage",
+            "Restoration Depleted Sage": "Restoration Depeleted Sage",
             "Restoration Annual Grass L": "Restoration Annual Grass L",
             "Restoration Annual Grass H": "Restoration Annual Grass H",
             "Restoration Annual Grass": "Restoration Annual Grass",
             "Reference Restoration L": "Reference Restoration L",
-            "Reference Restoration H": "Reference Restoration H",
+            "Reference Restoration H": "Referenc Restoration H",
             "CWG-Seed": "CWG-Seed",
             "CWG-Restoration": "CWG-Restoration",
             "Replacement Fire": "Prescribed Fire"
         }
+    },
+    "LANDFIRE": {
+        name: "LANDFIRE",
+        description: "LANDFIRE 130 (2012) BpS Models",
+        author: "LANDFIRE",
+        date: "2013",
+        extent: null,
+        zoom: 10,
+        management_actions_filter: {}
+    }
 };
 
 var downloadCsvURL = '/api/download-csv/';

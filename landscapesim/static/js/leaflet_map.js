@@ -48,7 +48,8 @@ layerControl.getContainer().style.display = 'none';
 
 var inputStateClassLayer;
 var inputStratumLayer;
-function loadInputLayers(inputServices){
+function loadInputLayers(inputServices) {
+    if (inputServices === null) return;
     inputStateClassLayer = L.tileLayer(inputServices.stateclass);
     inputStratumLayer = L.tileLayer(inputServices.stratum);
     layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
