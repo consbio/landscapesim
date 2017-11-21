@@ -13,7 +13,7 @@ from django.db import models
 
 
 class Library(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=256, unique=True)
     file = models.FilePathField(match="*.ssim")
     orig_file = models.FilePathField(match="*.ssim")
     tmp_file = models.FilePathField()
@@ -97,9 +97,9 @@ class DistributionType(models.Model):
 class Stratum(models.Model):
     project = models.ForeignKey('Project', related_name='strata', on_delete=models.CASCADE)
     stratum_id = models.IntegerField()
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=256)
     color = models.CharField(max_length=30)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=256)
 
 
 class SecondaryStratum(models.Model):

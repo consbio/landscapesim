@@ -27,7 +27,7 @@ from rasterstats import zonal_stats
 
 from landscapesim.importers import ProjectImporter, ScenarioImporter, ReportImporter
 from landscapesim.importers.project import STRATUM
-from landscapesim.models import ReportingUnit
+from landscapesim.models import Stratum, ReportingUnit
 from landscapesim.serializers.regions import ReportingUnitSerializer
 
 # Unique identifier for this contributor module.
@@ -92,6 +92,7 @@ SCLASS_ALL_MAPPINGS = (
 class LandfireProjectImporter(ProjectImporter):
     """ A custom Project importer that uses more descriptive names than those stored in the SyncroSim database. """
 
+    
     def _extract_sheet_alternative_names(self, sheet_config, mapping):
         sheet_name, model, sheet_map, type_map = sheet_config
         self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
@@ -100,14 +101,14 @@ class LandfireProjectImporter(ProjectImporter):
             data = [r for r in reader]
             for row in data:
                 mapped_row = self.map_row(row, sheet_map, type_map)
-                row_id = int(mapped_row['ID'])
+                row_id = mapped_row['stratum_id']
                 descriptive_name = mapping[row_id]
-                mapped_row['name'] = descriptive_name
+                mapped_row['description'] = descriptive_name
                 instance_data = {**self.import_kwargs, **mapped_row}
                 model.objects.create(**instance_data)
-        print("Imported {} (with customized LANDFIRE names)".format(sheet_name))
+        print("Imported {} (with customized LANDFIRE descriptions)".format(sheet_name))
         self._cleanup_temp_file()
-
+    
     def import_stratum(self):
         self._extract_sheet_alternative_names(STRATUM, BPS_NAMES)
 
@@ -199,7 +200,3 @@ def create_strata():
 def create_stateclasses():
     pass
 '''
-
-
-
-

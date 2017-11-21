@@ -85,10 +85,8 @@ class Command(BaseCommand):
                 # Now import any scenario-specific information we want to capture
                 scenarios = Scenario.objects.filter(project=project)
                 for s in scenarios:
-
                     # Import scenario inputs (transition probabilities, distributions, initial conditions, etc.)
-                    #scenario_importer = ScenarioImporter(console, s)
-                    scenario_importer = contrib.get_scenario_importer_cls(name)
+                    scenario_importer = contrib.get_scenario_importer_cls(name)(console, s)
                     scenario_importer.import_run_control()
                     scenario_importer.import_output_options()
                     scenario_importer.import_post_processed_sheets()
