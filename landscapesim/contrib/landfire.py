@@ -25,12 +25,10 @@ from django.conf import settings
 from rasterio.warp import transform_geom
 from rasterstats import zonal_stats
 
-
 from landscapesim.importers import ProjectImporter, ScenarioImporter, ReportImporter
-
+from landscapesim.importers.project import STRATUM
 from landscapesim.models import ReportingUnit
 from landscapesim.serializers.regions import ReportingUnitSerializer
-
 
 # Unique identifier for this contributor module.
 LIBRARY_NAME = 'LANDFIRE'
@@ -92,20 +90,40 @@ SCLASS_ALL_MAPPINGS = (
 
 
 class LandfireProjectImporter(ProjectImporter):
-    pass
+    """ A custom Project importer that uses more descriptive names than those stored in the SyncroSim database. """
 
+    def _extract_sheet_alternative_names(self, sheet_config, mapping):
+        sheet_name, model, sheet_map, type_map = sheet_config
+        self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
+        with open(self.temp_file, 'r') as sheet:
+            reader = csv.DictReader(sheet)
+            data = [r for r in reader]
+            for row in data:
+                mapped_row = self.map_row(row, sheet_map, type_map)
+                row_id = int(mapped_row['ID'])
+                descriptive_name = mapping[row_id]
+                mapped_row['name'] = descriptive_name
+                instance_data = {**self.import_kwargs, **mapped_row}
+                model.objects.create(**instance_data)
+        print("Imported {} (with customized LANDFIRE names)".format(sheet_name))
+        self._cleanup_temp_file()
 
+    def import_stratum(self):
+        self._extract_sheet_alternative_names(STRATUM, BPS_NAMES)
+
+'''
 class LandfireScenarioImporter(ScenarioImporter):
     pass
 
 
 class LandfireReportImporter(ReportImporter):
     pass
+'''
 
-
+# Register the importer classes so that LandscapeSim picks them up
 PROJECT_IMPORTER_CLASS = LandfireProjectImporter
-SCENARIO_IMPORTER_CLASS = LandfireScenarioImporter
-REPORT_IMPORTER_CLASS = LandfireReportImporter
+#SCENARIO_IMPORTER_CLASS = LandfireScenarioImporter
+#REPORT_IMPORTER_CLASS = LandfireReportImporter
 
 
 def get_initial_conditions(reporting_unit):

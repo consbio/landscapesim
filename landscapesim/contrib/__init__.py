@@ -58,6 +58,7 @@ def get_project_importer_cls(library_name):
             pass
     return ProjectImporter
 
+
 def get_scenario_importer_cls(library_name):
     """ Return a ScenarioImporter class to handle importing a specific library's scenario information. """
     lib_module = _find_library_module(library_name)
@@ -70,7 +71,7 @@ def get_scenario_importer_cls(library_name):
 
 
 def get_report_importer_cls(library_name):
-    """ Return a ReportImporter class to handle importing a specific library's scenario information. """
+    """ Return a ReportImporter class to handle importing a specific library's report information. """
     lib_module = _find_library_module(library_name)
     if lib_module:
         try:
