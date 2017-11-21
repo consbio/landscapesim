@@ -30,7 +30,7 @@ from landscapesim.importers.project import STRATUM
 from landscapesim.models import Stratum, ReportingUnit
 from landscapesim.serializers.regions import ReportingUnitSerializer
 
-# Unique identifier for this contributor module.
+# Unique identifier for this contributor module's library name.
 LIBRARY_NAME = 'LANDFIRE'
 
 # Data file paths
@@ -42,7 +42,7 @@ SCLASS_FILE = os.path.join(LANDFIRE_DIR, 'US_130_SCLASS.csv')
 BPS_SC_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_BPS_SCLASS_mapping.csv')
 SCLASS_ID_FILE = os.path.join(LANDFIRE_DIR, 'LANDFIRE_STSIM_SCLASS_ID_mapping.csv')
 
-# Disallow use of module if Landfire data is not present.
+# Disallow use of module if data is not present.
 all_data_exist = all(os.path.exists(p) for p in (LANDFIRE_DIR, BPS_TIF, SCLASS_TIF, BPS_TIF, BPS_FILE, SCLASS_FILE,
                                             BPS_SC_FILE, SCLASS_ID_FILE))
 
@@ -111,6 +111,7 @@ class LandfireProjectImporter(ProjectImporter):
     def import_stratum(self):
         self._extract_sheet_alternative_names(STRATUM, BPS_NAMES)
 
+
 # Register the importer classes so that LandscapeSim picks them up
 PROJECT_IMPORTER_CLASS = LandfireProjectImporter
 
@@ -173,19 +174,12 @@ def get_initial_conditions(reporting_unit):
 
     return initial_conditions
 
+
 def create_strata_raster():
     """ Create a stratum raster for importing into ST-Sim. """
     pass
 
+
 def create_stateclass_raster():
     """ Create a stateclass raster for importing into ST-Sim. """
     pass
-
-
-'''
-def create_strata():
-    pass
-
-def create_stateclasses():
-    pass
-'''
