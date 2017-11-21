@@ -17,6 +17,8 @@ var store = {
             }
         },
         zoom: 11,
+        require_reporting_unit: false,
+        default_region: '',
         // Actual Library Name: Alias
         management_actions_filter: {
             "Thin-Mech-Chem": "Thin-Mech-Chem",
@@ -43,7 +45,19 @@ var store = {
         date: "2013",
         extent: null,
         zoom: 10,
-        management_actions_filter: {}
+        management_actions_filter: {},
+        default_region: 'Watersheds',
+        require_reporting_unit: true,
+        stratum_service: {
+            url: 'http://landfire.cr.usgs.gov/arcgis/services/Landfire/US_130/MapServer/WMSServer?',
+            layers: "US_130BPS",
+            wms: true
+        },
+        stateclass_service: {
+            url: 'http://landfire.cr.usgs.gov/arcgis/services/Landfire/US_130/MapServer/WMSServer?',
+            layers: "US_130SCLASS",
+            wms: true
+        }
     }
 };
 

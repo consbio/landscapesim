@@ -5,7 +5,7 @@
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 
-from landscapesim import models
+from landscapesim import models, contrib
 
 
 class DistributionValueSerializer(serializers.ModelSerializer):
@@ -255,8 +255,15 @@ class ScenarioConfigSerializer(serializers.Serializer):
     @property
     def reporting_unit(self):
         pk = self.context.get('reporting_unit')
-        if unit:
+        if pk:
             return models.ReportingUnit.objects.get(pk=pk)
+        return None
+
+    @property
+    def library(self):
+        library = self.context.get('library')
+        if library:
+            return models.Library.get(name__exact=library)
         return None
 
     def get_initial_conditions_nonspatial_distributions(self, obj):
@@ -268,8 +275,9 @@ class ScenarioConfigSerializer(serializers.Serializer):
         """
 
         nonspatial_distributions = obj.initial_conditions_nonspatial_distributions.all()
-        if self.reporting_unit:
-            pass    # TODO - query the Scenario's veg and stateclass rasters with this reporting unit
+        if self.reporting_unit and self.library:
+            print(self.reporting_unit)
+            print(self.library)
 
         #return InitialConditionsNonSpatialDistributionSerializer(many=True, data=obj, read_only=True)
         return InitialConditionsNonSpatialDistributionSerializer(nonspatial_distributions, many=True).data

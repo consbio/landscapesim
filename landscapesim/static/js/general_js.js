@@ -12,6 +12,7 @@ var settings;
 var boundingBoxLayer;
 var librarySelected = false;
 var availableRegions = [];
+var selectedReportingUnit = null;
 
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -242,8 +243,8 @@ $(document).ready(function() {
             boundingBoxLayer = L.geoJSON(info.extent).addTo(map);
             boundingBoxLayer.bindPopup(info.name + " Extent").openPopup();        
         }
-        else if (info.regions != null) {
-
+        else if (info.default_region != null) {
+            
         }
         
         // Uppate the values in the library_info table
@@ -255,7 +256,14 @@ $(document).ready(function() {
 
     /********************************************** Load Library (Start) **********************************************/
 
-    $("#start_button").on("click", function(){
+    $("#start_button").on("click", function() {
+
+        var info = getCurrentInfo();
+
+        if (info.require_reporting_unit && selectedReportingUnit == null) {
+            alert("Select a reporting unit, then load the library.")
+            return;
+        }
 
         if (layerControlHidden) {
             layerControl.getContainer().style.display = '';
@@ -287,9 +295,13 @@ $(document).ready(function() {
             $.getJSON(scenarioURL).done(function (scenario) {
                 currentScenario = scenario;
 
+                var configParams = {'library': info.name};
+                if (info.require_reporting_unit) {
+                    configParams['reporting_unit'] = selectedReportingUnit.id;
+                }
 
                 // Scenario configuration (at import)
-                $.getJSON(scenarioURL + 'config').done(function (config) {
+                $.getJSON(scenarioURL + 'config', {}).done(function (config) {
                     currentScenario.config = config;
 
                     // Spatial by default:
