@@ -273,6 +273,15 @@ class RegionViewset(viewsets.ReadOnlyModelViewSet):
     queryset = models.Region.objects.all()
     serializer_class = regions.RegionSerializer
 
+    @detail_route(methods=['get'])
+    def reporting_units(self, *args, **kwargs):
+        context = {'request': self.request}
+        return Response(
+            regions.ReportingUnitSerializer(
+                self.get_object().reporting_units.all(), many=True, context=context
+            ).data
+        )
+
 
 class ReportingUnitViewset(viewsets.ReadOnlyModelViewSet):
     queryset = models.ReportingUnit.objects.all()

@@ -47,7 +47,7 @@ class InitialConditionsNonSpatialSerializer(serializers.ModelSerializer):
 class InitialConditionsNonSpatialDistributionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.InitialConditionsNonSpatialDistribution
-        exclude = ('scenario',)
+        exclude = ('scenario', 'reporting_unit')
 
 
 class InitialConditionsSpatialSerializer(serializers.ModelSerializer):
@@ -254,16 +254,16 @@ class ScenarioConfigSerializer(serializers.Serializer):
 
     @property
     def reporting_unit(self):
-        pk = self.context.get('reporting_unit')
+        pk = self.context.get('request').GET.get('reporting_unit')
         if pk:
             return models.ReportingUnit.objects.get(pk=pk)
         return None
 
     @property
     def library(self):
-        library = self.context.get('library')
+        library = self.context.get('request').GET.get('library')
         if library:
-            return models.Library.get(name__exact=library)
+            return models.Library.objects.get(name__exact=library)
         return None
 
     def get_initial_conditions_nonspatial_distributions(self, obj):
@@ -273,11 +273,9 @@ class ScenarioConfigSerializer(serializers.Serializer):
         :param obj: An instance of a Scenario.
         :return: A list of serialized InitialConditionsNonSpatialDistribution objects.
         """
-
-        nonspatial_distributions = obj.initial_conditions_nonspatial_distributions.all()
         if self.reporting_unit and self.library:
-            print(self.reporting_unit)
-            print(self.library)
-
-        #return InitialConditionsNonSpatialDistributionSerializer(many=True, data=obj, read_only=True)
-        return InitialConditionsNonSpatialDistributionSerializer(nonspatial_distributions, many=True).data
+            data = obj.initial_conditions_nonspatial_distributions.filter(reporting_unit=self.reporting_unit)
+        else:
+            # Use defaults not attached to a reporting unit
+            data = obj.initial_conditions_nonspatial_distributions.filter(reporting_unit=None)
+        return InitialConditionsNonSpatialDistributionSerializer(data, many=True).data

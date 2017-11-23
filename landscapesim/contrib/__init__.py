@@ -40,7 +40,7 @@ def _load_library_processors():
 _load_library_processors()
 
 
-def _find_library_module(library_name):
+def find_library_module(library_name):
     """ Find a contrib module based on the STSim library name. """
     for name, mod_name in REGISTERED_LIBRARY_PROCESSORS.items():
         mod = sys.modules[mod_name]
@@ -51,7 +51,7 @@ def _find_library_module(library_name):
 
 def get_project_importer_cls(library_name):
     """ Return a ProjectImporter class to handle importing a specific library's project information. """
-    lib_module = _find_library_module(library_name)
+    lib_module = find_library_module(library_name)
     if lib_module:
         try:
             return lib_module.PROJECT_IMPORTER_CLASS
@@ -62,7 +62,7 @@ def get_project_importer_cls(library_name):
 
 def get_scenario_importer_cls(library_name):
     """ Return a ScenarioImporter class to handle importing a specific library's scenario information. """
-    lib_module = _find_library_module(library_name)
+    lib_module = find_library_module(library_name)
     if lib_module:
         try:
             return lib_module.SCENARIO_IMPORTER_CLASS
@@ -73,10 +73,17 @@ def get_scenario_importer_cls(library_name):
 
 def get_report_importer_cls(library_name):
     """ Return a ReportImporter class to handle importing a specific library's report information. """
-    lib_module = _find_library_module(library_name)
+    lib_module = find_library_module(library_name)
     if lib_module:
         try:
             return lib_module.REPORT_IMPORTER_CLASS
         except AttributeError:
             pass
     return ReportImporter
+
+
+def get_initial_conditions(library_name, scenario, reporting_unit=None):
+    lib_module = find_library_module(library_name)
+    if lib_module and reporting_unit is not None:
+        return lib_module.get_initial_conditions(scenario, reporting_unit)
+    return None

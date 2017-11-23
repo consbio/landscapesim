@@ -2,8 +2,7 @@ import os
 
 import fiona
 from django.conf import settings
-from django.contrib.gis.geos import LinearRing, Polygon
-from django.contrib.gis.geos.collections import MultiPolygon
+from django.contrib.gis.geos import LinearRing, Polygon, MultiPolygon
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -45,16 +44,17 @@ class Command(BaseCommand):
                 for i, feature in enumerate(shp):
                     properties = feature['properties']
                     geometry = feature['geometry']
-                    polygons = []
-                    if geometry['type'] == 'MultiPolygon':
-                        coordinate_set = geometry['coordinates']
+                    geom_type = geometry.get('type')
+                    if geom_type == 'MultiPolygon':
+                        polygon = MultiPolygon(
+                            *[Polygon(*[LinearRing(x) for x in g]) for g in geometry['coordinates']]
+                        )
+                    elif geom_type == 'Polygon':
+                        polygon = Polygon(*[LinearRing(x) for x in geometry['coordinates']])
                     else:
-                        coordinate_set = [geometry['coordinates']]
-
-                    for coordinates in coordinate_set:
-                        polygons.append(Polygon(*[LinearRing(x) for x in coordinates]))
+                        continue    # No support for non-polygon geometries
 
                     feature_name = properties.get('NAME')
                     ReportingUnit.objects.create(
-                        region=region, unit_id=i, name=feature_name, polygons=MultiPolygon(polygons)
+                        region=region, unit_id=i, name=feature_name, polygon=polygon
                     )

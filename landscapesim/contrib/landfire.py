@@ -17,6 +17,7 @@
 """
 
 import csv
+import json
 import os
 
 import numpy
@@ -25,10 +26,9 @@ from django.conf import settings
 from rasterio.warp import transform_geom
 from rasterstats import zonal_stats
 
-from landscapesim.importers import ProjectImporter, ScenarioImporter, ReportImporter
+from landscapesim.importers import ProjectImporter
 from landscapesim.importers.project import STRATUM
-from landscapesim.models import Stratum, ReportingUnit
-from landscapesim.serializers.regions import ReportingUnitSerializer
+from landscapesim.models import Stratum, StateClass
 
 # Unique identifier for this contributor module's library name.
 LIBRARY_NAME = 'LANDFIRE'
@@ -116,27 +116,28 @@ class LandfireProjectImporter(ProjectImporter):
 PROJECT_IMPORTER_CLASS = LandfireProjectImporter
 
 
-def get_initial_conditions(reporting_unit):
+def get_initial_conditions(scenario, reporting_unit):
     """ Retreive the initial conditions from a given reporting unit. """
 
-    r = ReportingUnit.objects.get(pk=reporting_unit)
-    feature = ReportingUnitSerializer(r).data
-    zone_feature = feature.copy()
-    zone_feature['geometry'] = transform_geom({'init': 'EPSG:4326'}, BPS_CRS, feature['geometry'])
+    # Transform the geometry to fit the projection
+    geom = transform_geom({'init': 'EPSG:4326'}, BPS_CRS, json.loads(reporting_unit.polygon.json))
+    feature = dict(geometry=geom, type='Feature', properties={})
+
+    # Collect zonal stats from rasters
     bps_stats = zonal_stats(
-        zone_feature, BPS_TIF, stats=[], categorical=True, raster_out=True
+        [feature], BPS_TIF, stats=[], categorical=True, raster_out=True
     )[0]
     bps_raster = bps_stats.get('mini_raster_array')
 
     sclass_stats = zonal_stats(
-        zone_feature, SCLASS_TIF, stats=[], raster_out=True
+        [feature], SCLASS_TIF, stats=[], raster_out=True
     )[0]
     sclass_raster = sclass_stats.get('mini_raster_array')
 
     # The count of the area that *is not* masked, i.e. the count within the reporting unit
     count = bps_raster.count()
 
-    initial_conditions = []
+    # Yield each set of initial conditions
     for value in bps_stats:
         if value in BPS_MAPPING:
 
@@ -146,7 +147,13 @@ def get_initial_conditions(reporting_unit):
             except ValueError:
                 continue
 
-            bps_model_name = BPS_NAMES[value]
+            stratum = Stratum.objects.filter(name=BPS_MAPPING[value], project=scenario.project)
+
+            # Not all BpS vegetation types have a STM model. Since we can't model them, we skip them.
+            if not stratum:
+                continue
+            stratum = stratum.first()
+
             stateclass_names = []
             for sclass_type, lookup in SCLASS_ALL_MAPPINGS:
                 if bps_model_code in lookup:
@@ -163,16 +170,15 @@ def get_initial_conditions(reporting_unit):
                 else:
                     sclass_idx = list(sclass_keys_found).index(i)
                     relative_amount = sclass_counts[sclass_idx] / count
+                stateclass = StateClass.objects.filter(name=stateclass, project=scenario.project).first()
 
-                initial_conditions.append({
-                    'scenario': None,
-                    'pk': None,
+                yield {
+                    'scenario': scenario,
                     'relative_amount': relative_amount,
-                    'stratum': bps_model_name,              # TODO - get foreign key, use name as lookup?
-                    'stateclass': stateclass                # TODO - get foreign key, use sclass name as lookup?
-                })
-
-    return initial_conditions
+                    'stratum': stratum,
+                    'stateclass': stateclass,
+                    'reporting_unit': reporting_unit
+                }
 
 
 def create_strata_raster():

@@ -2,7 +2,7 @@ import json
 
 from rest_framework import serializers
 
-from landscapesim.models import ReportingUnit, Region
+from landscapesim.models import Region
 
 
 class ReportingUnitSerializer(serializers.Serializer):
@@ -11,14 +11,13 @@ class ReportingUnitSerializer(serializers.Serializer):
     geometry = serializers.SerializerMethodField()
 
     class Meta:
-        model = ReportingUnit
         fields = ('type', 'geometry', 'properties',)
 
     def get_type(self, obj):
         return 'Feature'
 
     def get_geometry(self, obj):
-        return json.loads(obj.polygons.json)
+        return json.loads(obj.polygon.json)
 
     def get_properties(self, obj):
         return {
@@ -29,8 +28,7 @@ class ReportingUnitSerializer(serializers.Serializer):
 
 
 class RegionSerializer(serializers.ModelSerializer):
-    polygons = ReportingUnitSerializer(many=True, read_only=True)
 
     class Meta:
         model = Region
-        exclude = ('path',)
+        fields = ('id', 'name')

@@ -68,7 +68,7 @@ class ReportingUnit(gis_models.Model):
     region = models.ForeignKey('Region', related_name='reporting_units', on_delete=models.CASCADE)
     unit_id = models.PositiveIntegerField()
     name = models.CharField(max_length=256)
-    polygons = gis_models.MultiPolygonField(geography=True)
+    polygon = gis_models.GeometryField(geography=True)
 
 
 """
@@ -276,6 +276,7 @@ class InitialConditionsNonSpatialDistribution(AgeMixin):
     secondary_stratum = models.ForeignKey('SecondaryStratum', blank=True, null=True)
     stateclass = models.ForeignKey('StateClass')
     relative_amount = models.FloatField()
+    reporting_unit = models.ForeignKey('ReportingUnit', null=True, default=None)
 
 
 class InitialConditionsSpatial(models.Model):
