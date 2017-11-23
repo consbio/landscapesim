@@ -17,9 +17,9 @@ from inspect import isfunction
 from django.conf import settings
 
 from landscapesim import models
-from landscapesim.io import config
-from landscapesim.io.types import default_int
-from landscapesim.io.utils import get_random_csv
+from landscapesim.common import config
+from landscapesim.common.types import default_int
+from landscapesim.common.utils import get_random_csv
 from .filters import *
 
 DEBUG = getattr(settings, 'DEBUG')

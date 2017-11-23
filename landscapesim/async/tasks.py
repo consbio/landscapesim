@@ -9,11 +9,11 @@ from celery.task import task
 from django.conf import settings
 
 from landscapesim.importers import ScenarioImporter, ReportImporter
-from landscapesim.io.config import CONFIG_IMPORTS, VALUE_IMPORTS
-from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.query import ssim_query
-from landscapesim.io.services import ServiceGenerator
-from landscapesim.io.utils import get_random_csv
+from landscapesim.common.config import CONFIG_IMPORTS, VALUE_IMPORTS
+from landscapesim.common.consoles import STSimConsole
+from landscapesim.common.query import ssim_query
+from landscapesim.common.services import ServiceGenerator
+from landscapesim.common.utils import get_random_csv
 from landscapesim.models import Library, Scenario, RunScenarioModel
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')

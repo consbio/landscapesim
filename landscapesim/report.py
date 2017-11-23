@@ -1,6 +1,6 @@
-import re
 import json
 import os
+import re
 import tempfile
 import zipfile
 from base64 import b64encode
@@ -17,8 +17,8 @@ from geopy.distance import vincenty
 from ncdjango.geoimage import image_to_world
 from pyproj import Proj, transform
 
-from landscapesim.io.consoles import STSimConsole
-from landscapesim.io.utils import get_random_csv
+from landscapesim.common.consoles import STSimConsole
+from landscapesim.common.utils import get_random_csv
 from landscapesim.mapimage import MapImage
 from landscapesim.models import Scenario, StateClassSummaryReportRow
 from landscapesim.serializers.scenarios import ScenarioInputServicesSerializer, ScenarioOutputServicesSerializer

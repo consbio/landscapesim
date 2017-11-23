@@ -6,8 +6,10 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from landscapesim import contrib
-from landscapesim.io.consoles import STSimConsole
+from landscapesim.common.consoles import STSimConsole
 from landscapesim.models import Library, Project, Scenario
+
+STSIM_LIBRARY_DIRECTORY = getattr(settings, 'STSIM_LIBRARY_DIRECTORY')
 
 
 class Command(BaseCommand):
@@ -22,6 +24,7 @@ class Command(BaseCommand):
         file = file[0]
         name = name[0]
 
+        file = os.path.join(STSIM_LIBRARY_DIRECTORY, file)
         orig_file = file.split('.ssim')[0] + '_orig.ssim'
         tmp_file = file.split('.ssim')[0] + '_tmp.csv'
 

@@ -4,8 +4,8 @@ from collections import OrderedDict
 from django.db import models
 from rest_framework.serializers import ValidationError
 
-from landscapesim.io import config
-from landscapesim.io.types import default_num_to_empty_or_int, bool_to_empty_or_yes
+from landscapesim.common import config
+from landscapesim.common.types import default_num_to_empty_or_int, bool_to_empty_or_yes
 from landscapesim.serializers import scenarios as serializers
 
 

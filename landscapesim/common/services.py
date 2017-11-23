@@ -17,7 +17,7 @@ from django.db import Error
 from ncdjango.models import Service, Variable
 
 from landscapesim import models
-from landscapesim.io.query import ssim_query
+from landscapesim.common.query import ssim_query
 
 NC_ROOT = getattr(settings, 'NC_SERVICE_DATA_ROOT')
 CLOVER_PATH = getattr(settings, 'CLOVER_PATH', None)

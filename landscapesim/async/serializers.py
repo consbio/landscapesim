@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from landscapesim.async.tasks import run_model
-from landscapesim.io.geojson import rasterize_geojson
+from landscapesim.common.geojson import rasterize_geojson
 from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
 from landscapesim.serializers import imports
 
