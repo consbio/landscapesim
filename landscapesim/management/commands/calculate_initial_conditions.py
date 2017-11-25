@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from tqdm import tqdm
 
 from landscapesim.contrib import find_library_module
 from landscapesim.models import Library, Region, InitialConditionsNonSpatialDistribution
@@ -50,6 +51,6 @@ class Command(BaseCommand):
         # Now perform initial conditions calculations
         reporting_units = region.reporting_units.all()
         with transaction.atomic():
-            for i, unit in enumerate(reporting_units):
+            for unit in tqdm(reporting_units):
                 for initial_condition in mod.get_initial_conditions(scenario, unit):
                     InitialConditionsNonSpatialDistribution.objects.create(**initial_condition)

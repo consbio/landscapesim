@@ -21,11 +21,9 @@ import json
 import os
 
 import numpy
-import rasterio
 from django.conf import settings
-from rasterio.warp import transform_geom
-from rasterstats import zonal_stats
 
+from landscapesim.common.geojson import zonal_stats
 from landscapesim.importers import ProjectImporter
 from landscapesim.importers.project import STRATUM
 from landscapesim.models import Stratum, StateClass
@@ -51,12 +49,6 @@ if not all_data_exist:
         "LANDFIRE support is not enabled."
         "Check to see that all necessary files exist in <project_root>/materials/landfire"
     )
-
-with rasterio.open(BPS_TIF, 'r') as src:
-    BPS_CRS = src.crs.get('init')
-
-with rasterio.open(SCLASS_TIF, 'r') as src:
-    SCLASS_CRS = src.crs.get('init')
 
 
 def create_mapping(path, src, dest, key_type=None) -> dict:
@@ -119,20 +111,15 @@ PROJECT_IMPORTER_CLASS = LandfireProjectImporter
 def get_initial_conditions(scenario, reporting_unit):
     """ Retreive the initial conditions from a given reporting unit. """
 
-    # Transform the geometry to fit the projection
-    geom = transform_geom({'init': 'EPSG:4326'}, BPS_CRS, json.loads(reporting_unit.polygon.json))
-    feature = dict(geometry=geom, type='Feature', properties={})
+    feature = dict(
+        geometry=json.loads(reporting_unit.polygon.json),
+        type='Feature',
+        properties={}
+    )
 
     # Collect zonal stats from rasters
-    bps_stats = zonal_stats(
-        [feature], BPS_TIF, stats=[], categorical=True, raster_out=True
-    )[0]
-    bps_raster = bps_stats.get('mini_raster_array')
-
-    sclass_stats = zonal_stats(
-        [feature], SCLASS_TIF, stats=[], raster_out=True
-    )[0]
-    sclass_raster = sclass_stats.get('mini_raster_array')
+    bps_stats, bps_raster = zonal_stats(feature, BPS_TIF)
+    sclass_stats, sclass_raster = zonal_stats(feature, SCLASS_TIF)
 
     # The count of the area that *is not* masked, i.e. the count within the reporting unit
     count = bps_raster.count()

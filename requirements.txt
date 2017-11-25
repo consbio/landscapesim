@@ -9,7 +9,9 @@ mercantile
 Shapely==1.5.17
 xarray
 pdfkit==0.6.1
-rasterstats
+
+# Progress bar for long running manage.py tasks
+tqdm
 
 # Server dependencies
 Django==1.11.7
