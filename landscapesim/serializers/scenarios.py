@@ -3,7 +3,9 @@
 """
 
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound
 
 from landscapesim import models, contrib
 
@@ -233,7 +235,6 @@ class ScenarioConfigSerializer(serializers.Serializer):
     # Values
     deterministic_transitions = DeterministicTransitionSerializer(many=True, read_only=True)
     transitions = TransitionSerializer(many=True, read_only=True)
-    #initial_conditions_nonspatial_distributions = InitialConditionsNonSpatialDistributionSerializer(many=True, read_only=True)
     initial_conditions_nonspatial_distributions = serializers.SerializerMethodField(read_only=True, allow_null=True)
     transition_targets = TransitionTargetSerializer(many=True, read_only=True)
     transition_multiplier_values = TransitionMultiplierValueSerializer(many=True, read_only=True)
@@ -256,14 +257,11 @@ class ScenarioConfigSerializer(serializers.Serializer):
     def reporting_unit(self):
         pk = self.context.get('request').GET.get('reporting_unit')
         if pk:
-            return models.ReportingUnit.objects.get(pk=pk)
-        return None
-
-    @property
-    def library(self):
-        library = self.context.get('request').GET.get('library')
-        if library:
-            return models.Library.objects.get(name__exact=library)
+            try:
+                obj = models.ReportingUnit.objects.get(pk=pk)
+            except ObjectDoesNotExist:
+                raise NotFound("Reporting unit with ID {} not found.".format(pk))
+            return obj
         return None
 
     def get_initial_conditions_nonspatial_distributions(self, obj):
@@ -273,9 +271,6 @@ class ScenarioConfigSerializer(serializers.Serializer):
         :param obj: An instance of a Scenario.
         :return: A list of serialized InitialConditionsNonSpatialDistribution objects.
         """
-        if self.reporting_unit and self.library:
-            data = obj.initial_conditions_nonspatial_distributions.filter(reporting_unit=self.reporting_unit)
-        else:
-            # Use defaults not attached to a reporting unit
-            data = obj.initial_conditions_nonspatial_distributions.filter(reporting_unit=None)
+        unit = self.reporting_unit
+        data = obj.initial_conditions_nonspatial_distributions.filter(reporting_unit=unit)
         return InitialConditionsNonSpatialDistributionSerializer(data, many=True).data
