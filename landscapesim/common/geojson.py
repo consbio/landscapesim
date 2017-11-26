@@ -11,8 +11,7 @@ from rasterio.warp import transform_geom
 
 def rasterize_geojson(geojson, template_path, out_path, crs=None, save_geojson=False):
     """
-    Takes the path to a (temporary?) geojson file, extracts the shapes, and then
-    burns the raster value to the specified output path with the same shape as a template raster.
+    Creates transition spatial multipliers from a GeoJSON dictionary or list of dictionaries.
     :param geojson: GeoJSON-formatted dictionary.
     :param template_path: Path to the template raster to constrain the shapes to.
     :param out_path: Path to the outputted raster with burned shapes into it.
@@ -49,7 +48,7 @@ def rasterize_geojson(geojson, template_path, out_path, crs=None, save_geojson=F
             dest.write(image, 1)
 
 
-""" Functions here are directly compied from rasterstats """
+""" Functions here are directly copied from rasterstats """
 
 def rowcol(x, y, affine, op=math.floor):
     """ Get row/col for a x/y """
