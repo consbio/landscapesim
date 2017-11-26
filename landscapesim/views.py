@@ -276,11 +276,12 @@ class RegionViewset(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def reporting_units(self, *args, **kwargs):
         context = {'request': self.request}
-        return Response(
-            regions.ReportingUnitSerializer(
+        return Response({
+            'type': 'FeatureCollection',
+            'features': regions.ReportingUnitSerializer(
                 self.get_object().reporting_units.all(), many=True, context=context
             ).data
-        )
+        })
 
 
 class ReportingUnitViewset(viewsets.ReadOnlyModelViewSet):
