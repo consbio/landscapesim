@@ -1,6 +1,7 @@
 import json
 
 from rest_framework import serializers
+from django.core.urlresolvers import reverse
 
 from landscapesim.models import Region
 
@@ -29,6 +30,11 @@ class ReportingUnitSerializer(serializers.Serializer):
 
 class RegionSerializer(serializers.ModelSerializer):
 
+    url = serializers.SerializerMethodField()
+
     class Meta:
         model = Region
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'url')
+    
+    def get_url(self, obj):
+        return reverse('region-reporting-units', args=[obj.id])
