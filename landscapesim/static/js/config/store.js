@@ -19,7 +19,6 @@ var store = {
         zoom: 11,
         require_reporting_unit: false,
         default_region: '',
-        // Actual Library Name: Alias
         management_actions_filter: {
             "Thin-Mech-Chem": "Thin-Mech-Chem",
             "SENN-Maintenance": "SENN-Maintenance",
@@ -36,18 +35,21 @@ var store = {
             "CWG-Seed": "CWG-Seed",
             "CWG-Restoration": "CWG-Restoration",
             "Replacement Fire": "Prescribed Fire"
-        }
+        },
+        stratum_service: null,
+        stateclass_service: null,
+        timesteps: 'Years'
     },
     "LANDFIRE": {
         name: "LANDFIRE",
-        description: "LANDFIRE 130 (2012) BpS Models",
+        description: "LANDFIRE BpS Models",
         author: "LANDFIRE",
-        date: "2013",
+        date: "[object]",
         extent: null,
         zoom: 10,
-        management_actions_filter: {},
-        default_region: 'Watersheds',
         require_reporting_unit: true,
+        default_region: 'Watersheds',
+        management_actions_filter: {},
         stratum_service: {
             url: 'http://landfire.cr.usgs.gov/arcgis/services/Landfire/US_130/MapServer/WMSServer?',
             layers: "US_130BPS",
@@ -57,7 +59,8 @@ var store = {
             url: 'http://landfire.cr.usgs.gov/arcgis/services/Landfire/US_130/MapServer/WMSServer?',
             layers: "US_130SCLASS",
             wms: true
-        }
+        },
+        timesteps: 'Years'
     }
 };
 
