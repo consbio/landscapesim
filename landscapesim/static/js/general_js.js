@@ -328,7 +328,7 @@ $(document).ready(function() {
                     $(".veg_state_class_entry").prop("disabled", true);
 
                     $("#settings_timesteps").val(currentScenario.config.run_control.max_timestep);
-                    $("#timesteps_div").text(["Timesteps (", unitConfig[$(".model_selection").val()].timesteps, "):"].join(''));
+                    $("#timesteps_div").text(["Timesteps (", getCurrentInfo().timesteps, "):"].join(''));
                 })
 
             });
@@ -1278,7 +1278,7 @@ function updateResultsTable(cache, run) {
     ].join(''));
 
 
-    var timestepText = currentScenario.config.run_control.max_timestep + " " + unitConfig[$(".model_selection").val()].timesteps
+    var timestepText = currentScenario.config.run_control.max_timestep + " " + getCurrentInfo().timesteps
     var iterations = modelRunCache[run].config.run_control.max_iteration;
     var showIterationsOptions = iterations > 1;
 
