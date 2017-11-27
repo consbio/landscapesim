@@ -47,6 +47,18 @@ function loadInputLayers(inputServices) {
     inputStratumLayer.addTo(map)
 }
 
+function loadInputLayersFromConfig(info) {
+    inputStateClassLayer = L.tileLayer.wms(info.stateclass_service.url, {
+        layers: info.stateclass_service.layers
+    })
+    inputStratumLayer = L.tileLayer.wms(info.stratum_service.url, {
+        layers: info.stratum_service.layers
+    })
+    layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
+    layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Initial Conditions");
+    inputStratumLayer.addTo(map)
+}
+
 map.on('overlayadd', overlayAdd);
 
 function overlayAdd(e){
@@ -148,3 +160,67 @@ function updateOutputLayers(run, iteration) {
     // Always update the layer after a layer change.
     update3DLayer(layer._url.replace('{t}', layer.options.t).replace('{it}', layer.options.it))
 }
+
+/** Start Reporting Unit functions */
+
+var activeRegionLayer = null;
+
+var selectedFeatureStyle = {
+    weight: 5,
+    dashArray: '',
+    fillColor:'#5BDAFF',
+    fillOpacity: 0.8
+};
+
+var defaultFeatureStyle = {
+    "color": "#3D8DFF",
+    "weight": 3,
+    "opacity": 0.65,
+    "fillOpacity":.15
+};
+
+var clearRegionLayer = function() {
+    if (activeRegionLayer) {
+        map.removeLayer(activeRegionLayer);
+    }
+}
+
+var updateRegionLayer = function(regionName) {
+    var region = availableRegions.find(function(x) { return x.name == regionName; })
+   
+    clearRegionLayer()
+    activeRegionLayer = L.geoJSON(region.data, {
+        clickable: true,
+        style: defaultFeatureStyle,
+        onEachFeature: function(feature, layer) {
+            layer.on({
+                mouseover: function (e) {
+                    var layer = e.target;
+                    layer.setStyle(selectedFeatureStyle);
+                    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                        layer.bringToFront();
+                    }
+
+                    // update info?
+                },
+                mouseout: function (e) {
+                    activeRegionLayer.resetStyle(e.target);
+
+                    if (selectedReportingUnit != null) {
+                        selectedReportingUnit.setStyle(selectedFeatureStyle);
+                        // update info?
+                    } else {
+                        // update info?
+                    }
+                },
+                click: function (e) {
+                    selectedReportingUnit = e.target;
+                    enableLoadButton();
+                }
+            })
+        }
+    });
+    activeRegionLayer.addTo(map);
+}
+
+/** End Reporting Unit functions */

@@ -214,6 +214,10 @@ var sceneEnabled = function() { return $('#scene-switch')[0].checked; }
 
 var sceneNeedsUpdate = false;
 function update3DLayer(layerUrl) {
+
+    // No updates to 3D if current layer is not enabled
+    if (!getCurrentInfo().enable3D) return;
+
     currentLayerUrl = layerUrl;
     sceneNeedsUpdate = true;
 }
@@ -222,6 +226,10 @@ var canRender3DLayer = false;
 var currentLayerUrl = null;
 
 function init3DScenario(initialLayerUrl) {
+
+    // If scenario is not enabled to render in 3D, don't initialize.
+    if (!getCurrentInfo().enable3D) return;
+
     resetScene();
     controls.reset();
     scene.position.set(0, 0, 0);

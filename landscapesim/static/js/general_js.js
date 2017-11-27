@@ -1,4 +1,4 @@
-// where all the magic happens (i.e. the data store)
+// Global variables
 var availableLibraries = [];
 var currentLibrary = {};
 var projectURL = '';
@@ -9,7 +9,7 @@ var scenarioURL = '';
 var currentScenario = {};
 var runModelURL = '/api/jobs/run-model/';
 var settings;
-var boundingBoxLayer;
+var boundingBoxLayer = null;
 var librarySelected = false;
 var availableRegions = [];
 var selectedReportingUnit = null;
@@ -18,10 +18,15 @@ var selectedReportingUnit = null;
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 var getCurrentInfo = function() {
-
-    // TODO - include a way to determine the proper extent for the given area.
-    // TODO - handle non-hardcoded extents? i.e. landfire
     return store[$(".model_selection").val()];
+}
+
+var enableLoadButton = function() {
+    $('#start_button').removeClass('disabled')
+}
+
+var disableLoadButton = function () {
+    $('#start_button').addClass('disabled')
 }
 
 $(document).ready(function() {
@@ -45,7 +50,7 @@ $(document).ready(function() {
 
     });
 
-    $.getJSON('/api/regions/').done(function(res) {
+    $.getJSON('/api/regions/', {'return_data': true}).done(function(res) {
         availableRegions = res.results;
     })
 
@@ -239,15 +244,26 @@ $(document).ready(function() {
         var info = getCurrentInfo();
 
         // Show the layer
+        // Figure out whether it is a predefined extent or a multiple extent region
         if (info.extent != null) {
+            clearRegionLayer()
             boundingBoxLayer = L.geoJSON(info.extent).addTo(map);
-            boundingBoxLayer.bindPopup(info.name + " Extent").openPopup();        
+            boundingBoxLayer.bindPopup(info.name + " Extent").openPopup(); 
+            
+            // Always reenable the loading button on predefined extents
+            enableLoadButton();
         }
         else if (info.default_region != null) {
-            
+            if (boundingBoxLayer) {
+                map.removeLayer(boundingBoxLayer);
+            }
+            updateRegionLayer(info.default_region);
+
+            // Prevent library loading until user selects a reporting unit
+            disableLoadButton();
         }
         
-        // Uppate the values in the library_info table
+        // Update the values in the library_info table
         $("#library_author").html(info.author);
         $("#library_date").html(info.date);
         $("#library_description").html(info.description);
@@ -257,6 +273,11 @@ $(document).ready(function() {
     /********************************************** Load Library (Start) **********************************************/
 
     $("#start_button").on("click", function() {
+
+        if ($(this).hasClass('disabled')) {
+            alert("Select a reporting unit, then load the library.")
+            return;
+        };
 
         var info = getCurrentInfo();
 
@@ -295,17 +316,17 @@ $(document).ready(function() {
             $.getJSON(scenarioURL).done(function (scenario) {
                 currentScenario = scenario;
 
-                var configParams = {'library': info.name};
+                var configParams = {};
                 if (info.require_reporting_unit) {
-                    configParams['reporting_unit'] = selectedReportingUnit.id;
+                    configParams['reporting_unit'] = selectedReportingUnit.feature.properties.id;
                 }
 
                 // Scenario configuration (at import)
-                $.getJSON(scenarioURL + 'config', {}).done(function (config) {
+                $.getJSON(scenarioURL + 'config', configParams).done(function (config) {
                     currentScenario.config = config;
 
-                    // Spatial by default:
-                    setSpatialOutputOptions(true);
+                    // Set spatial if library can be run spatially, otherwise false
+                    setSpatialOutputOptions(info.spatial);
 
                     // Store the original transition values to reference when adjusting probabilistic transition sliders.
                     $.each(currentScenario.config.transitions, function(index, object){
@@ -319,8 +340,14 @@ $(document).ready(function() {
                     // Set Initial Conditions (Veg sliders & Probabilistic Transitions)
                     setInitialConditionsSidebar(vegInitialConditions);
 
-                    loadInputLayers(currentScenario.config.scenario_input_services);
-                    init3DScenario(inputStratumLayer._url);
+                    if (currentScenario.config.scenario_input_services != null) {
+                        loadInputLayers(currentScenario.config.scenario_input_services);                        
+                    }
+                    else if (info.stratum_service != null && info.stateclass_service != null) {
+                        loadInputLayersFromConfig(info);
+                    }
+
+                    if (info.enabled3D) init3DScenario(inputStratumLayer._url);
 
                     $(".veg_slider_bars").slider("disable");
                     $(".veg_slider_bars").addClass("disabled");
@@ -334,8 +361,23 @@ $(document).ready(function() {
             });
 
             //map.fitBounds(boundingBoxLayer.getBounds(),{"paddingTopLeft":[0,1]});
+            if (info.require_reporting_unit) {
+
+                var selectedFeature = copy(selectedReportingUnit.feature);
+                clearRegionLayer();
+                var clearStyle = copy(defaultFeatureStyle);
+                clearStyle['fillOpacity'] = 0.0;
+                boundingBoxLayer = L.geoJSON(selectedFeature, {
+                    style: clearStyle
+                }).addTo(map)
+
+            }
+
+            // Zoom map to this location
             map.fitBounds(boundingBoxLayer.getBounds());
-            map.removeLayer(boundingBoxLayer);
+            
+            // Don't show reporting unit for predefined-extents
+            if (!info.require_reporting_unit) map.removeLayer(boundingBoxLayer);
 
             // Collapse the Welcome and Library divs.
             $("#library_header").siblings(".collapsible_div").slideUp(400, function(){});
@@ -352,8 +394,15 @@ $(document).ready(function() {
             $(".leaflet-control-command").show();
             $(".leaflet-draw").show();
             $(".leaflet-left")[0].style.top = '60px';
-            $("#scene-toggle").show();
-            document.getElementById('scene-toggle').style.display = 'inline-block';
+
+            // Show or hide 3D button based on whether we want to allow it to be 3D
+            if (info.enable3D) {
+                $("#scene-toggle").show();
+                document.getElementById('scene-toggle').style.display = 'inline-block';
+            }
+            else {
+                $("#scene-toggle").hide();
+            }
             librarySelected = true
         })
     });
@@ -513,7 +562,15 @@ $(document).ready(function() {
 
     /*********************************************** Spatial Setting **************************************************/
 
-    $(document).on("change", "#spatial_switch", function(){
+    $(document).on("change", "#spatial_switch", function() {
+
+        var info = getCurrentInfo();
+        if (!info.spatial) {
+            alert(info.name + ' cannot currently be run spatially.');
+            setSpatialOutputOptions(false);
+            return;
+        }
+
         setSpatialOutputOptions($(this)[0].checked)
         if ($(this)[0].checked){
 
