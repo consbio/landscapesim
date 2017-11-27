@@ -80,11 +80,26 @@ SCLASS_ALL_MAPPINGS = (
     ('E', SCLASS_E_MAPPING)
 )
 
+# Build a color description
+R = create_mapping(BPS_FILE, 'VALUE', 'R')
+G = create_mapping(BPS_FILE, 'VALUE', 'G')
+B = create_mapping(BPS_FILE, 'VALUE', 'B')
+BPS_COLORS = {k: '255,{},{},{}'.format(R[k], G[k], B[k]) for k in BPS_MAPPING}
+
 
 class LandfireProjectImporter(ProjectImporter):
     """ A custom Project importer that uses more descriptive names than those stored in the SyncroSim database. """
 
-    def _extract_sheet_alternative_names(self, sheet_config, mapping):
+    def _extract_sheet_alternative_names_and_colors(
+        self,
+        sheet_config,
+        map_key,
+        name_mapping,
+        color_mapping
+        ):
+        """
+        Custom definitions based on external CSV mappings for a given value.
+        """
         sheet_name, model, sheet_map, type_map = sheet_config
         self.console.export_sheet(sheet_name, self.temp_file, **self.sheet_kwargs)
         with open(self.temp_file, 'r') as sheet:
@@ -92,16 +107,18 @@ class LandfireProjectImporter(ProjectImporter):
             data = [r for r in reader]
             for row in data:
                 mapped_row = self.map_row(row, sheet_map, type_map)
-                row_id = mapped_row['stratum_id']
-                descriptive_name = mapping[row_id]
+                row_id = mapped_row[map_key]
+                descriptive_name = name_mapping[row_id]
+                color = color_mapping[row_id]
                 mapped_row['description'] = descriptive_name
+                mapped_row['color'] = color
                 instance_data = {**self.import_kwargs, **mapped_row}
                 model.objects.create(**instance_data)
         print("Imported {} (with customized LANDFIRE descriptions)".format(sheet_name))
         self._cleanup_temp_file()
     
     def import_stratum(self):
-        self._extract_sheet_alternative_names(STRATUM, BPS_NAMES)
+        self._extract_sheet_alternative_names(STRATUM, 'stratum_id', BPS_NAMES, BPS_COLORS)
 
 
 # Register the importer classes so that LandscapeSim picks them up
