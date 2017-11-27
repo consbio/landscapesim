@@ -17,6 +17,8 @@ var store = {
             }
         },
         zoom: 11,
+        enable3D: true,
+        spatial: true,
         require_reporting_unit: false,
         default_region: '',
         management_actions_filter: {
@@ -42,11 +44,13 @@ var store = {
     },
     "LANDFIRE": {
         name: "LANDFIRE",
-        description: "LANDFIRE BpS Models",
-        author: "LANDFIRE",
-        date: "[object]",
+        description: "Biophysical Settings Quantitative Models",
+        author: "USGS",
+        date: "2014",
         extent: null,
         zoom: 10,
+        enable3D: false,
+        spatial: false,
         require_reporting_unit: true,
         default_region: 'Watersheds',
         management_actions_filter: {},
