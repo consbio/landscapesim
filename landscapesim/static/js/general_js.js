@@ -195,7 +195,9 @@ $(document).ready(function() {
                                     $.getJSON(stateclassReportURL).done(function (reportData) {
                                         $.getJSON(results_scenario_configuration_url).done(function (config) {
                                             reportData.config = copy(config);
-                                            loadOutputLayers(reportData.config);
+                                            if (reportData.config.run_control.is_spatial) {
+                                                loadOutputLayers(reportData.config);
+                                            }
                                             processStateClassSummaryReport(reportData);
                                             updateModelRunSelection(modelRunCache.length - 1);
                                             updateResultsViewer(modelRunCache.length - 1);

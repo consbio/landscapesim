@@ -116,12 +116,14 @@ function loadOutputLayers(config) {
 var currentOutputLayer;
 var timestepSlider;
 function updateOutputLayers(run, iteration) {
+    var config = modelRunCache[run].config;
+
+    // If the model run was not spatial, do nothing
+    if (!config.run_control.is_spatial) return;
 
     if (typeof iteration == 'undefined') {
         iteration = 1;
     }
-
-    var config = modelRunCache[run].config;
     var layer = config.stateclassLayer;
     var step = config.run_control.max_timestep;
 
