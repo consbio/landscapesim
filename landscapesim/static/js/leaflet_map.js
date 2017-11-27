@@ -167,6 +167,18 @@ function updateOutputLayers(run, iteration) {
 
 var activeRegionLayer = null;
 
+var reportingUnitControl = L.control();
+reportingUnitControl.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+};
+reportingUnitControl.update = function (props) {
+    this._div.innerHTML = '<h4>Reporting Unit Name</h4>' +  (props ?
+    '<b>' + props.name
+        : 'Hover over a reporting unit');
+};
+
 var selectedFeatureStyle = {
     weight: 5,
     dashArray: '',
@@ -185,12 +197,13 @@ var clearRegionLayer = function() {
     if (activeRegionLayer) {
         map.removeLayer(activeRegionLayer);
     }
+    map.removeControl(reportingUnitControl);
 }
 
 var updateRegionLayer = function(regionName) {
     var region = availableRegions.find(function(x) { return x.name == regionName; })
    
-    clearRegionLayer()
+    clearRegionLayer();
     activeRegionLayer = L.geoJSON(region.data, {
         clickable: true,
         style: defaultFeatureStyle,
@@ -202,17 +215,16 @@ var updateRegionLayer = function(regionName) {
                     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                         layer.bringToFront();
                     }
-
-                    // update info?
+                    reportingUnitControl.update(layer.feature.properties);
                 },
                 mouseout: function (e) {
                     activeRegionLayer.resetStyle(e.target);
 
                     if (selectedReportingUnit != null) {
                         selectedReportingUnit.setStyle(selectedFeatureStyle);
-                        // update info?
+                        reportingUnitControl.update(selectedReportingUnit.feature.properties)
                     } else {
-                        // update info?
+                        reportingUnitControl.update()
                     }
                 },
                 click: function (e) {
@@ -222,6 +234,7 @@ var updateRegionLayer = function(regionName) {
             })
         }
     });
+    reportingUnitControl.addTo(map);
     activeRegionLayer.addTo(map);
 }
 
