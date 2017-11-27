@@ -121,9 +121,6 @@ def get_initial_conditions(scenario, reporting_unit):
     bps_stats, bps_raster = zonal_stats(feature, BPS_TIF)
     sclass_stats, sclass_raster = zonal_stats(feature, SCLASS_TIF)
 
-    # The count of the area that *is not* masked, i.e. the count within the reporting unit
-    count = bps_raster.count()
-
     # Yield each set of initial conditions
     for value in bps_stats:
         if value in BPS_MAPPING:
@@ -156,7 +153,7 @@ def get_initial_conditions(scenario, reporting_unit):
                     relative_amount = 0.0
                 else:
                     sclass_idx = list(sclass_keys_found).index(i)
-                    relative_amount = sclass_counts[sclass_idx] / count
+                    relative_amount = sclass_counts[sclass_idx]
                 stateclass = StateClass.objects.filter(name=stateclass, project=scenario.project).first()
 
                 yield {
