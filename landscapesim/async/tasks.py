@@ -195,7 +195,7 @@ def run_model(self, library_name, sid):
     service_generator.create_output_services()
 
     # Create reports
-    reporter = ReportImporter(scenario, console)
+    reporter = ReportImporter(console, scenario)
     reporter.create_stateclass_summary()
 
     # Signal that the model can now be used for viewing.
