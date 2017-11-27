@@ -585,6 +585,8 @@ $(document).ready(function() {
 
         var info = getCurrentInfo();
         if (!info.spatial) {
+            event.preventDefault();
+            $(this)[0].checked = false;
             alert(info.name + ' cannot currently be run spatially.');
             setSpatialOutputOptions(false);
             return;
@@ -1066,18 +1068,6 @@ function total_percent_action(value){
         $("#run_button").val('Total Percent Cover Must Equal 100%');
     }
 }
-
-/***********************************************Map and 3D Scene Controls  ********************************************/
-
-$("#spatial_link").click(function(){
-    var button = $('#spatial_button');
-    if (button.hasClass('selected')) {
-        button.removeClass('selected');
-    } else {
-        button.addClass('selected');
-    }
-    settings['spatial'] = button.hasClass('selected');
-});
 
 /***************************** Results selection and data download *******************************************/
 
