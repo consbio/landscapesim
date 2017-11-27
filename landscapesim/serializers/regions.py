@@ -31,10 +31,16 @@ class ReportingUnitSerializer(serializers.Serializer):
 class RegionSerializer(serializers.ModelSerializer):
 
     url = serializers.SerializerMethodField()
+    data = serializers.SerializerMethodField()
 
     class Meta:
         model = Region
-        fields = ('id', 'name', 'url')
+        fields = ('id', 'name', 'url', 'data',)
     
     def get_url(self, obj):
         return reverse('region-reporting-units', args=[obj.id])
+
+    def get_data(self, obj):
+        if self.context.get('request').GET.get('return_data') == 'true':
+            return ReportingUnitSerializer(obj.reporting_units.all(), many=True).data
+        return None
