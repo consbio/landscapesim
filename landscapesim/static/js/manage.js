@@ -63,7 +63,7 @@ function initializePolygon(layer) {
     $.each(currentScenario.config.transition_attribute_values, function (index, transitionAttributeValue) {
         var transitionGroupID = transitionAttributeValue["transition_group"];
         var transitionGroup = $.grep(currentProject.definitions.transition_groups, function(e){ return e.id == transitionGroupID })[0];
-        popupMessage += "<option value=" + transitionGroup['id'] + ">" + store[currentLibrary.id]['management_actions_filter'][transitionGroup['name']] + "</option>";
+        popupMessage += "<option value=" + transitionGroup['id'] + ">" + store[currentLibrary.name]['management_actions_filter'][transitionGroup['name']] + "</option>";
     });
     
     popupMessage += [
@@ -180,7 +180,7 @@ $(document).on("submit", ".managementActionForm", function(){
     $.each(currentProject.definitions.transition_groups, function (index, transitionGroup) {
         if (typeof transitionGroup != "undefined") {
             if (transitionGroup["id"] == layer._actionID) {
-                layer._actionText = store[currentLibrary.id]["management_actions_filter"][transitionGroup["name"]]
+                layer._actionText = store[currentLibrary.name]["management_actions_filter"][transitionGroup["name"]]
             }
         }
     });
