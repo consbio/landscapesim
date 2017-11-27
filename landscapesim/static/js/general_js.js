@@ -358,7 +358,7 @@ $(document).ready(function() {
                         loadInputLayersFromConfig(info);
                     }
 
-                    if (info.enabled3D) init3DScenario(inputStratumLayer._url);
+                    if (info.enable3D) init3DScenario(inputStratumLayer._url);
 
                     $(".veg_slider_bars").slider("disable");
                     $(".veg_slider_bars").addClass("disabled");
