@@ -179,6 +179,7 @@ $(document).ready(function() {
 
         var getReport = function (reportID) {
             $("#output").show();
+            $("#model_results_load_spinner").show();
             var reports_url = window.location.href + "api/scenarios/" + reportID + "/reports/";
             var results_scenario_configuration_url = window.location.href + "api/scenarios/" + reportID + "/config/";
             $.getJSON(reports_url).done(function (reportURLs) {
@@ -193,6 +194,7 @@ $(document).ready(function() {
                         processStateClassSummaryReport(reportData);
                         updateModelRunSelection(modelRunCache.length - 1);
                         updateResultsViewer(modelRunCache.length - 1);
+                        $("#model_results_load_spinner").hide();
                         $('#progressbar-container').hide();
                         progressbar.css('width', '0%');
                         progressbarlabel.text("Waiting for worker...")

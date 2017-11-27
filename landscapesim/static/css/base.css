@@ -439,13 +439,17 @@ input[type="number"].focus {
 	letter-spacing: 1px;
 }
 
-#veg_slider_load_spinner {
+.loading-spinner {
 	margin: auto;
 	width: fit-content;
 	width: -moz-fit-content;
 	font-weight: bold;
 	line-height: 24px;
 	letter-spacing: 1px;
+}
+
+#model_results_load_spinner {
+	padding-bottom: 20px;
 }
 
 .results_charts {
