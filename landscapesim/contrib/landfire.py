@@ -118,7 +118,7 @@ class LandfireProjectImporter(ProjectImporter):
         self._cleanup_temp_file()
     
     def import_stratum(self):
-        self._extract_sheet_alternative_names(STRATUM, 'stratum_id', BPS_NAMES, BPS_COLORS)
+        self._extract_sheet_alternative_names_and_colors(STRATUM, 'stratum_id', BPS_NAMES, BPS_COLORS)
 
 
 # Register the importer classes so that LandscapeSim picks them up
