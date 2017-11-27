@@ -71,6 +71,11 @@
     <link rel="stylesheet" href="{% static "css/popup.css" %}" />
 </head>
 <body>
+    <!-- Allow debugging from safe serverside render call only -->
+    <script>
+        var debugReportID = {{ debug_id|safe }};
+        if (debugReportID != null) debugReportID = String(debugReportID);
+    </script>
     <div id="header"><img id="site_icon" src="{% static 'img/site_icon.png' %}">
         <ul style="float: left;">
             <li style="padding: 3px 10px">
@@ -166,14 +171,14 @@
                                         <div id="timesteps_div" class="general_settings_div"> Timesteps: </div>
                                     </td>
                                     <td>
-                                        <div class="select_container_2"> <input required class="number-input" id="settings_timesteps" type="number" min="1"> </div> </td>
+                                        <div class="select_container_2"> <input required class="number-input" id="settings_timesteps" type="number" min="1" max="50"> </div> </td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <div id="iterations_div" class="general_settings_div"> Iterations: </div>
                                     </td>
                                     <td>
-                                        <div class="select_container_2"> <input required class="number-input" id="settings_iterations" type="number" min="1" value="1"> </div>
+                                        <div class="select_container_2"> <input required class="number-input" id="settings_iterations" type="number" min="1" max="10" value="1"> </div>
                                     </td>
                                 </tr>
                                 <tr>

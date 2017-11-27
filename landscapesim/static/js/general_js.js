@@ -64,7 +64,6 @@ $(document).ready(function() {
 
     $('#run_button').on('click', function() {
 
-
         // Make sure the timestep and iteration are setup correctly. Otherwise, throw an error.
         if (isNaN(currentScenario.config.run_control.max_timestep) || isNaN(currentScenario.config.run_control.max_iteration)) {
             alert("Run Control parameters are invalid. Please supply an integer greater or equal to 1.");
@@ -169,7 +168,7 @@ $(document).ready(function() {
                     progressbarlabel.text("Model Run Complete - Preparing Results");
                 }
             }
-        }
+        };
 
         var inputs = {
             'sid': currentScenario.sid,
@@ -178,6 +177,46 @@ $(document).ready(function() {
             'config': currentScenario.config
         };
 
+        var getReport = function (reportID) {
+            $("#output").show();
+            var reports_url = window.location.href + "api/scenarios/" + reportID + "/reports/";
+            var results_scenario_configuration_url = window.location.href + "api/scenarios/" + reportID + "/config/";
+            $.getJSON(reports_url).done(function (reportURLs) {
+                var stateclassReportURL = reportURLs['stateclass_summary_report'];
+                $("#results_loading").empty();
+                $.getJSON(stateclassReportURL).done(function (reportData) {
+                    $.getJSON(results_scenario_configuration_url).done(function (config) {
+                        reportData.config = copy(config);
+                        if (reportData.config.run_control.is_spatial) {
+                            loadOutputLayers(reportData.config);
+                        }
+                        processStateClassSummaryReport(reportData);
+                        updateModelRunSelection(modelRunCache.length - 1);
+                        updateResultsViewer(modelRunCache.length - 1);
+                        $('#progressbar-container').hide();
+                        progressbar.css('width', '0%');
+                        progressbarlabel.text("Waiting for worker...")
+                        var resultsHeader = $("#model_results_header");
+                        if (!resultsHeader.hasClass('full_border_radius')) resultsHeader.click();
+                    });
+                });
+            });
+            $("#run_button").html('Run Model');
+            $("#run_button").removeClass('disabled');
+            $('input:submit').attr("disabled", false);
+            $(".slider_bars").slider( "option", "disabled", false );
+            $("#button_container").attr("disabled", false);
+            $("#legend_header").nextAll(".collapsible_div:first").slideUp(400, function(){});
+            $("#legend_header").children(".collapse_icon").addClass("rotate90");
+            $("#legend_container").css("width", "100%")
+        };
+
+        // Are we debugging reports?
+        if (debugReportID != null) {
+            getReport(debugReportID);
+            return true;
+        }
+
         $.post(runModelURL, {'inputs': JSON.stringify(inputs)})
             .done(function (job) {
                 (function poll() {
@@ -185,38 +224,8 @@ $(document).ready(function() {
                         $.getJSON(runModelURL + job.uuid + '/').done(function (update) {
                             updateProgress(update.progress, update.status, update.model_status);
                             if (update.status === 'success' || update.model_status === 'complete') {
-                                $("#output").show();
                                 var results_model_id = String(update.result_scenario);
-                                var reports_url = window.location.href + "api/scenarios/" + results_model_id + "/reports/";
-                                var results_scenario_configuration_url = window.location.href + "api/scenarios/" + results_model_id + "/config/";
-                                $.getJSON(reports_url).done(function (reportURLs) {
-                                    var stateclassReportURL = reportURLs['stateclass_summary_report'];
-                                    $("#results_loading").empty();
-                                    $.getJSON(stateclassReportURL).done(function (reportData) {
-                                        $.getJSON(results_scenario_configuration_url).done(function (config) {
-                                            reportData.config = copy(config);
-                                            if (reportData.config.run_control.is_spatial) {
-                                                loadOutputLayers(reportData.config);
-                                            }
-                                            processStateClassSummaryReport(reportData);
-                                            updateModelRunSelection(modelRunCache.length - 1);
-                                            updateResultsViewer(modelRunCache.length - 1);
-                                            $('#progressbar-container').hide();
-                                            progressbar.css('width', '0%');
-                                            progressbarlabel.text("Waiting for worker...")
-                                            var resultsHeader = $("#model_results_header");
-                                            if (!resultsHeader.hasClass('full_border_radius')) resultsHeader.click();
-                                        });
-                                    });
-                                });
-                                $("#run_button").html('Run Model');
-                                $("#run_button").removeClass('disabled');
-                                $('input:submit').attr("disabled", false);
-                                $(".slider_bars").slider( "option", "disabled", false );
-                                $("#button_container").attr("disabled", false);
-                                $("#legend_header").nextAll(".collapsible_div:first").slideUp(400, function(){});
-                                $("#legend_header").children(".collapse_icon").addClass("rotate90");
-                                $("#legend_container").css("width", "100%")
+                                getReport(results_model_id);
                             } else if (update.status === 'failure') {
                                 alert('An error occurred. Please try again.')
                                 $("#run_button").html('Run Model');
