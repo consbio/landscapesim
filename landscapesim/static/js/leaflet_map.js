@@ -230,6 +230,7 @@ var updateRegionLayer = function(regionName) {
                 click: function (e) {
                     selectedReportingUnit = e.target;
                     enableLoadButton();
+                    $("#library_reporting_unit").html(selectedReportingUnit.feature.properties.name);
                 }
             })
         }

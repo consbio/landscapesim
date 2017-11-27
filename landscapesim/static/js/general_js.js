@@ -269,7 +269,7 @@ $(document).ready(function() {
         $("#library_author").html(info.author);
         $("#library_date").html(info.date);
         $("#library_description").html(info.description);
-
+        $("#library_reporting_unit").html(info.require_reporting_unit ? 'Click a reporting unit': 'Pre-defined extent selected')
     };
 
     /********************************************** Load Library (Start) **********************************************/
@@ -827,6 +827,13 @@ function setInitialConditionsSidebar(vegInitialConditions) {
             return true;    // skips this entry
         }
 
+        // ASSUMPTION - values less than 1 percent aren't configurable.
+        var initialValue = 0.0;
+        $.each(state_class_object, function (key, value) {
+            initialValue += value
+        });
+        if (initialValue < 1.0) return true;    // Skip entry
+
         // Get the Veg ID for this veg type from the Web API current project definitions
         var veg_match = $.grep(currentProject.definitions.strata, function(e){ return e.name == veg_type; });
         var veg_id = veg_match[0].id;
@@ -883,14 +890,13 @@ function setInitialConditionsSidebar(vegInitialConditions) {
         // veg_id is currently based on the order in which the veg types occur in the vegtypeStateclassesDictionary
         // This happens to be mappable to the id in curent_project.definitions.strata. Will this always be true?
 
-        $(function () {
+        //$(function () {
 
             var initial_slider_value = 0;
 
             // Loop through all the state class pct cover values and sum them up to set the initial veg slider bar value.
             $.each(vegInitialConditions['veg_sc_pct'][veg_type], function (key, value) {
                 initial_slider_value += value
-
             });
 
             veg_slider_values[veg_type] = Math.ceil(initial_slider_value);
@@ -938,7 +944,7 @@ function setInitialConditionsSidebar(vegInitialConditions) {
                 },
             });
 
-        });
+        //});
     }
 
 
@@ -1123,17 +1129,20 @@ function downloadSpatialData(url, filename, ext, configuration) {
 
 function downloadModelResults() {
 
-    var modelRun = modelRunCache[$("#model-run-select").val()]
+    var modelRun = modelRunCache[$("#model-run-select").val()];
+    var isSpatial = modelRun.config.run_control.is_spatial;
+
+    var spatialContent = "<p>Spatial inputs and outputs from the model run can be downloaded as a .zip here:</p>\n" +
+        "<div class=\"download-report-container\">" +
+        "<input value=\"Spatial Data\" type=\"button\" class=\"download-report my-button\" id=\"spatial-data\">\n" +
+        "</div>"
 
     var reportInputs = "<div class=\"alertify-step\">" +
         "<p>PDF overview of the model run:</p>" +
         "<div class=\"download-report-container\">" +
         "<input value=\"Overview\" type=\"button\" class=\"my-button download-report\" id=\"overview\">\n" +
         "</div>" +
-        "<p>Spatial inputs and outputs from the model run can be downloaded as a .zip here:</p>\n" +
-        "<div class=\"download-report-container\">" +
-        "<input value=\"Spatial Data\" type=\"button\" class=\"download-report my-button\" id=\"spatial-data\">\n" +
-        "</div>" +
+        (isSpatial ? spatialContent: '') +
         "<p>The following CSV downloads contain per-timestep (by iteration) breakdown of the model run. Results include state class transition amounts, transition amounts by transition type, and a transition breakdown by state class.</p>\n" +
         "<div class=\"download-report-container\">" +
         "<input value=\"State Classes\" type=\"button\" class=\"my-button download-report\" id=\"stateclass-summary\">\n" +
