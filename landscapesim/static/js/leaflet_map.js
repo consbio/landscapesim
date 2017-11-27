@@ -180,7 +180,7 @@ reportingUnitControl.update = function (props) {
 };
 
 var selectedFeatureStyle = {
-    weight: 5,
+    weight: 3,
     dashArray: '',
     fillColor:'#5BDAFF',
     fillOpacity: 0.8

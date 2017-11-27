@@ -179,6 +179,8 @@ $(document).ready(function() {
 
         var getReport = function (reportID) {
             $("#output").show();
+            var resultsHeader = $("#model_results_header");
+            if (!resultsHeader.hasClass('full_border_radius')) resultsHeader.click();
             $("#model_results_load_spinner").show();
             var reports_url = window.location.href + "api/scenarios/" + reportID + "/reports/";
             var results_scenario_configuration_url = window.location.href + "api/scenarios/" + reportID + "/config/";
@@ -198,8 +200,7 @@ $(document).ready(function() {
                         $('#progressbar-container').hide();
                         progressbar.css('width', '0%');
                         progressbarlabel.text("Waiting for worker...")
-                        var resultsHeader = $("#model_results_header");
-                        if (!resultsHeader.hasClass('full_border_radius')) resultsHeader.click();
+
                     });
                 });
             });
@@ -214,9 +215,11 @@ $(document).ready(function() {
         };
 
         // Are we debugging reports?
-        if (debugReportID != null) {
-            getReport(debugReportID);
-            return true;
+        if (debugReportID != null && debugReportingUnitID != null ) {
+            if (debugReportingUnitID == Number(selectedReportingUnit.feature.properties.id)) {
+                getReport(debugReportID);
+                return true;
+            }
         }
 
         $.post(runModelURL, {'inputs': JSON.stringify(inputs)})

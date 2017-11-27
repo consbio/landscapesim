@@ -75,6 +75,8 @@
     <script>
         var debugReportID = {{ debug_id|safe }};
         if (debugReportID != null) debugReportID = String(debugReportID);
+        var debugReportingUnitID = {{ debug_ru_id|safe }};
+        if (debugReportingUnitID) debugReportingUnitID = Number(debugReportingUnitID);
     </script>
     <div id="header"><img id="site_icon" src="{% static 'img/site_icon.png' %}">
         <ul style="float: left;">
@@ -245,7 +247,7 @@
                     <div id="results_container" class="collapsible_div">
                         <div style="padding-bottom: 10px"></div>
                         <div id="model_results_load_spinner" class="loading-spinner">
-                            Loading Initial Conditions... <img src='/static/img/spinner.gif'>
+                            Loading Model Results... <img src='/static/img/spinner.gif'>
                         </div>
                         <div id="results_viewer">
                             <div id="tabular_output">

@@ -7,6 +7,7 @@ from django.views.static import serve
 
 
 DEBUG_ID = getattr(settings, 'DEBUG_ID', 'null')
+DEBUG_REPORTING_UNIT = getattr(settings, 'DEBUG_REPORTING_UNIT', 'null')
 
 
 class IndexView(TemplateView):
@@ -15,6 +16,7 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['debug_id'] = DEBUG_ID
+        data['debug_ru_id'] = DEBUG_REPORTING_UNIT
         return data
 
 
