@@ -285,6 +285,8 @@ $(document).ready(function() {
 
     $("#start_button").on("click", function() {
 
+        $('#veg_slider_load_spinner').show();
+
         if ($(this).hasClass('disabled')) {
             alert("Select a reporting unit, then load the library.")
             return;
@@ -338,6 +340,7 @@ $(document).ready(function() {
 
                     // Set spatial if library can be run spatially, otherwise false
                     setSpatialOutputOptions(info.spatial);
+                    $('#spatial_switch')[0].checked = info.spatial;
 
                     // Store the original transition values to reference when adjusting probabilistic transition sliders.
                     $.each(currentScenario.config.transitions, function(index, object){
@@ -582,7 +585,7 @@ $(document).ready(function() {
             return;
         }
 
-        setSpatialOutputOptions($(this)[0].checked)
+        setSpatialOutputOptions($(this)[0].checked);
         if ($(this)[0].checked){
 
             $(".veg_slider_bars").slider("disable");
@@ -778,7 +781,6 @@ function createVegInitialConditionsDict() {
        return vegInitialConditions
 
    } else {
-
        setTimeout(createVegInitialConditionsDict,250);
    }
 }
@@ -846,6 +848,8 @@ function setInitialConditionsSidebar(vegInitialConditions) {
         // Get the Veg ID for this veg type from the Web API current project definitions
         var veg_match = $.grep(currentProject.definitions.strata, function(e){ return e.name == veg_type; });
         var veg_id = veg_match[0].id;
+        var veg_description = veg_match[0].description;
+        var veg_description = veg_description ? " (" + veg_description + ")" : "";
 
         // Count the number of state classes in this veg type.
         var state_class_count = Object.keys(state_class_object).length;
@@ -857,7 +861,7 @@ function setInitialConditionsSidebar(vegInitialConditions) {
             "<table class='initial_veg_cover_input_table'>" +
             "<tr><td colspan='4'>" +
             "<div class='scene_legend_color_initial_vegetation_cover' style='background-color:" + colorMap["Vegetation Types"][veg_type] +  "'></div>"+
-            "<label for='amount_veg1'><div class='imageOverlayLink'>" + veg_type + " </div></label>" +
+            "<label for='amount_veg1'><div class='imageOverlayLink'>" + veg_type + veg_description + " </div></label>" +
             "</td></tr>" +
             "<tr><td>" +
             "<div class='slider_bars veg_slider_bars' id='veg" + veg_id + "_slider'></div>" +
@@ -893,6 +897,8 @@ function setInitialConditionsSidebar(vegInitialConditions) {
 
         $("#vegTypeSliderTable").append("</td></td>")
 
+        // Tables now created, hide the spinner.
+        $("#veg_slider_load_spinner").hide();
     });
 
     function create_slider(veg_id, veg_type, state_class_count) {

@@ -439,6 +439,15 @@ input[type="number"].focus {
 	letter-spacing: 1px;
 }
 
+#veg_slider_load_spinner {
+	margin: auto;
+	width: fit-content;
+	width: -moz-fit-content;
+	font-weight: bold;
+	line-height: 24px;
+	letter-spacing: 1px;
+}
+
 .results_charts {
 	position: relative;
 	overflow-y: scroll;
