@@ -173,7 +173,7 @@ def get_initial_conditions(scenario, reporting_unit):
                     relative_amount = 0.0
                 else:
                     sclass_idx = list(sclass_keys_found).index(i)
-                    relative_amount = sclass_counts[sclass_idx] / count
+                    relative_amount = sclass_counts[sclass_idx] / count * 100.0     # Percent of the state class over the total number of cells
                 stateclass = StateClass.objects.filter(name=stateclass, project=scenario.project).first()
 
                 yield {
