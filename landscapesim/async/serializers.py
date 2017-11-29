@@ -2,15 +2,12 @@
     Serializers for consuming job submissions for running models and generating reports
 """
 import json
-import os
-from uuid import uuid4
 
 from django.conf import settings
 from rest_framework import serializers
 
 from landscapesim.async.tasks import run_model
-from landscapesim.common.geojson import rasterize_geojson
-from landscapesim.models import Library, Project, Scenario, RunScenarioModel, TransitionGroup
+from landscapesim.models import Library, Project, Scenario, RunScenarioModel
 from landscapesim.serializers import imports
 
 STSIM_MULTIPLIER_DIR = getattr(settings, 'STSIM_MULTIPLIER_DIR')
@@ -44,7 +41,17 @@ class AsyncJobSerializerMixin(object):
         return {}
 
 
-class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
+class RunModelReadOnlySerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
+
+    model_status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = RunScenarioModel
+        fields = ('uuid', 'created', 'status', 'model_status', 'progress', 'outputs', 'parent_scenario', 'result_scenario')
+        read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
+
+
+class RunModelCreateSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
     """ Initial model run validation """
 
     model_status = serializers.CharField(read_only=True)
@@ -55,7 +62,7 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
     def validate_inputs(self, value):
-        value = super(RunModelSerializer, self).validate_inputs(value)
+        value = super(RunModelCreateSerializer, self).validate_inputs(value)
         if value:
             try:
                 config = value['config']
