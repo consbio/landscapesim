@@ -18,29 +18,6 @@ STSIM_MULTIPLIER_DIR = getattr(settings, 'STSIM_MULTIPLIER_DIR')
 # Need to know the library_name, and the inner project and scenario ids for any job
 BASIC_JOB_INPUTS = ['library_name', 'pid', 'sid']
 
-# Configuration flags for initialization
-CONFIG_INPUTS = (
-    ('run_control', imports.RunControlImport),
-    ('output_options', imports.OutputOptionImport),
-    ('initial_conditions_nonspatial_settings', imports.InitialConditionsNonSpatialImport),
-    #('initial_conditions_spatial_settings', imports.InitialConditionsSpatialImport)
-)
-
-# Configuration of input data (probabilities, mappings, etc.)
-VALUE_INPUTS = (
-    ('deterministic_transitions', imports.DeterministicTransitionImport),
-    ('transitions', imports.TransitionImport),
-    ('initial_conditions_nonspatial_distributions', imports.InitialConditionsNonSpatialDistributionImport),
-    #('transition_targets', imports.TransitionTargetImport),
-    #('transition_multiplier_values', imports.TransitionMultiplierValueImport),
-    #('transition_size_distributions', imports.TransitionSizeDistributionImport),
-    #('transition_size_prioritizations', imports.TransitionSizePrioritizationImport),
-    ('transition_spatial_multipliers', imports.TransitionSpatialMultiplierImport),
-    #('state_attribute_values', imports.StateAttributeValueImport),
-    ('transition_attribute_values', imports.TransitionAttributeValueImport),
-    #('transition_attribute_targets', imports.TransitionAttributeTargetImport)
-)
-
 
 class AsyncJobSerializerMixin(object):
     """
@@ -68,9 +45,7 @@ class AsyncJobSerializerMixin(object):
 
 
 class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
-    """
-        Main model run validation and transformation of data into importable info into SyncroSim.
-    """
+    """ Initial model run validation """
 
     model_status = serializers.CharField(read_only=True)
 
@@ -79,76 +54,26 @@ class RunModelSerializer(AsyncJobSerializerMixin, serializers.ModelSerializer):
         fields = ('uuid', 'created', 'status', 'model_status', 'progress', 'inputs', 'outputs', 'parent_scenario', 'result_scenario')
         read_only_fields = ('uuid', 'created', 'status', 'outputs', 'parent_scenario', 'result_scenario')
 
-    @staticmethod
-    def _filter_and_create_ics(config, library_name, pid, sid):
-        return config   # Todo - create spatially-explicit initial conditions from special arguments (e.g. Landfire)
-
-    @staticmethod
-    def _filter_and_create_tsms(config, library_name, pid, sid):
-        """ Takes a configuration, filters out geojson-specific data, and returns a valid configuration for import. """
-
-        lib = Library.objects.get(name__exact=library_name)
-        proj = Project.objects.get(library=lib, pid=pid)
-        scenario = Scenario.objects.get(project=proj, sid=int(sid))
-        if scenario.run_control.is_spatial:
-
-            # unique identifier for these spatial multipliers
-            uuid = str(uuid4())
-
-            # For each transition spatial multipler, create spatial multiplier files where needed
-            for tsm in config['transition_spatial_multipliers']:
-                tg = TransitionGroup.objects.get(id=tsm['transition_group']).name
-                it = int(tsm['iteration']) if tsm['iteration'] is not None else 'all'
-                ts = int(tsm['timestep']) if tsm['timestep'] is not None else 'all'
-                tsm_file_name = "{uuid}_{tg}_{it}_{ts}.tif".format(uuid=uuid, tg=tg, it=it, ts=ts)
-                tsm['transition_multiplier_file_name'] = tsm_file_name
-                try:
-                    geojson = tsm.pop('geojson')    # always remove the geojson entry
-                    try:
-                        template_path = os.path.join(
-                            scenario.input_directory, scenario.initial_conditions_spatial_settings.stratum_file_name
-                        )
-                        out_path = os.path.join(STSIM_MULTIPLIER_DIR, tsm_file_name)
-                        rasterize_geojson(geojson, template_path=template_path, out_path=out_path, save_geojson=True)
-                    except:
-                        raise IOError("Error rasterizing geojson.")
-                except KeyError:
-                    print('{tg} multiplier did not have geojson attached, skipping...'.format(tg=tg))
-        else:
-            # We don't want to import any spatial multipliers, so filter out of configuration
-            config['transition_spatial_multipliers'] = []
-        return config
-
     def validate_inputs(self, value):
         value = super(RunModelSerializer, self).validate_inputs(value)
         if value:
             try:
                 config = value['config']
 
-                # At this stage we know these are valid and deserialized
-                library_name = value['library_name']
-                pid = value['pid']
-                sid = value['sid']
-
-                if all(x[0] in config.keys() for x in CONFIG_INPUTS + VALUE_INPUTS):
-
-                    # Handle special filtering and file creation prior to model runs
-                    config = self._filter_and_create_ics(config, library_name, pid, sid)
-                    config = self._filter_and_create_tsms(config, library_name, pid, sid)
-
-                    # Now validate pre-filtered deserialization
-                    for pair in CONFIG_INPUTS + VALUE_INPUTS:
-                        key = pair[0]
-                        deserializer = pair[1]
-                        config[key] = deserializer(config[key]).validated_data
-                    value['config'] = config
-                    return value
-                else:
+                # Ensure that all configuration keys are supplied. Validation of this imports is handled asynchronously
+                # within the Celery.run_model task.
+                if not all(x[0] in config.keys() for x in imports.CONFIG_INPUTS + imports.VALUE_INPUTS):
                     raise serializers.ValidationError(
-                        'Missing one of {}. Got {}'.format(CONFIG_INPUTS, list(config.keys()))
+                        'Missing configurations within {}. Got the following configuration keys: {}'.format(
+                            imports.CONFIG_INPUTS, list(config.keys())
+                        )
                     )
+
+                # Return the value unchanged
+                return value
+
             except ValueError:
-                raise serializers.ValidationError('Invalid configuration')
+                raise serializers.ValidationError('Malformed configuration')
         return {}
 
     def create(self, validated_data):

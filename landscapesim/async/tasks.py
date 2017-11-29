@@ -4,17 +4,20 @@ import os
 import re
 from shutil import copyfile
 from time import sleep, time
+from uuid import uuid4
 
 from celery.task import task
 from django.conf import settings
 
-from landscapesim.importers import ScenarioImporter, ReportImporter
 from landscapesim.common.config import CONFIG_IMPORTS, VALUE_IMPORTS
 from landscapesim.common.consoles import STSimConsole
+from landscapesim.common.geojson import rasterize_geojson
 from landscapesim.common.query import ssim_query
 from landscapesim.common.services import ServiceGenerator
 from landscapesim.common.utils import get_random_csv
-from landscapesim.models import Library, Scenario, RunScenarioModel
+from landscapesim.importers import ScenarioImporter, ReportImporter
+from landscapesim.models import Library, Scenario, TransitionGroup, RunScenarioModel
+from landscapesim.serializers import imports
 
 EXE = getattr(settings, 'STSIM_EXE_PATH')
 SCENARIO_SCAN_RATE = 2
@@ -42,6 +45,54 @@ class ModelBootstrapper:
     @property
     def temp_file(self):
         return get_random_csv(self.library.tmp_file)
+
+    def filter_and_create_initial_conditions_spatial(self):
+        pass  # Todo - create spatially-explicit initial conditions from special arguments (e.g. Landfire)
+
+    def filter_and_create_transition_spatial_multipliers(self):
+        """ Takes a configuration, filters out geojson-specific data, and returns a valid configuration for import. """
+
+        scenario = self.library.projects.filter(scenarios__sid=self.scenario_id).first().scenarios.get(
+            sid=self.scenario_id
+        )
+        if scenario.run_control.is_spatial:
+
+            # unique identifier for these spatial multipliers
+            uuid = str(uuid4())
+
+            # For each transition spatial multipler, create spatial multiplier files where needed
+            for tsm in self.config['transition_spatial_multipliers']:
+                tg = TransitionGroup.objects.get(id=tsm['transition_group']).name
+                it = int(tsm['iteration']) if tsm['iteration'] is not None else 'all'
+                ts = int(tsm['timestep']) if tsm['timestep'] is not None else 'all'
+                tsm_file_name = "{uuid}_{tg}_{it}_{ts}.tif".format(uuid=uuid, tg=tg, it=it, ts=ts)
+                tsm['transition_multiplier_file_name'] = tsm_file_name
+                try:
+                    geojson = tsm.pop('geojson')  # always remove the geojson entry
+                    try:
+                        template_path = os.path.join(
+                            scenario.input_directory, scenario.initial_conditions_spatial_settings.stratum_file_name
+                        )
+                        out_path = os.path.join(STSIM_MULTIPLIER_DIR, tsm_file_name)
+                        rasterize_geojson(geojson, template_path=template_path, out_path=out_path, save_geojson=True)
+                    except:
+                        raise IOError("Error rasterizing geojson.")
+                except KeyError:
+                    print('{tg} multiplier did not have geojson attached, skipping...'.format(tg=tg))
+        else:
+            # We don't want to import any spatial multipliers, so filter out of configuration
+            self.config['transition_spatial_multipliers'] = []
+
+    def validate_configuration(self):
+        """ Main model run validation and transformation of data into importable info into SyncroSim. """
+
+        # Handle special filtering and file creation prior to model runs
+        self.filter_and_create_initial_conditions_spatial()
+        self.filter_and_create_transition_spatial_multipliers()
+
+        # Now validate and deserialize into SyncroSim formats.
+        for key, deserializer in imports.CONFIG_INPUTS + imports.VALUE_INPUTS:
+            self.config[key] = deserializer(self.config[key]).validated_data
 
     def setup_transition_spatial_multipliers(self):
         """
@@ -97,13 +148,22 @@ class ModelBootstrapper:
                 self.library
             )
 
-    def run(self):
+    def run_setup(self):
         """ Perform the LandscapeSim -> SyncroSim import. """
+        print('Validating scenario configuration...')
+        self.validate_configuration()
+        print('Creating transition spatial_multipliers...')
         self.setup_transition_spatial_multipliers()
+        print('Importing scenario configuration...')
         self.import_configuration()
+        print('Finalizing import...')
         self.execute_ssim_queries()
         self.job.model_status = 'running'
         self.job.save()
+
+    def run_model(self):
+        print('Running scenario {}...'.format(self.scenario_id))
+        return int(self.console.run_model(self.scenario_id))
 
 
 @task
@@ -112,7 +172,7 @@ def look_for_new_scenario(run_id):
     run = RunScenarioModel.objects.get(id=run_id)
 
     # If run is not spatial, return immediately
-    is_spatial = json.loads(run.inputs)['config']['run_control']['IsSpatial']
+    is_spatial = json.loads(run.inputs)['config']['run_control']['is_spatial']
     if not is_spatial:
         return
 
@@ -152,16 +212,15 @@ def run_model(self, library_name, sid):
     job.model_status = 'starting'
     job.save()
 
-    # Configure ST-Sim
+    # Configure ST-Sim configuration
     config = json.loads(job.inputs)['config']
     boot = ModelBootstrapper(sid, lib, config, console, job)
-    boot.run()
+    boot.run_setup()
 
     # Execute model run
     try:
-        print('Running scenario {}...'.format(sid))
         look_for_new_scenario.delay(job.id)
-        result_sid = int(console.run_model(sid))
+        result_sid = boot.run_model()
     except:
         raise IOError("Error running model")
 
