@@ -112,6 +112,9 @@ function createAreaCharts(data, run, iteration) {
     $("#area_charts").empty();
     if (typeof iteration == "undefined") iteration = 1;
 
+    var config = modelRunCache[run].config;
+    var ratio = config.run_control.is_spatial ? 1.0 : getNonspatialRatio();
+
     //Restructure Dictionary
     var chartDict = {};
     $.each(data[iteration], function (timestep, results) {
@@ -125,7 +128,7 @@ function createAreaCharts(data, run, iteration) {
                 }
                 if (stateclass in results[vegtype]) {
                     value = results[vegtype][stateclass];
-                    chartDict[vegtype][stateclass].push((parseFloat(value) * 100))
+                    chartDict[vegtype][stateclass].push((parseFloat(value) * 100 * ratio))
                 }
                 else {
                     chartDict[vegtype][stateclass].push(0);

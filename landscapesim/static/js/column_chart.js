@@ -57,6 +57,7 @@ function createColumnCharts(data, run) {
     var cached_config = modelRunCache[run].config;
     var iterations = cached_config.run_control.max_iteration;
     var timesteps = cached_config.run_control.max_timestep;
+    var ratio = cached_config.run_control.is_spatial ? 1.0 : getNonspatialRatio();
 
     //Restructure Dictionary
     //Creates a dictionary of all the final timestep values by vegtype/state class.
@@ -66,7 +67,7 @@ function createColumnCharts(data, run) {
             if (typeof columnChartDictionary[vegtype] == "undefined") columnChartDictionary[vegtype] = {}
             $.each(stateclassDictionary, function (stateclass, value) {
                 if (typeof columnChartDictionary[vegtype][stateclass] == "undefined") columnChartDictionary[vegtype][stateclass] = []
-                columnChartDictionary[vegtype][stateclass].push(parseFloat(value) * 100)
+                columnChartDictionary[vegtype][stateclass].push(parseFloat(value) * 100 * ratio)
             })
         })
     }
@@ -90,6 +91,7 @@ function createColumnCharts(data, run) {
         })
     });
 
+    console.log(columnChartDictionaryFinal);
     // Go through each veg type in the min/median/max dictionary and make a chart out of the state class values
     var chartCount = 1;
     $.each(columnChartDictionaryFinal, function (vegtype, stateclasses) {

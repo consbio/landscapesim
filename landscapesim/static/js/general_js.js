@@ -13,6 +13,7 @@ var boundingBoxLayer = null;
 var librarySelected = false;
 var availableRegions = [];
 var selectedReportingUnit = null;
+var initialConditionsTotalRatio = 1.0;
 
 /* Utility for deep copies on non-prototyped objects. */
 var copy = function(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -94,7 +95,7 @@ $(document).ready(function() {
                     var timestepGroup = groupActions.filter(function(x) {
                         var idx = ts - 1;
                         if (idx >= x.timesteps.length) return false;
-                        return  x.timesteps[idx] == 1
+                        return x.timesteps[idx] == 1;
                     })
 
                     if (timestepGroup.length > 0) {
@@ -152,16 +153,22 @@ $(document).ready(function() {
                 progressbarlabel.text("Waiting For Available Model Worker ...");
             }
             else if (modelStatus == 'starting') {
-                progressbarlabel.text("Starting Model Run...");
+                progressbarlabel.text("Configuring Model Run...");
             }
             else if (jobStatus == 'started' && modelStatus == 'running') {
-                if (progress !== undefined && progress !== null) {
-                    var intProgress = parseInt(progress * 100);
-                    progressbar.css('width', intProgress + '%');
-                    progressbarlabel.text(intProgress + "% Complete")
+
+                if (settings['spatial']) {
+                    if (progress !== undefined && progress !== null) {
+                        var intProgress = parseInt(progress * 100);
+                        progressbar.css('width', intProgress + '%');
+                        progressbarlabel.text(intProgress + "% Complete")
+                    }
+                    else {
+                        progressbarlabel.text(0 + "% Complete")
+                    }
                 }
                 else {
-                    progressbarlabel.text(0 + "% Complete")
+                    progressbarlabel.text("Running Model...")
                 }
 
                 if (modelStatus == 'processing' || modelStatus == 'complete') {
@@ -216,9 +223,12 @@ $(document).ready(function() {
 
         // Are we debugging reports?
         if (debugReportID != null && debugReportingUnitID != null ) {
-            if (debugReportingUnitID == Number(selectedReportingUnit.feature.properties.id)) {
-                getReport(debugReportID);
-                return true;
+            var info = getCurrentInfo();
+            if (!info.spatial) {
+                if (debugReportingUnitID == Number(selectedReportingUnit.feature.properties.id)) {
+                    getReport(debugReportID);
+                    return true;
+                }
             }
         }
 
@@ -823,6 +833,14 @@ var total_input_percent;
 var probabilistic_transitions_json;
 var probabilistic_transitions_slider_values;
 var veg_slider_values_state_class;
+
+// Normalizing factor for nonspatial runs
+var getNonspatialRatio = function() {
+    var total = currentScenario.config.initial_conditions_nonspatial_distributions
+        .map(function(x) {return x.relative_amount;})
+        .reduce(function(a, b) { return a + b; });
+    return total / 100.0;
+};
 
 function setInitialConditionsSidebar(vegInitialConditions) {
 
