@@ -389,8 +389,12 @@ $(document).ready(function() {
 
             });
 
-            //map.fitBounds(boundingBoxLayer.getBounds(),{"paddingTopLeft":[0,1]});
             if (info.require_reporting_unit) {
+
+                // Clear the boundingBoxLayer
+                if (boundingBoxLayer) {
+                    map.removeLayer(boundingBoxLayer);
+                }
 
                 var selectedFeature = copy(selectedReportingUnit.feature);
                 clearRegionLayer();

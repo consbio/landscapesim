@@ -25,7 +25,22 @@ var options = {
     position:"topleft",
     exclusiveGroups: ["Model Results"]
 };
+
+// Fix for broken removeLayer function in leaflet.groupedlayercontrol
+// See https://github.com/AcrossTheCloud/leaflet-groupedlayercontrol/blob/8d0f83a9641b1dbaa011e3888fae5bce9b4ea864/src/leaflet.groupedlayercontrol.js
+L.Control.GroupedLayers.prototype.removeLayer = function(layer) {
+    var id = L.Util.stamp(layer);
+    var _layer = this._getLayer(id);
+    if (_layer) {
+        this._layers.splice(this._layers.indexOf(_layer), 1);
+    }
+    this._update();
+    return this
+};
+
+// Now create the layer control after the fix is in place
 var layerControl = L.control.groupedLayers("", groupedOverlays, options).addTo(map);
+
 
 // Zoom control
 L.control.zoom({
@@ -36,10 +51,25 @@ L.control.zoom({
 var layerControlHidden = true;
 layerControl.getContainer().style.display = 'none';
 
-var inputStateClassLayer;
-var inputStratumLayer;
+var inputStateClassLayer = null;
+var inputStratumLayer = null;
+
+function clearInputLayers() {
+
+    if (inputStateClassLayer != null) {
+        layerControl.removeLayer(inputStateClassLayer);
+        map.removeLayer(inputStateClassLayer);
+
+    }
+    if (inputStratumLayer != null) {
+        layerControl.removeLayer(inputStratumLayer);
+        map.removeLayer(inputStratumLayer);
+    }
+}
+
 function loadInputLayers(inputServices) {
     if (inputServices === null) return;
+    clearInputLayers();
     inputStateClassLayer = L.tileLayer(inputServices.stateclass);
     inputStratumLayer = L.tileLayer(inputServices.stratum);
     layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
@@ -48,14 +78,20 @@ function loadInputLayers(inputServices) {
 }
 
 function loadInputLayersFromConfig(info) {
-    inputStateClassLayer = L.tileLayer.wms(info.stateclass_service.url, {
-        layers: info.stateclass_service.layers
-    })
-    inputStratumLayer = L.tileLayer.wms(info.stratum_service.url, {
-        layers: info.stratum_service.layers
-    })
-    layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
-    layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Initial Conditions");
+    clearInputLayers();
+    if (info.stateclass_service) {
+        inputStateClassLayer = L.tileLayer.wms(info.stateclass_service.url, {
+            layers: info.stateclass_service.layers
+        })
+        layerControl.addOverlay(inputStateClassLayer, "State Classes", "Initial Conditions");
+    }
+    if (info.stratum_service) {
+        inputStratumLayer = L.tileLayer.wms(info.stratum_service.url, {
+            layers: info.stratum_service.layers
+        })
+        layerControl.addOverlay(inputStratumLayer, "Vegetation Types", "Initial Conditions");
+    }
+
     inputStratumLayer.addTo(map)
 }
 
