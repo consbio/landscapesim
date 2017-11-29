@@ -36,24 +36,31 @@ $(document).ready(function() {
     // TODO - check window location to see if we are going to load with a configuration or not
     document.getElementById('instructions').click();
 
-    // Top-level endpoint, get list of available libraries
-    $.getJSON('/api/libraries/').done(function (res) {
+    // Top-level endpoint, get list of available regions and libraries
+    $.getJSON('/api/regions/', {'return_data': true}).done(function(regions) {
+        availableRegions = regions.results;
 
-        availableLibraries = res.results;
+        $.getJSON('/api/libraries/').done(function (libs) {
 
-        // Add each library to the library selection dropdown.
-        $.each(availableLibraries, function(index, library){
-            $(".model_selection").append("<option value ='" + library.name + "'>" + library.name)
+            availableLibraries = libs.results;
+
+            // Add each library to the library selection dropdown.
+            $.each(availableLibraries, function (index, library) {
+                $(".model_selection").append("<option value ='" + library.name + "'>" + library.name)
+            });
+
+            $("select").prop("selectedIndex", 0);
+            $("#library-loading-spinner").hide();
+            $("#library_info").show();
+            //$("#spatial_switch")[0].checked = getCurrentInfo().spatial;
+
         });
-
-        $("select").prop("selectedIndex",0);
-        $("#spatial_switch")[0].checked = true
 
     });
 
-    $.getJSON('/api/regions/', {'return_data': true}).done(function(res) {
-        availableRegions = res.results;
-    })
+
+
+
 
     /************************************************* Run Model  ****************************************************/
     // Send the scenario and initial conditions to ST-Sim.
@@ -781,23 +788,29 @@ function createVegInitialConditionsDict() {
        var vegInitialConditions = {};
        vegInitialConditions["veg_sc_pct"] = {};
 
-       $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
-           var strataObj = $.grep(currentProject.definitions.strata, function (e) {
-               return e.id == object.stratum;
-           });
-           var strataName = strataObj[0].name;
-           if (!(strataName in vegInitialConditions["veg_sc_pct"])) {
-               vegInitialConditions["veg_sc_pct"][strataName] = {};
-           }
+       if (!currentScenario.config.initial_conditions_nonspatial_distributions.length) {
+           alert("This area does not currently have any initial conditions calculated. Please select a different area.")
+           $("#veg_slider_load_spinner").hide();
+       }
+       else {
+           $.each(currentScenario.config.initial_conditions_nonspatial_distributions, function (index, object) {
+               var strataObj = $.grep(currentProject.definitions.strata, function (e) {
+                   return e.id == object.stratum;
+               });
+               var strataName = strataObj[0].name;
+               if (!(strataName in vegInitialConditions["veg_sc_pct"])) {
+                   vegInitialConditions["veg_sc_pct"][strataName] = {};
+               }
 
-           var state_class_object = $.grep(currentProject.definitions.stateclasses, function (e) {
-               return e.id == object.stateclass;
+               var state_class_object = $.grep(currentProject.definitions.stateclasses, function (e) {
+                   return e.id == object.stateclass;
+               });
+               var state_class_name = state_class_object[0].name;
+               if (object.relative_amount != 0) {
+                   vegInitialConditions["veg_sc_pct"][strataName][state_class_name] = object.relative_amount
+               }
            });
-           var state_class_name = state_class_object[0].name;
-           if (object.relative_amount != 0) {
-               vegInitialConditions["veg_sc_pct"][strataName][state_class_name] = object.relative_amount
-           }
-       });
+       }
 
        return vegInitialConditions
 

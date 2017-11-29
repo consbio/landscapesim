@@ -98,7 +98,10 @@
                     <span class="context_button" id="library"> <img class="context_img" src="/static/img/help.png"></span>
                     <img class="collapse_icon" src="{% static 'img/collapse_down_arrow.png' %}"></div>
                 <div class="collapsible_div" visibility="visible">
-                    <div id="library_info">
+                    <div class="loading-spinner" id="library-loading-spinner">
+                        Loading Libraries... <img src='/static/img/spinner.gif'>
+                    </div>
+                    <div id="library_info" style="display: none">
                         <table id="library_info_table">
                             <tr><td class="library_info_hidden">Library:</td>
                                 <td id=model_selection_td class="initial_td_styling">
