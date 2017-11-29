@@ -40,7 +40,9 @@ var store = {
         },
         stratum_service: null,
         stateclass_service: null,
-        timesteps: 'Years'
+        timesteps: 'Years',
+        max_timestep: 100,
+        max_spatial_iteration: 5
     },
     "LANDFIRE": {
         name: "LANDFIRE",
@@ -64,7 +66,9 @@ var store = {
             layers: "US_130SCLASS",
             wms: true
         },
-        timesteps: 'Years'
+        timesteps: 'Years',
+        max_timestep: null,
+        max_spatial_iteration: null
     }
 };
 

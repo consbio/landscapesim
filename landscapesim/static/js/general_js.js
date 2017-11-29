@@ -270,6 +270,12 @@ $(document).ready(function() {
         showLibraryInfo();
         $(".library_info_hidden").show();
         $("#start_button").show();
+
+        // If a scenario exists, make sure that timestep info is applicable.
+        if (currentScenario != null && currentScenario.config != null) {
+            validateIteration();
+            validateTimestep();
+        }
     });
 
     // Also called on page load.
@@ -391,6 +397,7 @@ $(document).ready(function() {
                     $(".veg_state_class_entry").prop("disabled", true);
 
                     $("#settings_timesteps").val(currentScenario.config.run_control.max_timestep);
+                    $("#settings_iterations").val(currentScenario.config.run_control.max_iteration);
                     $("#timesteps_div").text(["Timesteps (", getCurrentInfo().timesteps, "):"].join(''));
                 })
 
@@ -629,6 +636,11 @@ $(document).ready(function() {
             $(".veg_state_class_entry").prop("disabled", false);
         }
 
+
+        // Validate the timestep/iteration values
+        validateIteration();
+        validateTimestep()
+
     });
 
     function setSpatialOutputOptions(setting) {
@@ -758,17 +770,39 @@ $(document).ready(function() {
         });
     });
 
-    /********************************************** Timestep Changes **************************************************/
+    var spatialEnabled = function() {
+        return $('#spatial_switch')[0].checked;
+    };
 
-    $("#settings_timesteps").on("change", function(){
-        currentScenario.config.run_control.max_timestep = parseInt($(this).val())
-    });
+    var validateTimestep = function() {
+        var value = parseInt($('#settings_timesteps').val());
+        var info = getCurrentInfo();
+        if (spatialEnabled() && info.spatial && info.max_timestep) {
+            if (value > info.max_timestep) {
+                value = info.max_timestep;
+                $('#settings_timesteps').val(value)
+            }
+        }
+        currentScenario.config.run_control.max_timestep = value;
+    };
+
+    var validateIteration = function() {
+        var value = parseInt($('#settings_iterations').val());
+        var info = getCurrentInfo();
+        if (spatialEnabled() && info.spatial && info.max_spatial_iteration) {
+            if (value > info.max_spatial_iteration) {
+                value = info.max_spatial_iteration;
+                $('#settings_iterations').val(value)
+            }
+        }
+        currentScenario.config.run_control.max_iteration =  value;
+    }
+
+    /********************************************** Timestep Changes **************************************************/
+    $("#settings_timesteps").on("change", function(){ validateTimestep(); });
 
     /********************************************* Iteration Changes **************************************************/
-
-    $("#settings_iterations").on("change", function(){
-        currentScenario.config.run_control.max_iteration = parseInt($(this).val());
-    });
+    $("#settings_iterations").on("change", function(){ validateIteration() });
 
 });
 
