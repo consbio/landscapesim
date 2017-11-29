@@ -91,7 +91,6 @@ function createColumnCharts(data, run) {
         })
     });
 
-    console.log(columnChartDictionaryFinal);
     // Go through each veg type in the min/median/max dictionary and make a chart out of the state class values
     var chartCount = 1;
     $.each(columnChartDictionaryFinal, function (vegtype, stateclasses) {
