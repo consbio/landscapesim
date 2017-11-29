@@ -486,11 +486,11 @@ class RunScenarioModel(AsyncJobModel):
             run_control = config['run_control']
 
             # Non-spatial runs have no progress
-            if run_control.get('IsSpatial') != 'Yes':
+            if not run_control.get('is_spatial'):
                 return None
 
-            iterations = run_control['MaximumIteration']
-            timesteps = run_control['MaximumTimestep']
+            iterations = run_control['max_iteration']
+            timesteps = run_control['max_timestep']
             max_num_files = iterations * timesteps + iterations  # t-0 is included in file directory
             outputs = [x for x in os.listdir(self.result_scenario.output_directory) if '.tif' in x]
             progress = len(outputs) / max_num_files

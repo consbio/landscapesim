@@ -8,7 +8,6 @@ var availableScenarios = [];
 var scenarioURL = '';
 var currentScenario = {};
 var runModelURL = '/api/jobs/run-model/';
-var settings;
 var boundingBoxLayer = null;
 var librarySelected = false;
 var availableRegions = [];
@@ -63,13 +62,10 @@ $(document).ready(function() {
 
 
     /************************************************* Run Model  ****************************************************/
-    // Send the scenario and initial conditions to ST-Sim.
-    settings = [];
-    settings["spatial"] = false;
-
     // Progressbar for model run
     var progressbar = $('#progressbar'), progressbarlabel = $('#progresslabel');
 
+    // Send the scenario and initial conditions to ST-Sim.
     $('#run_button').on('click', function() {
 
         // Make sure the timestep and iteration are setup correctly. Otherwise, throw an error.
@@ -141,10 +137,6 @@ $(document).ready(function() {
 
         $("#start_button").attr("disabled", true);
         $("#start_button").addClass('disabled');
-
-        settings["library"] = currentLibrary.name;
-        settings["spatial"] = $("#spatial_button").hasClass('selected')
-
         $(".slider_bars").slider( "option", "disabled", true );
         $('input:submit').attr("disabled", true);
         $("#run_button").addClass('disabled');
@@ -164,7 +156,7 @@ $(document).ready(function() {
             }
             else if (jobStatus == 'started' && modelStatus == 'running') {
 
-                if (settings['spatial']) {
+                if (spatialEnabled()) {
                     if (progress !== undefined && progress !== null) {
                         var intProgress = parseInt(progress * 100);
                         progressbar.css('width', intProgress + '%');
@@ -771,7 +763,7 @@ $(document).ready(function() {
     });
 
     var spatialEnabled = function() {
-        return $('#spatial_switch')[0].checked;
+        return $('#spatial_switch')[0].checked && currentScenario.config.run_control.is_spatial;
     };
 
     var validateTimestep = function() {
