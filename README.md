@@ -25,4 +25,4 @@ Daniel, C., Frid, L., Sleeter, B., & Fortin, M. J. 2016. [State-and-transition s
 forecasting landscape change.](http://dx.doi.org/10.1111/2041-210X.12597) Methods in Ecology and Evolution. doi:10.1111/2041-210X.12597
 
 # Developer Documentation
-TODO
+See the [wiki](https://github.com/consbio/landscapesim/wiki) within this repo!
