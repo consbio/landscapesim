@@ -1,4 +1,6 @@
 # LandscapeSim
+![site_icon](https://github.com/consbio/landscapesim/blob/master/landscapesim/static/img/site_icon.png)
+
 LandscapeSim provides a RESTful web API for running State and Transition Simulation Models (STSMs) and collecting tabular
 and spatially referenced data stored in [SyncroSim](syncrosim.com) data stores. LandscapeSim also provides a configurable interface
 for modifying parameters for existing STSMs, allowing users to experiment and compare different scenario outcomes from customized,
