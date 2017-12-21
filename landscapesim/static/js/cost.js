@@ -102,14 +102,14 @@ function openCostTable() {
         });
 
         var managementActionsKeys = [];
-        $.each(store[currentLibrary.id].management_actions_filter, function(key, value) {
+        $.each(store[currentLibrary.name].management_actions_filter, function(key, value) {
             managementActionsKeys.push(key)
         });
 
         $.each(currentProject.definitions.transition_groups, function(index, transitionGroup) {
             if(jQuery.inArray(transitionGroup.id, transitionGroupEntries) == -1){
                 if(jQuery.inArray(transitionGroup.name, managementActionsKeys) != -1)  {
-                    $(lastCostRow).find('td:nth-child(1) select').append("<option value='" + transitionGroup.id + "'>" + store[currentLibrary.id].management_actions_filter[transitionGroup.name] + "</option>");
+                    $(lastCostRow).find('td:nth-child(1) select').append("<option value='" + transitionGroup.id + "'>" + store[currentLibrary.name].management_actions_filter[transitionGroup.name] + "</option>");
                 }
             }
         });
@@ -136,4 +136,3 @@ $(document).on("click", ".delete_entry_button", function(){
     costRecordsToDelete.push($(this).attr('record_to_delete'));
     $(this).closest("tr").remove()
 });
-
